@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { ArrowLeft, Check, Settings, Plus, X, Trash2 } from 'lucide-react'
 
@@ -22,6 +22,8 @@ type TxType = 'expense' | 'income' | 'transfer'
 
 export default function AddPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const editId = searchParams.get('id')
   const [userId, setUserId] = useState('')
   const [type, setType] = useState<TxType>('expense')
   const [amount, setAmount] = useState('')
@@ -31,6 +33,7 @@ export default function AddPage() {
   const [accountId, setAccountId] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
+  const [recurring, setRecurring] = useState(false)
   
   // Category management states
   const [showCatModal, setShowCatModal] = useState(false)
@@ -62,8 +65,29 @@ export default function AddPage() {
       .from('accounts').select('id, name, icon')
       .eq('user_id', user.id).order('created_at')
     setAccounts(accs || [])
-    if (accs && accs.length > 0) setAccountId(accs[0].id)
-  }, [router])
+
+    // If editing, fetch transaction
+    if (editId) {
+      const { data: tx } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('id', editId)
+        .eq('user_id', user.id)
+        .single()
+      
+      if (tx) {
+        setType(tx.type as TxType)
+        setAmount(tx.amount.toString())
+        setNote(tx.note || '')
+        setDate(tx.date)
+        setCategoryId(tx.category_id || '')
+        setAccountId(tx.account_id)
+        setRecurring(tx.recurring)
+      }
+    } else if (accs && accs.length > 0) {
+      setAccountId(accs[0].id)
+    }
+  }, [router, editId])
 
   useEffect(() => { fetchData() }, [fetchData])
 
@@ -130,18 +154,38 @@ export default function AddPage() {
     setError('')
 
     try {
-      const { error: insertError } = await supabase.from('transactions').insert({
-        user_id: userId,
-        account_id: accountId,
-        category_id: categoryId || null,
-        type,
-        amount: Number(amount),
-        currency,
-        date,
-        note: note.trim() || null,
-      })
+      if (editId) {
+        const { error: updateError } = await supabase
+          .from('transactions')
+          .update({
+            account_id: accountId,
+            category_id: categoryId || null,
+            type,
+            amount: Number(amount),
+            currency,
+            date,
+            note: note.trim() || null,
+            recurring,
+          })
+          .eq('id', editId)
+          .eq('user_id', userId)
 
-      if (insertError) throw insertError
+        if (updateError) throw updateError
+      } else {
+        const { error: insertError } = await supabase.from('transactions').insert({
+          user_id: userId,
+          account_id: accountId,
+          category_id: categoryId || null,
+          type,
+          amount: Number(amount),
+          currency,
+          date,
+          note: note.trim() || null,
+          recurring,
+        })
+
+        if (insertError) throw insertError
+      }
 
       setSuccess(true)
       setTimeout(() => router.push('/dashboard'), 1200)
@@ -442,8 +486,34 @@ export default function AddPage() {
             />
           </div>
 
+          {/* Recurring */}
+          <div className="animate-fade-up delay-5 flex items-center justify-between p-1">
+            <div>
+              <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                Recurring
+              </label>
+              <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>Repeat this transaction monthly</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setRecurring(!recurring)}
+              className="w-12 h-7 rounded-full p-1 flex items-center transition-all bg-overlay"
+              style={{
+                background: recurring ? 'var(--accent-primary)' : 'var(--overlay)',
+                border: '1px solid var(--border)',
+              }}
+            >
+              <div
+                className="w-5 h-5 rounded-full bg-white shadow-sm transition-transform"
+                style={{
+                  transform: recurring ? 'translateX(20px)' : 'translateX(0)',
+                }}
+              />
+            </button>
+          </div>
+
           {/* Note */}
-          <div className="animate-fade-up delay-5">
+          <div className="animate-fade-up delay-6">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
               Note (optional)
             </label>

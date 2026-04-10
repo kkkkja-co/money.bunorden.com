@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { Trash2, X, TrendingUp, TrendingDown, ArrowLeftRight, Plus, Search } from 'lucide-react'
+import { Trash2, X, TrendingUp, TrendingDown, ArrowLeftRight, Plus, Search, Edit2 } from 'lucide-react'
 import { useTranslation, useLanguage } from '@/app/providers'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface Transaction {
   id: string
@@ -166,16 +167,27 @@ export default function TransactionsPage() {
         ) : (
           <div className="space-y-6">
             {Object.entries(grouped).map(([month, txs]) => (
-              <div key={month} className="animate-fade-up">
+              <motion.div 
+                key={month} 
+                layout
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="animate-fade-up"
+              >
                 <h3 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
                   {monthLabel(month)}
                 </h3>
                 <div className="space-y-2">
-                  {txs.map((tx) => (
-                    <div
-                      key={tx.id}
-                      className="glass-card flex items-center gap-3 py-3 px-4 group"
-                    >
+                  <AnimatePresence mode="popLayout">
+                    {txs.map((tx) => (
+                      <motion.div
+                        key={tx.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="glass-card flex items-center gap-3 py-3 px-4 group"
+                      >
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
                         style={{ background: 'var(--overlay)' }}
@@ -198,6 +210,18 @@ export default function TransactionsPage() {
                         {tx.type === 'income' ? '+' : '-'}{formatCurrency(Number(tx.amount), tx.currency)}
                       </span>
                       <button
+                        onClick={() => router.push(`/add?id=${tx.id}`)}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100"
+                        style={{
+                          background: 'rgba(59, 130, 246, 0.1)',
+                          color: 'var(--accent-primary)',
+                          transition: 'all 0.2s',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button
                         onClick={() => setDeleteId(tx.id)}
                         className="w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100"
                         style={{
@@ -209,10 +233,11 @@ export default function TransactionsPage() {
                       >
                         <Trash2 size={14} />
                       </button>
-                    </div>
-                  ))}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}

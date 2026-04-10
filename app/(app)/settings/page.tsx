@@ -453,6 +453,29 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Management */}
+        <div className="mb-6 animate-fade-up delay-2">
+          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
+            {t('settings.manage')}
+          </h2>
+          <div className="space-y-2">
+            <Link href="/settings/accounts">
+              <SettingsItem 
+                icon={ArrowLeftRight} 
+                label={t('settings.accounts')} 
+                sublabel={t('settings.accounts_subtitle')} 
+              />
+            </Link>
+            <Link href="/settings/categories">
+              <SettingsItem 
+                icon={LayoutGrid} 
+                label={t('settings.categories')} 
+                sublabel={t('settings.categories_subtitle')} 
+              />
+            </Link>
+          </div>
+        </div>
+
         {/* Appearance */}
         <div className="mb-6 animate-fade-up delay-3">
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>

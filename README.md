@@ -112,28 +112,29 @@ ledger/
 
 ## Roadmap
 
-### Phase 1 (Current)
+### Phase 1
 - [x] Project structure & scaffolding
 - [x] Authentication (Supabase)
 - [x] Onboarding wizard
 - [x] Basic dashboard
-- [ ] Transaction add/edit/delete
-- [ ] Privacy policy page
+- [x] Transaction add/edit/delete
+- [x] Privacy policy page 
+- [x] Unified branding (Clavi)
 
 ### Phase 2
-- [ ] Reports (charts)
-- [ ] Data export (JSON + CSV)
-- [ ] Account deletion
-- [ ] Dark mode toggle
-- [ ] Offline support (Service Worker)
-- [ ] PWA installation
+- [x] Reports (charts)
+- [x] Data export (JSON + CSV)
+- [x] Account deletion
+- [x] Dark mode toggle
+- [x] Offline support (Service Worker)
+- [x] PWA installation
 
 ### Phase 3
-- [ ] Multi-account mode
-- [ ] Category management (drag-to-reorder)
-- [ ] Recurring transactions
-- [ ] Search & filters
-- [ ] Mobile optimisations (swipe, drag-to-dismiss)
+- [x] Multi-account mode
+- [x] Category management (drag-to-reorder)
+- [x] Recurring transactions
+- [x] Search & filters
+- [x] Mobile optimisations (swipe, drag-to-dismiss)
 
 ### Phase 4+
 - [ ] Budget tracking
