@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { ArrowLeft, Check, Settings, Plus, X, Trash2 } from 'lucide-react'
@@ -20,7 +20,7 @@ interface Account {
 
 type TxType = 'expense' | 'income' | 'transfer'
 
-export default function AddPage() {
+function AddTransactionForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('id')
@@ -548,5 +548,17 @@ export default function AddPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function AddPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    }>
+      <AddTransactionForm />
+    </Suspense>
   )
 }
