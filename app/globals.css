@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -39,7 +39,7 @@
     --radius-md: 12px;
     --radius-sm: 8px;
 
-    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    --font-main: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, system-ui, 'Inter', sans-serif;
 
     --grad-1: rgba(59, 130, 246, 0.08);
     --grad-2: rgba(139, 92, 246, 0.08);
@@ -198,7 +198,8 @@
 /* ===== COMPONENT CLASSES ===== */
 @layer components {
   .glass-card {
-    @apply rounded-[16px] p-5;
+    border-radius: 16px;
+    padding: 1.25rem;
     background: var(--bg-glass);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -212,7 +213,9 @@
   }
 
   .glass-card-interactive {
-    @apply rounded-[16px] p-5 cursor-pointer;
+    border-radius: 16px;
+    padding: 1.25rem;
+    cursor: pointer;
     background: var(--bg-glass);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -233,7 +236,10 @@
   }
 
   .btn-primary-gradient {
-    @apply px-5 py-3 font-semibold text-white rounded-[12px];
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    color: white;
+    border-radius: 12px;
     background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
     transition: all 0.3s var(--ease-spring);
@@ -259,7 +265,9 @@
   }
 
   .btn-secondary-glass {
-    @apply px-5 py-3 font-semibold rounded-[12px];
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    border-radius: 12px;
     background: var(--overlay);
     border: 1px solid var(--border);
     color: var(--text-primary);
@@ -279,7 +287,9 @@
   }
 
   .btn-danger-glass {
-    @apply px-5 py-3 font-semibold rounded-[12px];
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    border-radius: 12px;
     background: var(--danger-bg);
     border: 1px solid rgba(255, 59, 48, 0.2);
     color: var(--danger);
@@ -299,13 +309,18 @@
   }
 
   .input-glass {
-    @apply w-full px-4 py-3 rounded-[12px] text-base;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    line-height: 1.5rem;
     background: var(--overlay);
     border: 1px solid var(--border);
     color: var(--text-primary);
     font-family: var(--font-main);
     transition: all 0.25s ease;
     -webkit-appearance: none;
+    appearance: none;
   }
 
   .input-glass::placeholder {
@@ -323,11 +338,40 @@
   }
 
   /* Legacy compatibility */
-  .btn-primary { @apply btn-primary-gradient; }
-  .btn-secondary { @apply btn-secondary-glass; }
-  .btn-danger { @apply btn-danger-glass; }
-  .input { @apply input-glass; }
-  .card { @apply glass-card; }
+  .btn-primary { 
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    color: white;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+  }
+  .btn-secondary {
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    border-radius: 12px;
+    background: var(--overlay);
+    border: 1px solid var(--border);
+  }
+  .btn-danger {
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    border-radius: 12px;
+    background: var(--danger-bg);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+  }
+  .input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 1rem;
+  }
+  .card {
+    border-radius: 16px;
+    padding: 1.25rem;
+    background: var(--bg-glass);
+    backdrop-filter: blur(24px);
+  }
 
   .skeleton {
     background: linear-gradient(90deg, var(--overlay) 25%, var(--overlay-hover) 50%, var(--overlay) 75%);
@@ -370,6 +414,7 @@
 /* ===== NUMERIC INPUT ===== */
 input[type='number'] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {
