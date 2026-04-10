@@ -6,7 +6,10 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, ChevronRight, Shield, X } from 'lucide-react'
+import { 
+  Plus, TrendingUp, TrendingDown, ArrowLeftRight, 
+  ChevronRight, Shield, X, Eye, EyeOff 
+} from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
@@ -43,7 +46,21 @@ export default function DashboardPage() {
   const [totals, setTotals] = useState({ income: 0, expense: 0 })
   const [mfaEnabled, setMfaEnabled] = useState(true)
   const [showMfaReminder, setShowMfaReminder] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
   const router = useRouter()
+
+  useEffect(() => {
+    const saved = localStorage.getItem('ledger-balance-visible')
+    if (saved !== null) setIsVisible(saved === 'true')
+  }, [])
+
+  const toggleVisibility = () => {
+    setIsVisible(prev => {
+      const next = !prev
+      localStorage.setItem('ledger-balance-visible', String(next))
+      return next
+    })
+  }
 
   const fetchData = useCallback(async () => {
     try {
@@ -125,14 +142,6 @@ export default function DashboardPage() {
   const balance = totals.income - totals.expense
   const currency = profile?.currency || 'HKD'
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'income': return <TrendingUp size={16} style={{ color: 'var(--success)' }} />
-      case 'expense': return <TrendingDown size={16} style={{ color: 'var(--danger)' }} />
-      default: return <ArrowLeftRight size={16} style={{ color: 'var(--accent-primary)' }} />
-    }
-  }
-
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto w-full">
@@ -194,14 +203,23 @@ export default function DashboardPage() {
             }}
           />
           <div className="relative">
-            <p className="text-sm font-medium mb-2" style={{ color: 'var(--text-tertiary)' }}>
-              {t('dashboard.balance_title')}
-            </p>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <p className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>
+                {t('dashboard.balance_title')}
+              </p>
+              <button 
+                onClick={toggleVisibility}
+                className="p-1 rounded-md hover:bg-white/5 transition-colors"
+                style={{ color: 'var(--text-tertiary)' }}
+              >
+                {isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
+              </button>
+            </div>
             <p
               className="text-4xl lg:text-5xl font-bold tracking-tight mb-1"
               style={{ color: balance >= 0 ? 'var(--success)' : 'var(--danger)' }}
             >
-              {formatCurrency(balance, currency)}
+              {isVisible ? formatCurrency(balance, currency) : '••••••'}
             </p>
           </div>
         </div>
@@ -263,7 +281,7 @@ export default function DashboardPage() {
                       <span className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>{item.name}</span>
                     </div>
                     <span className="text-[10px] font-bold" style={{ color: 'var(--text-primary)' }}>
-                      {Math.round((item.value / totals.expense) * 100)}%
+                      {isVisible ? `${Math.round((item.value / totals.expense) * 100)}%` : '••%'}
                     </span>
                   </div>
                 ))}
@@ -282,7 +300,7 @@ export default function DashboardPage() {
               <span className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>{t('dashboard.income')}</span>
             </div>
             <p className="text-xl lg:text-2xl font-bold" style={{ color: 'var(--success)' }}>
-              {formatCurrency(totals.income, currency)}
+              {isVisible ? formatCurrency(totals.income, currency) : '••••••'}
             </p>
           </div>
           <div className="glass-card animate-fade-up delay-3">
@@ -293,7 +311,7 @@ export default function DashboardPage() {
               <span className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>{t('dashboard.expenses')}</span>
             </div>
             <p className="text-xl lg:text-2xl font-bold" style={{ color: 'var(--danger)' }}>
-              {formatCurrency(totals.expense, currency)}
+              {isVisible ? formatCurrency(totals.expense, currency) : '••••••'}
             </p>
           </div>
         </div>
@@ -366,7 +384,7 @@ export default function DashboardPage() {
                     className="font-semibold text-sm"
                     style={{ color: tx.type === 'income' ? 'var(--success)' : 'var(--danger)' }}
                   >
-                    {tx.type === 'income' ? '+' : '-'}{formatCurrency(Number(tx.amount), tx.currency)}
+                    {isVisible ? (tx.type === 'income' ? '+' : '-') + formatCurrency(Number(tx.amount), tx.currency) : '••••••'}
                   </span>
                 </Link>
               ))}
