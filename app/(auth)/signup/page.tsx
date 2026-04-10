@@ -18,10 +18,6 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    const runId = `signup_${Date.now()}`
-    // #region agent log
-    fetch('http://127.0.0.1:7760/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ed94b1'},body:JSON.stringify({sessionId:'ed94b1',runId,hypothesisId:'H1',location:'app/(auth)/signup/page.tsx:22',message:'Signup submit started',data:{emailHasAt:email.includes('@'),passwordLength:password.length},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
 
     if (password !== confirmPassword) {
       setError('Passwords do not match')
@@ -35,19 +31,10 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.signUp({ email, password })
-      // #region agent log
-      fetch('http://127.0.0.1:7760/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ed94b1'},body:JSON.stringify({sessionId:'ed94b1',runId,hypothesisId:'H2',location:'app/(auth)/signup/page.tsx:38',message:'signUp returned',data:{hasError:!!error,errorMessage:error?.message??null,hasSession:!!data.session,hasUser:!!data.user,emailConfirmedAt:data.user?.email_confirmed_at??null},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
+      const { error } = await supabase.auth.signUp({ email, password })
       if (error) throw error
-      // #region agent log
-      fetch('http://127.0.0.1:7760/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ed94b1'},body:JSON.stringify({sessionId:'ed94b1',runId,hypothesisId:'H3',location:'app/(auth)/signup/page.tsx:41',message:'Navigating to onboarding after signup',data:{target:'/onboarding'},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       router.push('/onboarding')
     } catch (err) {
-      // #region agent log
-      fetch('http://127.0.0.1:7760/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ed94b1'},body:JSON.stringify({sessionId:'ed94b1',runId,hypothesisId:'H4',location:'app/(auth)/signup/page.tsx:44',message:'Signup failed in catch',data:{errorMessage:err instanceof Error ? err.message : 'Signup failed'},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       setError(err instanceof Error ? err.message : 'Signup failed')
     } finally {
       setLoading(false)
