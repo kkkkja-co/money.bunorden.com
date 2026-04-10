@@ -25,11 +25,22 @@ export default function SettingsPage() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmNewPassword, setConfirmNewPassword] = useState('')
   const [toast, setToast] = useState('')
+  
+  // MFA States
+  const [mfaFactors, setMfaFactors] = useState<any[]>([])
+  const [showMfaModal, setShowMfaModal] = useState(false)
+  const [mfaEnrollData, setMfaEnrollData] = useState<any>(null)
+  const [mfaVerifyCode, setMfaVerifyCode] = useState('')
+  const [mfaProcessing, setMfaProcessing] = useState(false)
 
   const fetchProfile = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/login'); return }
     setEmail(user.email || '')
+
+    // Check MFA
+    const { data: factors } = await supabase.auth.mfa.listFactors()
+    setMfaFactors(factors?.all || [])
 
     const { data } = await supabase
       .from('profiles')
@@ -44,6 +55,68 @@ export default function SettingsPage() {
   }, [router])
 
   useEffect(() => { fetchProfile() }, [fetchProfile])
+
+  const handleEnrollMFA = async () => {
+    setMfaProcessing(true)
+    try {
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: 'totp'
+      })
+      if (error) throw error
+      setMfaEnrollData(data)
+      setShowMfaModal(true)
+    } catch (err: any) {
+      setToast(err.message || 'MFA enrollment failed')
+      setTimeout(() => setToast(''), 3000)
+    } finally {
+      setMfaProcessing(false)
+    }
+  }
+
+  const handleVerifyMFA = async () => {
+    if (!mfaEnrollData || !mfaVerifyCode) return
+    setMfaProcessing(true)
+    try {
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId: mfaEnrollData.id
+      })
+      if (challengeError) throw challengeError
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId: mfaEnrollData.id,
+        challengeId: challengeData.id,
+        code: mfaVerifyCode
+      })
+      if (verifyError) throw verifyError
+
+      setToast('2FA enabled successfully')
+      setShowMfaModal(false)
+      setMfaEnrollData(null)
+      setMfaVerifyCode('')
+      fetchProfile()
+    } catch (err: any) {
+      setToast(err.message || 'MFA verification failed')
+    } finally {
+      setMfaProcessing(false)
+      setTimeout(() => setToast(''), 3000)
+    }
+  }
+
+  const handleUnenrollMFA = async (factorId: string) => {
+    if (!confirm('Disable 2FA? This will make your account less secure.')) return
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.mfa.unenroll({ factorId })
+      if (error) throw error
+      setToast('2FA disabled')
+      fetchProfile()
+    } catch (err: any) {
+      setToast(err.message || 'Failed to disable 2FA')
+    } finally {
+      setLoading(false)
+      setTimeout(() => setToast(''), 3000)
+    }
+  }
 
   const handleLogout = async () => {
     setLoading(true)
@@ -322,6 +395,44 @@ export default function SettingsPage() {
             >
               Update Password
             </button>
+
+            <div className="pt-4 border-t border-white/5">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Two-Factor Authentication</p>
+                  <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Add an extra layer of security to your account.</p>
+                </div>
+                <div 
+                  className="px-2 py-1 rounded-md text-[10px] font-bold uppercase"
+                  style={{ 
+                    background: mfaFactors.length > 0 ? 'var(--success-bg)' : 'var(--overlay)',
+                    color: mfaFactors.length > 0 ? 'var(--success)' : 'var(--text-tertiary)',
+                    border: '1px solid var(--border)'
+                  }}
+                >
+                  {mfaFactors.length > 0 ? 'ACTIVE' : 'INACTIVE'}
+                </div>
+              </div>
+              
+              {mfaFactors.length > 0 ? (
+                <button
+                  onClick={() => handleUnenrollMFA(mfaFactors[0].id)}
+                  className="w-full py-3 rounded-xl text-xs font-semibold mt-2"
+                  style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
+                >
+                  Disable 2FA
+                </button>
+              ) : (
+                <button
+                  onClick={handleEnrollMFA}
+                  disabled={mfaProcessing}
+                  className="w-full py-3 rounded-xl text-xs font-semibold mt-2"
+                  style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-primary)', border: '1px solid rgba(59, 130, 246, 0.2)' }}
+                >
+                  {mfaProcessing ? 'Processing...' : 'Activate 2FA'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -486,6 +597,55 @@ export default function SettingsPage() {
                 style={{ opacity: deleteConfirm !== 'DELETE' ? 0.4 : 1 }}
               >
                 {loading ? 'Deleting...' : 'Delete Forever'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MFA Enrollment Modal */}
+      {showMfaModal && mfaEnrollData && (
+        <div className="modal-overlay" onClick={() => setShowMfaModal(false)}>
+          <div className="modal-content p-6 max-w-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Setup 2FA</h3>
+              <button onClick={() => setShowMfaModal(false)} className="p-1" style={{ color: 'var(--text-tertiary)' }}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="text-center">
+                <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+                  Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)
+                </p>
+                <div className="p-4 bg-white rounded-2xl inline-block mb-4">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(mfaEnrollData.totp.uri)}`} 
+                    alt="2FA QR Code"
+                    className="w-[180px] h-[180px]"
+                  />
+                </div>
+                <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+                  <p className="text-[10px] uppercase font-bold mb-1" style={{ color: 'var(--text-tertiary)' }}>Verification Code</p>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={mfaVerifyCode}
+                    onChange={(e) => setMfaVerifyCode(e.target.value)}
+                    placeholder="000000"
+                    className="w-full bg-transparent text-center text-2xl font-bold tracking-[0.5em] focus:outline-none"
+                    style={{ color: 'var(--text-primary)' }}
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={handleVerifyMFA}
+                disabled={mfaVerifyCode.length !== 6 || mfaProcessing}
+                className="btn-primary-gradient w-full py-4 text-base"
+              >
+                {mfaProcessing ? 'Verifying...' : 'Enable 2FA'}
               </button>
             </div>
           </div>
