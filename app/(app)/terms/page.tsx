@@ -1,29 +1,14 @@
 'use client'
 
-import { Scale } from 'lucide-react'
-import { MarketingPageShell, MarketingSection } from '@/components/layout/MarketingPageShell'
+import { Scale, ArrowLeft } from 'lucide-react'
+import { MarketingSection } from '@/components/layout/MarketingPageShell'
 import { useTranslation } from '@/app/providers'
+import { BunordenFooter } from '@/components/layout/BunordenFooter'
+import Link from 'next/link'
 
 export default function TermsPage() {
   const { t } = useTranslation()
   return (
-    <MarketingPageShell title={t('terms.title')} subtitle={t('terms.subtitle')} icon={Scale}>
-      <div className="space-y-12">
-        <MarketingSection title={t('terms.accounts')}>
-            <p className="text-lg" style={{ color: 'var(--text-primary)' }}>
-              {t('terms.accounts_desc')}
-            </p>
-        </MarketingSection>
-
-        <MarketingSection title={t('terms.limitations')}>
-            <p>
-              {t('terms.limitations_desc')}
-            </p>
-        </MarketingSection>
-
-        <MarketingSection title={t('terms.accounts')}>
-            <p>{t('terms.accounts_desc')}</p>
-        </MarketingSection>
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto w-full">
         <header className="flex items-center gap-4 mb-8 animate-fade-up">

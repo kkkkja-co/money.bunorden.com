@@ -4,12 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
-import { Eye, EyeOff, UserPlus } from 'lucide-react'
-import { useTheme, useTranslation } from '@/app/providers'
+import { Eye, EyeOff, UserPlus, Languages } from 'lucide-react'
+import { useTheme, useTranslation, useLanguage } from '@/app/providers'
 
 export default function SignupPage() {
   const { t } = useTranslation()
   const { theme } = useTheme()
+  const { language, setLanguage } = useLanguage()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -74,6 +75,28 @@ export default function SignupPage() {
           `,
         }}
       />
+
+      {/* Language Switcher */}
+      <div className="fixed top-6 right-6 z-50 animate-fade-in">
+        <div className="flex bg-white/5 backdrop-blur-md rounded-full p-1 border border-white/10 shadow-lg">
+          {[
+            { id: 'en', label: 'EN' },
+            { id: 'zh-TW', label: '繁' }
+          ].map((lang) => (
+            <button
+              key={lang.id}
+              onClick={() => setLanguage(lang.id as any)}
+              className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider transition-all"
+              style={{
+                background: language === lang.id ? 'var(--accent-primary)' : 'transparent',
+                color: language === lang.id ? 'white' : 'var(--text-tertiary)'
+              }}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="w-full max-w-sm relative z-10">
         {/* Logo */}

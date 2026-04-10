@@ -4,12 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
-import { Eye, EyeOff, LogIn, Shield, ArrowLeft } from 'lucide-react'
-import { useTranslation, useTheme } from '@/app/providers'
+import { Eye, EyeOff, LogIn, Shield, ArrowLeft, Languages } from 'lucide-react'
+import { useTranslation, useTheme, useLanguage } from '@/app/providers'
 
 export default function LoginPage() {
   const { t } = useTranslation()
   const { theme } = useTheme()
+  const { language, setLanguage } = useLanguage()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -101,15 +102,37 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
       {/* Background gradient orbs */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: `
-            radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-            radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%)
-          `,
-        }}
-      />
+        <div
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%)
+            `,
+          }}
+        />
+
+        {/* Language Switcher */}
+        <div className="fixed top-6 right-6 z-50 animate-fade-in">
+          <div className="flex bg-white/5 backdrop-blur-md rounded-full p-1 border border-white/10 shadow-lg">
+            {[
+              { id: 'en', label: 'EN' },
+              { id: 'zh-TW', label: '繁' }
+            ].map((lang) => (
+              <button
+                key={lang.id}
+                onClick={() => setLanguage(lang.id as any)}
+                className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider transition-all"
+                style={{
+                  background: language === lang.id ? 'var(--accent-primary)' : 'transparent',
+                  color: language === lang.id ? 'white' : 'var(--text-tertiary)'
+                }}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
       <div className="w-full max-w-sm relative z-10">
         {/* Logo */}
