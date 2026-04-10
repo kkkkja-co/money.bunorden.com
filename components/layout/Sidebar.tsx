@@ -2,20 +2,21 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useTheme } from '@/app/providers'
+import { useTheme, useTranslation } from '@/app/providers'
 import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Key } from 'lucide-react'
 
-const navItems = [
-  { href: '/dashboard', icon: Home, label: 'Dashboard' },
-  { href: '/transactions', icon: ArrowLeftRight, label: 'Transactions' },
-  { href: '/add', icon: PlusCircle, label: 'Add New' },
-  { href: '/reports', icon: BarChart3, label: 'Reports' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
-]
-
 export function Sidebar() {
+  const { t } = useTranslation()
   const pathname = usePathname()
   const { theme } = useTheme()
+
+  const navItems = [
+    { href: '/dashboard', icon: Home, label: t('nav.dashboard') },
+    { href: '/transactions', icon: ArrowLeftRight, label: t('nav.transactions') },
+    { href: '/add', icon: PlusCircle, label: t('nav.add') },
+    { href: '/reports', icon: BarChart3, label: t('nav.reports') },
+    { href: '/settings', icon: Settings, label: t('nav.settings') },
+  ]
 
   return (
     <aside
@@ -99,7 +100,7 @@ export function Sidebar() {
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-tertiary)' }}
         >
-          <span>Powered by</span>
+          <span>{t('footer.powered_by')}</span>
           <span style={{ color: 'var(--text-secondary)' }}>Bunorden</span>
         </Link>
       </div>

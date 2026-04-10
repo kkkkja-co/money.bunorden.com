@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import { Mail, Send, CheckCircle } from 'lucide-react'
 import { MarketingPageShell, MarketingSection } from '@/components/layout/MarketingPageShell'
+import { useTranslation } from '@/app/providers'
 
 export default function ContactPage() {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [subject, setSubject] = useState('')
@@ -39,22 +41,19 @@ export default function ContactPage() {
 
   return (
     <MarketingPageShell
-      title="Contact Support"
-      subtitle="Have a question, feedback, or need to make a request? Our team is here to help."
+      title={t('contact.title')}
+      subtitle={t('contact.subtitle')}
       icon={Mail}
       maxWidthClass="max-w-2xl"
     >
-      <MarketingSection title="Reach Out">
+      <MarketingSection title={t('privacy.touch')}>
         <div className="grid grid-cols-1 gap-6">
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            We typically respond to all inquiries within 24 hours. Whether it&apos;s a technical issue, a feature suggestion, or a data request, we&apos;re all ears.
-          </p>
           <div
             className="rounded-2xl p-6 text-center group transition-all hover:bg-white/[0.04]"
             style={{ background: 'var(--overlay)', border: '1px solid var(--border)' }}
           >
             <span className="text-[10px] font-bold uppercase tracking-widest block mb-2" style={{ color: 'var(--text-tertiary)' }}>
-              Direct Support Channel
+              {t('contact.direct_support')}
             </span>
             <a
               href="mailto:contact@bunorden.com"
@@ -67,7 +66,7 @@ export default function ContactPage() {
         </div>
       </MarketingSection>
 
-      <MarketingSection title="Service Desk">
+      <MarketingSection title={t('contact.title')}>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Request type */}
           <div>
@@ -76,9 +75,9 @@ export default function ContactPage() {
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { id: 'general', label: 'General Support', icon: '💬' },
-                { id: 'deletion', label: 'Data Deletion', icon: '🗑️' },
-                { id: 'data', label: 'Data Export', icon: '📦' },
+                { id: 'general', label: t('contact.category_general'), icon: '💬' },
+                { id: 'deletion', label: t('contact.category_deletion'), icon: '🗑️' },
+                { id: 'data', label: t('contact.category_data'), icon: '📦' },
               ].map((rt) => (
                 <button
                   key={rt.id}
@@ -102,13 +101,13 @@ export default function ContactPage() {
             {/* Name */}
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>
-                Full Name
+                {t('contact.form_name')}
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="John Doe"
+                placeholder={t('contact.form_placeholder_name')}
                 className="input-glass"
                 required
               />
@@ -117,13 +116,13 @@ export default function ContactPage() {
             {/* Email */}
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>
-                Email Address
+                {t('contact.form_email')}
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="john@example.com"
+                placeholder={t('contact.form_placeholder_email')}
                 className="input-glass"
                 required
               />
@@ -133,7 +132,7 @@ export default function ContactPage() {
           {/* Subject */}
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>
-              Subject
+              {t('contact.form_placeholder_message').split('?')[0]}
             </label>
             <input
               type="text"
@@ -141,10 +140,10 @@ export default function ContactPage() {
               onChange={(e) => setSubject(e.target.value)}
               placeholder={
                 requestType === 'deletion'
-                  ? 'Request for Account & Data Deletion'
+                  ? t('contact.deletion_subject')
                   : requestType === 'data'
-                  ? 'Request for Personal Data Archive'
-                  : 'How can we help?'
+                  ? t('contact.data_subject')
+                  : t('contact.subject_placeholder')
               }
               className="input-glass"
               required
@@ -154,15 +153,15 @@ export default function ContactPage() {
           {/* Message */}
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>
-              Inquiry Details
+              {t('contact.form_message')}
             </label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={
                 requestType === 'deletion'
-                  ? 'Please confirm the email associated with your account. Note that deletion is irreversible.'
-                  : 'Please provide as much detail as possible...'
+                  ? t('contact.deletion_message')
+                  : t('contact.message_placeholder')
               }
               className="input-glass"
               style={{ minHeight: '140px', resize: 'vertical' }}
@@ -181,9 +180,9 @@ export default function ContactPage() {
             }}
           >
             {submitted ? (
-              <><CheckCircle size={20} /> Email Client Opened</>
+              <><CheckCircle size={20} /> {t('contact.submit_done')}</>
             ) : (
-              <><Send size={18} /> Open Email Client</>
+              <><Send size={18} /> {t('contact.submit_ready')}</>
             )}
           </button>
         </form>
@@ -199,7 +198,7 @@ export default function ContactPage() {
           }}
         >
           <div className="relative z-10">
-            <strong>Security Notice:</strong> You can perform a self-service account deletion immediately from your <a href="/settings" className="font-bold underline hover:opacity-80 transition-opacity">Settings</a> panel. This will permanently purge all your financial records and profile data from our servers.
+            <strong>{t('contact.notice_title')}</strong> {t('contact.notice_body')}
           </div>
         </div>
       )}

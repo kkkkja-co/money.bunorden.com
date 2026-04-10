@@ -4,16 +4,19 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings } from 'lucide-react'
 
-const tabs = [
-  { href: '/dashboard', icon: Home, label: 'Home' },
-  { href: '/transactions', icon: ArrowLeftRight, label: 'History' },
-  { href: '/add', icon: PlusCircle, label: 'Add' },
-  { href: '/reports', icon: BarChart3, label: 'Reports' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
-]
+import { useTranslation } from '@/app/providers'
 
 export function BottomNav() {
+  const { t } = useTranslation()
   const pathname = usePathname()
+
+  const tabs = [
+    { href: '/dashboard', icon: Home, label: t('nav.home') },
+    { href: '/transactions', icon: ArrowLeftRight, label: t('nav.history') },
+    { href: '/add', icon: PlusCircle, label: t('nav.add') },
+    { href: '/reports', icon: BarChart3, label: t('nav.reports') },
+    { href: '/settings', icon: Settings, label: t('nav.settings') },
+  ]
 
   return (
     <nav
