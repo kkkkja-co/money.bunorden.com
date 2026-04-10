@@ -57,9 +57,20 @@ Full instructions: [SETUP.md](./SETUP.md)
 
 We built this because we believe your financial data is none of our business.
 
-**No third-party analytics. No ads. No data selling.** Ever.
+**No ads. No data selling.** Ever.
 
-Read our full [Privacy Policy](./app/%28marketing%29/privacy/page.tsx).
+Operational security and delivery services in use:
+- **Cloudflare Proxy + CDN** for request routing, caching, and edge protection
+- **Cloudflare Nameservers** for DNS management and resilience
+- **Cloudflare Protection** (including DDoS/WAF style edge protections)
+- **Cloudflare Turnstile** for bot protection on auth flows
+- **Vercel Hosting** for app hosting and runtime execution
+
+Cloudflare resources/endpoints that may appear in requests:
+- `challenges.cloudflare.com` (Turnstile challenge runtime)
+- `static.cloudflareinsights.com` (Cloudflare insights tracker script)
+
+Read our full [Privacy Policy](./app/(app)/privacy/page.tsx) and [Terms of Use](./app/(app)/terms/page.tsx).
 
 ## Architecture
 
@@ -192,7 +203,9 @@ Apple-inspired, minimalist design:
 
 ## Security
 
-- No third-party scripts or trackers
+- Cloudflare Proxy/CDN/Nameservers protection in front of app traffic
+- Cloudflare Turnstile enabled on login/signup
+- Cloudflare insights script can load from `static.cloudflareinsights.com`
 - Supabase Row Level Security (RLS) on every table
 - Service Role Key kept server-side only
 - Secrets managed via `.env.local` (never committed)

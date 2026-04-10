@@ -51,6 +51,28 @@ export default function TermsPage() {
               </div>
           </MarketingSection>
 
+          <MarketingSection title="Third-Party Infrastructure">
+              <p>
+                By using Clavi, you acknowledge that we rely on third-party infrastructure providers
+                to deliver and protect the Service.
+              </p>
+              <ul className="list-disc list-inside space-y-2 mt-3">
+                <li>Cloudflare Proxy and CDN for traffic routing, caching, and edge protection.</li>
+                <li>Cloudflare Nameservers and security systems for DNS and DDoS mitigation.</li>
+                <li>Cloudflare Turnstile for bot-abuse prevention on signup/login forms.</li>
+                <li>Vercel for application hosting and server/edge runtime operations.</li>
+              </ul>
+          </MarketingSection>
+
+          <MarketingSection title="Security and Analytics Endpoints">
+              <p>
+                The Service may load and communicate with Cloudflare-managed endpoints and tracker resources,
+                including <strong>challenges.cloudflare.com</strong> and
+                <strong> static.cloudflareinsights.com</strong>, as part of security checks,
+                anti-bot challenges, and operational analytics.
+              </p>
+          </MarketingSection>
+
           <MarketingSection title={t('terms.updates')}>
               <p>
                 {t('terms.updates_desc')}

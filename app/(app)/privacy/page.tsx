@@ -93,6 +93,58 @@ export default function PrivacyPage() {
               </div>
           </MarketingSection>
 
+          <MarketingSection title="Infrastructure & Protection Providers">
+            <p>
+              To keep Clavi secure and available, we use trusted infrastructure providers.
+              These providers may process technical request metadata (for example IP, user-agent,
+              request timestamps, and challenge outcomes) for security, delivery, and reliability.
+            </p>
+            <div className="overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] shadow-inner mt-4">
+              <table className="w-full text-sm text-left">
+                <thead>
+                  <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+                    <th className="p-4 font-bold uppercase tracking-wider text-[10px]" style={{ color: 'var(--text-tertiary)' }}>Provider</th>
+                    <th className="p-4 font-bold uppercase tracking-wider text-[10px]" style={{ color: 'var(--text-tertiary)' }}>Role</th>
+                    <th className="p-4 font-bold uppercase tracking-wider text-[10px]" style={{ color: 'var(--text-tertiary)' }}>Examples / Endpoints</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5" style={{ color: 'var(--text-secondary)' }}>
+                  <tr className="hover:bg-white/[0.02] transition-colors">
+                    <td className="p-4 font-medium text-white">Cloudflare</td>
+                    <td className="p-4">Proxy, CDN, nameservers, DDoS and edge protection</td>
+                    <td className="p-4 opacity-80">Traffic routed through Cloudflare network</td>
+                  </tr>
+                  <tr className="hover:bg-white/[0.02] transition-colors">
+                    <td className="p-4 font-medium text-white">Cloudflare Turnstile</td>
+                    <td className="p-4">Bot and abuse protection on auth forms</td>
+                    <td className="p-4 opacity-80">challenges.cloudflare.com</td>
+                  </tr>
+                  <tr className="hover:bg-white/[0.02] transition-colors">
+                    <td className="p-4 font-medium text-white">Cloudflare Web Analytics</td>
+                    <td className="p-4">Operational analytics and performance insights</td>
+                    <td className="p-4 opacity-80">static.cloudflareinsights.com tracker script</td>
+                  </tr>
+                  <tr className="hover:bg-white/[0.02] transition-colors">
+                    <td className="p-4 font-medium text-white">Vercel</td>
+                    <td className="p-4">Application hosting and edge/server execution</td>
+                    <td className="p-4 opacity-80">Production hosting platform for Clavi</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </MarketingSection>
+
+          <MarketingSection title="Cloudflare Domains and Trackers">
+            <p>
+              Our pages may load security and analytics resources from Cloudflare domains, including:
+              <strong> challenges.cloudflare.com </strong> (Turnstile challenge runtime) and
+              <strong> static.cloudflareinsights.com </strong> (Cloudflare insights tracker script).
+            </p>
+            <p>
+              These resources are used for bot protection, abuse prevention, uptime, and service quality monitoring.
+            </p>
+          </MarketingSection>
+
           <MarketingSection title={t('privacy.rights')}>
               <div className="space-y-6">
                 <div className="group">
