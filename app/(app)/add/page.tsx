@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
-import { ArrowLeft, Check } from 'lucide-react'
+import { ArrowLeft, Check, Settings, Plus, X, Trash2 } from 'lucide-react'
 
 interface Category {
   id: string
@@ -31,7 +31,15 @@ export default function AddPage() {
   const [accountId, setAccountId] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
+  
+  // Category management states
+  const [showCatModal, setShowCatModal] = useState(false)
+  const [editingCat, setEditingCat] = useState<Category | null>(null)
+  const [catName, setCatName] = useState('')
+  const [catIcon, setCatIcon] = useState('💰')
+  
   const [loading, setLoading] = useState(false)
+  const [catLoading, setCatLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
   const [currency, setCurrency] = useState('HKD')
@@ -60,6 +68,58 @@ export default function AddPage() {
   useEffect(() => { fetchData() }, [fetchData])
 
   const filteredCategories = categories.filter(c => c.type === type)
+
+  const handleSaveCategory = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    if (!catName.trim()) return
+    
+    setCatLoading(true)
+    try {
+      if (editingCat) {
+        const { error } = await supabase
+          .from('categories')
+          .update({ name: catName.trim(), icon: catIcon })
+          .eq('id', editingCat.id)
+        if (error) throw error
+      } else {
+        const { error } = await supabase
+          .from('categories')
+          .insert({
+            user_id: userId,
+            name: catName.trim(),
+            icon: catIcon,
+            type: type === 'transfer' ? 'expense' : type,
+          })
+        if (error) throw error
+      }
+      
+      await fetchData()
+      setShowCatModal(false)
+      setEditingCat(null)
+      setCatName('')
+      setCatIcon('💰')
+    } catch (err) {
+      console.error('Category error:', err)
+      setError(err instanceof Error ? err.message : 'Category operation failed')
+    } finally {
+      setCatLoading(false)
+    }
+  }
+
+  const handleArchiveCategory = async (id: string) => {
+    if (!confirm('Archive this category? It will no longer appear in selection.')) return
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .update({ archived: true })
+        .eq('id', id)
+      if (error) throw error
+      await fetchData()
+      if (categoryId === id) setCategoryId('')
+    } catch (err) {
+      console.error('Archive error:', err)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -176,19 +236,44 @@ export default function AddPage() {
             />
           </div>
 
-          {/* Category */}
-          {type !== 'transfer' && filteredCategories.length > 0 && (
+          {/* Category Selection */}
+          {type !== 'transfer' && (
             <div className="animate-fade-up delay-3">
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                Category
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                  Category
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingCat(null)
+                      setCatName('')
+                      setCatIcon(type === 'income' ? '💰' : '☕')
+                      setShowCatModal(true)
+                    }}
+                    className="p-1 px-2 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1"
+                    style={{ background: 'var(--overlay)', border: '1px solid var(--border)', color: 'var(--accent-primary)' }}
+                  >
+                    <Plus size={10} strokeWidth={3} /> Add
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                 {filteredCategories.map((cat) => (
                   <button
                     key={cat.id}
                     type="button"
                     onClick={() => setCategoryId(cat.id === categoryId ? '' : cat.id)}
-                    className="flex flex-col items-center gap-1.5 p-3 rounded-xl text-center"
+                    onContextMenu={(e) => {
+                      e.preventDefault()
+                      setEditingCat(cat)
+                      setCatName(cat.name)
+                      setCatIcon(cat.icon)
+                      setShowCatModal(true)
+                    }}
+                    className="flex flex-col items-center gap-1.5 p-3 rounded-xl text-center relative group"
                     style={{
                       background: categoryId === cat.id ? 'rgba(59, 130, 246, 0.1)' : 'var(--overlay)',
                       border: `1px solid ${categoryId === cat.id ? 'var(--accent-primary)' : 'var(--border)'}`,
@@ -200,8 +285,117 @@ export default function AddPage() {
                     <span className="text-[11px] font-medium truncate w-full" style={{ color: 'var(--text-secondary)' }}>
                       {cat.name}
                     </span>
+                    
+                    {/* Edit trigger on long press / hover icon */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setEditingCat(cat)
+                        setCatName(cat.name)
+                        setCatIcon(cat.icon)
+                        setShowCatModal(true)
+                      }}
+                      className="absolute top-1 right-1 p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ background: 'var(--overlay)', border: '1px solid var(--border)', color: 'var(--text-tertiary)' }}
+                    >
+                      <Settings size={10} />
+                    </button>
                   </button>
                 ))}
+                
+                {filteredCategories.length === 0 && (
+                  <div className="col-span-full py-6 text-center text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                    No categories for {type}. Click &quot;Add&quot; to create one.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Category Modal */}
+          {showCatModal && (
+            <div className="modal-overlay z-[100]" onClick={() => setShowCatModal(false)}>
+              <div className="modal-content p-6" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+                    {editingCat ? 'Edit Category' : 'New Category'}
+                  </h3>
+                  <button onClick={() => setShowCatModal(false)} style={{ color: 'var(--text-tertiary)' }}>
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex gap-4">
+                    <button
+                      type="button"
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group relative overflow-hidden"
+                      style={{ background: 'var(--overlay)', border: '1px solid var(--border)' }}
+                    >
+                      <span className="relative z-10">{catIcon}</span>
+                      <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                    <div className="flex-1">
+                      <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                        Category Icon
+                      </label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {['☕', '🍔', '🛒', '🚕', '🏠', '💡', '🎮', '💊', '💰', '💼', '🎁', '🔌', '🎥', '🏋️', '✈️', '🧴'].map(emoji => (
+                          <button
+                            key={emoji}
+                            type="button"
+                            onClick={() => setCatIcon(emoji)}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-all hover:scale-110 active:scale-95"
+                            style={{ 
+                              background: catIcon === emoji ? 'var(--accent-primary)' : 'var(--overlay)',
+                              color: catIcon === emoji ? 'white' : 'inherit',
+                              border: catIcon === emoji ? 'none' : '1px solid var(--border)'
+                            }}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                      Category Name
+                    </label>
+                    <input
+                      type="text"
+                      value={catName}
+                      onChange={(e) => setCatName(e.target.value)}
+                      className="input-glass"
+                      placeholder="e.g. Coffee"
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="pt-2 flex gap-3">
+                    {editingCat && (
+                      <button
+                        type="button"
+                        onClick={() => handleArchiveCategory(editingCat.id)}
+                        className="p-3 px-4 rounded-xl text-danger border border-transparent hover:border-danger/[0.2] transition-all flex items-center justify-center"
+                        style={{ background: 'var(--danger-bg)' }}
+                        title="Archive category"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      disabled={catLoading || !catName.trim()}
+                      onClick={handleSaveCategory}
+                      className="btn-primary-gradient flex-1 py-3"
+                    >
+                      {catLoading ? 'Saving...' : 'Save Category'}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
