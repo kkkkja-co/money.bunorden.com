@@ -12,7 +12,7 @@ export default function TermsPage() {
               By accessing and using Ledger (&quot;the Service&quot;), provided by Bunorden, you agree to be bound by these Terms of Use.
             </p>
             <p>
-              If you do not agree with any part of these terms, you should immediately discontinue use of the Service. We believe in simplicity and clarity, so we've kept these terms as straightforward as possible.
+              If you do not agree with any part of these terms, you should immediately discontinue use of the Service. We believe in simplicity and clarity, so we&apos;ve kept these terms as straightforward as possible.
             </p>
         </MarketingSection>
 
