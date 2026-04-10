@@ -25,8 +25,16 @@ export default function SignupPage() {
       setError('Passwords do not match')
       return
     }
-    if (password.length < 6) {
-      setError('Password should be at least 6 characters')
+    
+    // Password validation logic
+    const hasUpperCase = /[A-Z]/.test(password)
+    const hasLowerCase = /[a-z]/.test(password)
+    const hasNumber = /[0-9]/.test(password)
+    const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    const isLongEnough = password.length >= 8
+
+    if (!isLongEnough || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSymbol) {
+      setError('Password does not meet the security requirements')
       return
     }
 
@@ -123,6 +131,26 @@ export default function SignupPage() {
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
+                </div>
+                
+                {/* Requirements indicator */}
+                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 px-1 py-1">
+                  {[
+                    { label: '8+ Characters', met: password.length >= 8 },
+                    { label: 'Uppercase', met: /[A-Z]/.test(password) },
+                    { label: 'Lowercase', met: /[a-z]/.test(password) },
+                    { label: 'Digit & Symbol', met: /[0-9]/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+                  ].map((req, i) => (
+                    <div key={i} className="flex items-center gap-1.5 transition-all">
+                      <div 
+                        className="w-1.5 h-1.5 rounded-full transition-colors" 
+                        style={{ background: req.met ? 'var(--success)' : 'var(--overlay)' }} 
+                      />
+                      <span className="text-[10px] uppercase tracking-wider font-bold" style={{ color: req.met ? 'var(--text-secondary)' : 'var(--text-tertiary)' }}>
+                        {req.label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
 

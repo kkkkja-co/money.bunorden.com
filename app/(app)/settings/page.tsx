@@ -22,6 +22,8 @@ export default function SettingsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [showExportModal, setShowExportModal] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmNewPassword, setConfirmNewPassword] = useState('')
   const [toast, setToast] = useState('')
 
   const fetchProfile = useCallback(async () => {
@@ -60,6 +62,40 @@ export default function SettingsPage() {
 
     setToast('Profile updated')
     setTimeout(() => setToast(''), 3000)
+  }
+
+  const handleUpdatePassword = async () => {
+    if (newPassword !== confirmNewPassword) {
+      setToast('Passwords do not match')
+      setTimeout(() => setToast(''), 3000)
+      return
+    }
+
+    const hasUpperCase = /[A-Z]/.test(newPassword)
+    const hasLowerCase = /[a-z]/.test(newPassword)
+    const hasNumber = /[0-9]/.test(newPassword)
+    const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword)
+    const isLongEnough = newPassword.length >= 8
+
+    if (!isLongEnough || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSymbol) {
+      setToast('Password does not meet requirements')
+      setTimeout(() => setToast(''), 3000)
+      return
+    }
+
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
+      setToast('Password updated successfully')
+      setNewPassword('')
+      setConfirmNewPassword('')
+    } catch (err: any) {
+      setToast(err.message || 'Error updating password')
+    } finally {
+      setLoading(false)
+      setTimeout(() => setToast(''), 3000)
+    }
   }
 
   const handleExport = async (format: 'json' | 'csv') => {
@@ -228,8 +264,69 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Appearance */}
+        {/* Security Section */}
         <div className="mb-6 animate-fade-up delay-2">
+          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
+            SECURITY
+          </h2>
+          <div className="glass-card space-y-4">
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                New Password
+              </label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="••••••••"
+                className="input-glass"
+              />
+              
+              {/* Requirements indicator (same as signup) */}
+              <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 px-1 py-1">
+                {[
+                  { label: '8+ Characters', met: newPassword.length >= 8 },
+                  { label: 'Uppercase', met: /[A-Z]/.test(newPassword) },
+                  { label: 'Lowercase', met: /[a-z]/.test(newPassword) },
+                  { label: 'Digit & Symbol', met: /[0-9]/.test(newPassword) && /[!@#$%^&*(),.?":{}|<>]/.test(newPassword) },
+                ].map((req, i) => (
+                  <div key={i} className="flex items-center gap-1.5 transition-all">
+                    <div 
+                      className="w-1.5 h-1.5 rounded-full transition-colors" 
+                      style={{ background: req.met ? 'var(--success)' : 'var(--overlay)' }} 
+                    />
+                    <span className="text-[10px] uppercase tracking-wider font-bold" style={{ color: req.met ? 'var(--text-secondary)' : 'var(--text-tertiary)' }}>
+                      {req.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                Confirm New Password
+              </label>
+              <input
+                type="password"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                placeholder="••••••••"
+                className="input-glass"
+              />
+            </div>
+            <button 
+              onClick={handleUpdatePassword} 
+              disabled={!newPassword || loading}
+              className="btn-secondary-glass w-full py-3 text-sm"
+              style={{ opacity: !newPassword ? 0.5 : 1 }}
+            >
+              Update Password
+            </button>
+          </div>
+        </div>
+
+        {/* Appearance */}
+        <div className="mb-6 animate-fade-up delay-3">
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
             APPEARANCE
           </h2>
@@ -263,7 +360,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Data */}
-        <div className="mb-6 animate-fade-up delay-3">
+        <div className="mb-6 animate-fade-up delay-4">
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
             DATA
           </h2>
@@ -278,7 +375,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Legal */}
-        <div className="mb-6 animate-fade-up delay-4">
+        <div className="mb-6 animate-fade-up delay-5">
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
             LEGAL
           </h2>
@@ -296,7 +393,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Danger Zone */}
-        <div className="mb-6 animate-fade-up delay-5">
+        <div className="mb-6 animate-fade-up delay-6">
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--danger)' }}>
             DANGER ZONE
           </h2>

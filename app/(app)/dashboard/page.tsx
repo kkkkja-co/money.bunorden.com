@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, ChevronRight } from 'lucide-react'
+import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, ChevronRight, Shield, X } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
 interface Profile {
@@ -31,6 +31,8 @@ export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [totals, setTotals] = useState({ income: 0, expense: 0 })
+  const [mfaEnabled, setMfaEnabled] = useState(true)
+  const [showMfaReminder, setShowMfaReminder] = useState(false)
   const router = useRouter()
 
   const fetchData = useCallback(async () => {
@@ -38,6 +40,16 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
       setUser(user)
+
+      // Check MFA status
+      const { data: factors, error: mfaError } = await supabase.auth.mfa.listFactors()
+      const isMfaActive = factors?.all?.length ? factors.all.length > 0 : false
+      setMfaEnabled(isMfaActive)
+      
+      // Only show reminder if not enabled and not previously dismissed in this session
+      if (!isMfaActive && !sessionStorage.getItem('dismissMfaReminder')) {
+        setShowMfaReminder(true)
+      }
 
       const { data: profileData } = await supabase
         .from('profiles')
@@ -126,6 +138,42 @@ export default function DashboardPage() {
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
+
+        {/* 2FA Reminder */}
+        {showMfaReminder && (
+          <div className="mb-6 animate-fade-up">
+            <div 
+              className="p-4 rounded-2xl flex items-center gap-4 relative overflow-hidden"
+              style={{ background: 'var(--overlay)', border: '1px solid var(--border)' }}
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-primary)' }}
+              >
+                <Shield size={20} />
+              </div>
+              <div className="flex-1 min-w-0 pr-6">
+                <p className="font-bold text-sm mb-0.5" style={{ color: 'var(--text-primary)' }}>Secure your account</p>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+                  Activate 2FA authentication to add an extra layer of security.
+                  <Link href="/settings" className="ml-1 font-bold underline" style={{ color: 'var(--accent-primary)' }}>
+                    Go to Settings
+                  </Link>
+                </p>
+              </div>
+              <button 
+                onClick={() => {
+                  setShowMfaReminder(false)
+                  sessionStorage.setItem('dismissMfaReminder', 'true')
+                }}
+                className="absolute top-2 right-2 p-1.5 opacity-40 hover:opacity-100 transition-opacity"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Balance Card */}
         <div className="glass-card mb-6 animate-fade-up delay-1 text-center relative overflow-hidden">
