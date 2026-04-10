@@ -18,12 +18,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [resetMode, setResetMode] = useState(false)
   const [resetSent, setResetSent] = useState(false)
-  
+
   // MFA States
   const [showMfa, setShowMfa] = useState(false)
   const [mfaCode, setMfaCode] = useState('')
   const [mfaFactors, setMfaFactors] = useState<any[]>([])
-  
+
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -102,37 +102,37 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
       {/* Background gradient orbs */}
-        <div
-          className="fixed inset-0 pointer-events-none"
-          style={{
-            background: `
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: `
               radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
               radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%)
             `,
-          }}
-        />
+        }}
+      />
 
-        {/* Language Switcher */}
-        <div className="fixed top-6 right-6 z-50 animate-fade-in">
-          <div className="flex bg-white/5 backdrop-blur-md rounded-full p-1 border border-white/10 shadow-lg">
-            {[
-              { id: 'en', label: 'EN' },
-              { id: 'zh-TW', label: '繁' }
-            ].map((lang) => (
-              <button
-                key={lang.id}
-                onClick={() => setLanguage(lang.id as any)}
-                className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider transition-all"
-                style={{
-                  background: language === lang.id ? 'var(--accent-primary)' : 'transparent',
-                  color: language === lang.id ? 'white' : 'var(--text-tertiary)'
-                }}
-              >
-                {lang.label}
-              </button>
-            ))}
-          </div>
+      {/* Language Switcher */}
+      <div className="fixed top-6 right-6 z-50 animate-fade-in">
+        <div className="flex bg-white/5 backdrop-blur-md rounded-full p-1 border border-white/10 shadow-lg">
+          {[
+            { id: 'en', label: 'EN' },
+            { id: 'zh-TW', label: '繁' }
+          ].map((lang) => (
+            <button
+              key={lang.id}
+              onClick={() => setLanguage(lang.id as any)}
+              className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider transition-all"
+              style={{
+                background: language === lang.id ? 'var(--accent-primary)' : 'transparent',
+                color: language === lang.id ? 'white' : 'var(--text-tertiary)'
+              }}
+            >
+              {lang.label}
+            </button>
+          ))}
         </div>
+      </div>
 
       <div className="w-full max-w-sm relative z-10">
         {/* Logo */}
@@ -143,9 +143,9 @@ export default function LoginPage() {
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
             }}
           >
-            <img 
-              src={theme === 'dark' ? '/assets/clavi-icon-dark.svg' : '/assets/clavi-icon-light.svg'} 
-              alt="Clavi Logo" 
+            <img
+              src={theme === 'dark' ? '/assets/clavi-icon-dark.svg' : '/assets/clavi-icon-light.svg'}
+              alt="Clavi Logo"
               className="w-full h-full object-cover"
             />
           </div>
@@ -156,9 +156,9 @@ export default function LoginPage() {
             {showMfa ? t('auth.mfa_title') : resetMode ? t('common.settings') : t('common.welcome')}
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-            {showMfa 
+            {showMfa
               ? t('auth.mfa_subtitle')
-              : resetMode 
+              : resetMode
                 ? t('auth.signin_subtitle')
                 : t('auth.signin_subtitle')}
           </p>
@@ -188,7 +188,7 @@ export default function LoginPage() {
                 style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-primary)' }}>
                 <Shield size={32} />
               </div>
-              
+
               <div className="relative">
                 <input
                   type="text"
@@ -200,6 +200,8 @@ export default function LoginPage() {
                   required
                   autoFocus
                   autoComplete="one-time-code"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                 />
               </div>
             </div>
@@ -225,7 +227,7 @@ export default function LoginPage() {
                   <>{t('auth.verify_button')}</>
                 )}
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => { setShowMfa(false); setMfaCode(''); }}

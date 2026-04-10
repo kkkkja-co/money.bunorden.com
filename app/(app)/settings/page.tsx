@@ -719,6 +719,8 @@ export default function SettingsPage() {
                     className="w-full bg-transparent text-center text-2xl font-bold tracking-[0.5em] focus:outline-none"
                     style={{ color: 'var(--text-primary)' }}
                     autoComplete="one-time-code"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                   />
                 </div>
               </div>
