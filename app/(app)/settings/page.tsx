@@ -7,7 +7,8 @@ import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { useTheme, useTranslation, useLanguage } from '@/app/providers'
 import {
   Sun, Moon, LogOut, Trash2, Download, Shield, Mail,
-  Scale, ChevronRight, User, AlertTriangle, X, Globe
+  Scale, ChevronRight, User, AlertTriangle, X, Globe,
+  ArrowLeftRight, LayoutGrid
 } from 'lucide-react'
 import Link from 'next/link'
 import { Language } from '@/lib/i18n/translations'
