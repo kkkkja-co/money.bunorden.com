@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { Eye, EyeOff, UserPlus } from 'lucide-react'
-import { signUpWithAutoConfirm } from './actions'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -13,12 +12,14 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccess(false)
 
     if (password !== confirmPassword) {
       setError('Passwords do not match')
@@ -32,22 +33,17 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
-      // Use the server action to bypass SMTP/Email verification
-      const res = await signUpWithAutoConfirm(email, password)
+      const { data, error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
+      })
       
-      if (res.error) {
-        throw new Error(res.error)
-      }
-
-      // Automatically sign in since the account is already confirmed
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw error
       
-      if (signInError) {
-        throw signInError
-      }
-
-      router.push('/onboarding')
-      router.refresh()
+      setSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed')
     } finally {
@@ -89,58 +85,62 @@ export default function SignupPage() {
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4 mb-6">
-          <div className="animate-fade-up delay-1">
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              className="input-glass"
-              required
-              autoFocus
-            />
-          </div>
+          {!success && (
+            <>
+              <div className="animate-fade-up delay-1">
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="input-glass"
+                  required
+                  autoFocus
+                />
+              </div>
 
-          <div className="animate-fade-up delay-2">
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="input-glass pr-12"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
-                style={{ color: 'var(--text-tertiary)' }}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
+              <div className="animate-fade-up delay-2">
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="input-glass pr-12"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                    style={{ color: 'var(--text-tertiary)' }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
 
-          <div className="animate-fade-up delay-3">
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Confirm password
-            </label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
-              className="input-glass"
-              required
-            />
-          </div>
+              <div className="animate-fade-up delay-3">
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                  Confirm password
+                </label>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="input-glass"
+                  required
+                />
+              </div>
+            </>
+          )}
 
           {error && (
             <div
@@ -151,17 +151,41 @@ export default function SignupPage() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-4"
-          >
-            {loading ? (
-              <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
-            ) : (
-              <><UserPlus size={18} /> Create account</>
-            )}
-          </button>
+          {success ? (
+            <div
+              className="p-6 rounded-2xl text-center space-y-4 animate-scale-in"
+              style={{ background: 'rgba(52, 199, 89, 0.1)', border: '1px solid rgba(52, 199, 89, 0.2)' }}
+            >
+              <div className="w-12 h-12 bg-green-500 rounded-full mx-auto flex items-center justify-center text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Check your email</h2>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                We&apos;ve sent a confirmation link to <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{email}</span>. 
+                Please click it to activate your account.
+              </p>
+              <button
+                type="button"
+                onClick={() => setSuccess(false)}
+                className="text-xs font-semibold underline"
+                style={{ color: 'var(--accent-primary)' }}
+              >
+                Use another email
+              </button>
+            </div>
+          ) : (
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-4"
+            >
+              {loading ? (
+                <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+              ) : (
+                <><UserPlus size={18} /> Create account</>
+              )}
+            </button>
+          )}
         </form>
         <div className="text-center animate-fade-up delay-5">
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>

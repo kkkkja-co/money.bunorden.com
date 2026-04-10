@@ -5,96 +5,93 @@ import { MarketingPageShell, MarketingSection } from '../MarketingPageShell'
 
 export default function TermsPage() {
   return (
-    <MarketingPageShell title="Terms of Use" subtitle="Effective Date: April 2026" icon={Scale}>
-      <div className="space-y-8">
-        <MarketingSection title="1. Acceptance of Terms">
+    <MarketingPageShell title="Terms of Use" subtitle="Clear, simple, and fair. Your rights matter." icon={Scale}>
+      <div className="space-y-12">
+        <MarketingSection title="1. Overview">
+            <p className="text-lg" style={{ color: 'var(--text-primary)' }}>
+              By accessing and using Ledger (&quot;the Service&quot;), provided by Bunorden, you agree to be bound by these Terms of Use.
+            </p>
             <p>
-              By accessing and using Ledger (&quot;the Service&quot;), provided by Bunorden, you agree to be bound
-              by these Terms of Use. If you do not agree, please do not use the Service.
+              If you do not agree with any part of these terms, you should immediately discontinue use of the Service. We believe in simplicity and clarity, so we've kept these terms as straightforward as possible.
             </p>
         </MarketingSection>
 
-        <MarketingSection title="2. Service Description">
+        <MarketingSection title="2. The Service">
             <p>
-              Ledger is a privacy-first personal finance application that allows you to track income, expenses,
-              and transfers. The Service is provided &quot;as is&quot; without warranty of any kind.
+              Ledger is a privacy-first personal finance application that allows you to track income, expenses, and transfers. The Service is provided &quot;as is&quot; and &quot;as available&quot;. While we strive for 100% uptime and accuracy, we do not provide legal or financial warranties.
             </p>
         </MarketingSection>
 
-        <MarketingSection title="3. User Accounts">
-            <ul className="list-disc list-inside space-y-2">
-              <li>You must provide a valid email address to create an account.</li>
-              <li>You are responsible for maintaining the confidentiality of your account credentials.</li>
-              <li>You must be at least 13 years of age to use this Service.</li>
-              <li>One person may not maintain more than one account.</li>
-            </ul>
-        </MarketingSection>
-
-        <MarketingSection title="4. Acceptable Use">
-            <p>You agree not to:</p>
-            <ul className="list-disc list-inside space-y-2 mt-2">
-              <li>Use the Service for any unlawful purpose.</li>
-              <li>Attempt to gain unauthorised access to the Service or its systems.</li>
-              <li>Transmit any malicious code, viruses, or harmful data.</li>
-              <li>Impersonate any person or entity.</li>
-              <li>Use automated tools to scrape or extract data from the Service.</li>
-            </ul>
-        </MarketingSection>
-
-        <MarketingSection title="5. Data & Privacy">
-            <p>
-              Your use of the Service is also governed by our{' '}
-              <a href="/privacy" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>Privacy Policy</a>.
-              We are committed to protecting your data and do not sell, share, or monetise your financial information.
+        <MarketingSection title="3. Your Account">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                "Unique, personal account",
+                "Minimum age of 13",
+                "Valid email address required",
+                "Full security responsibility"
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-var(--accent-primary)" />
+                  <span className="text-sm font-medium">{item}</span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-xs">
+              You are responsible for all activity that occurs under your account. Please keep your credentials secure.
             </p>
         </MarketingSection>
 
-        <MarketingSection title="6. Data Ownership">
+        <MarketingSection title="4. Prohibited Actions">
+            <div className="space-y-4">
+              <p>To ensure a safe environment for everyone, you agree not to:</p>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  "Use the service for unlawful activities",
+                  "Attempt to bypass security or gain unauthorized access",
+                  "Automate data extraction (scraping) without permission",
+                  "Impersonate other users or entities"
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                    <span className="text-red-400 font-bold">×</span>
+                    <span className="text-sm">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+        </MarketingSection>
+
+        <MarketingSection title="5. Data Ownership">
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/5">
+                <h4 className="font-bold text-white mb-2">You own your data. Period.</h4>
+                <p className="text-sm">
+                  All financial information entered into Ledger remains your property. You have the right to export your data or delete your account at any time. We do not claim any rights to your financial records.
+                </p>
+            </div>
+        </MarketingSection>
+
+        <MarketingSection title="6. Governance">
             <p>
-              You retain full ownership of all data you enter into Ledger. You may export or delete
-              your data at any time through the Settings page. Upon account deletion, all your data
-              is permanently removed from our systems.
+              These terms are governed by the internal logic of the Service and applicable local regulations. We reserve the right to modify these terms as the Service evolves. Continued use after updates signifies acceptance.
             </p>
         </MarketingSection>
 
-        <MarketingSection title="7. Service Availability">
-            <p>
-              We strive to maintain high availability but do not guarantee uninterrupted access. We reserve
-              the right to modify, suspend, or discontinue the Service at any time with reasonable notice.
-            </p>
-        </MarketingSection>
-
-        <MarketingSection title="8. Limitation of Liability">
-            <p>
-              Ledger is a tool to assist with personal financial tracking. It is not financial advice.
-              Bunorden shall not be liable for any indirect, incidental, or consequential damages arising
-              from your use of the Service.
-            </p>
-        </MarketingSection>
-
-        <MarketingSection title="9. Open Source">
-            <p>
-              Ledger is open-source software released under the MIT License. You may review, fork, and
-              contribute to the source code. The open-source license applies to the code, not to the data
-              you store within the Service.
-            </p>
-        </MarketingSection>
-
-        <MarketingSection title="10. Changes to Terms">
-            <p>
-              We may update these Terms from time to time. Continued use of the Service after changes
-              constitutes acceptance. We will make reasonable efforts to notify users of material changes.
-            </p>
-        </MarketingSection>
-
-        <MarketingSection title="11. Contact">
-            <p>
-              For questions about these Terms, contact us at{' '}
-              <a href="mailto:contact@bunorden.com" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>
-                contact@bunorden.com
-              </a>{' '}
-              or via our <a href="/contact" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>Contact Form</a>.
-            </p>
+        <MarketingSection title="Questions?">
+            <div className="flex flex-wrap gap-4">
+              <a 
+                href="mailto:contact@bunorden.com" 
+                className="flex-1 min-w-[200px] p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/20 transition-all text-center group"
+              >
+                <div className="text-xs mb-1" style={{ color: 'var(--text-tertiary)' }}>General Inquiry</div>
+                <div className="font-bold text-white group-hover:text-var(--accent-primary)">contact@bunorden.com</div>
+              </a>
+              <a 
+                href="/contact" 
+                className="flex-1 min-w-[200px] p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/20 transition-all text-center group"
+              >
+                <div className="text-xs mb-1" style={{ color: 'var(--text-tertiary)' }}>Resolution</div>
+                <div className="font-bold text-white group-hover:text-var(--accent-primary)">Support Ticket</div>
+              </a>
+            </div>
         </MarketingSection>
       </div>
     </MarketingPageShell>

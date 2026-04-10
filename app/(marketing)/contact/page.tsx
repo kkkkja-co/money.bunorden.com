@@ -40,93 +40,99 @@ export default function ContactPage() {
   return (
     <MarketingPageShell
       title="Contact Support"
-      subtitle="Have a question, feedback, or need to make a request?"
+      subtitle="Have a question, feedback, or need to make a request? Our team is here to help."
       icon={Mail}
       maxWidthClass="max-w-2xl"
     >
-      <MarketingSection title="Direct Contact">
-        <div
-          className="rounded-xl p-4 text-center"
-          style={{ background: 'var(--overlay)', border: '1px solid var(--border)' }}
-        >
-          <span className="text-xs block mb-1" style={{ color: 'var(--text-tertiary)' }}>
-            Direct Email Address:
-          </span>
-          <a
-            href="mailto:contact@bunorden.com"
-            className="text-lg font-semibold"
-            style={{ color: 'var(--accent-primary)' }}
+      <MarketingSection title="Reach Out">
+        <div className="grid grid-cols-1 gap-6">
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            We typically respond to all inquiries within 24 hours. Whether it's a technical issue, a feature suggestion, or a data request, we're all ears.
+          </p>
+          <div
+            className="rounded-2xl p-6 text-center group transition-all hover:bg-white/[0.04]"
+            style={{ background: 'var(--overlay)', border: '1px solid var(--border)' }}
           >
-            contact@bunorden.com
-          </a>
+            <span className="text-[10px] font-bold uppercase tracking-widest block mb-2" style={{ color: 'var(--text-tertiary)' }}>
+              Direct Support Channel
+            </span>
+            <a
+              href="mailto:contact@bunorden.com"
+              className="text-2xl font-bold transition-colors group-hover:text-white"
+              style={{ color: 'var(--accent-primary)' }}
+            >
+              contact@bunorden.com
+            </a>
+          </div>
         </div>
       </MarketingSection>
 
-      <MarketingSection title="Send a Message">
-        <form onSubmit={handleSubmit} className="space-y-5">
+      <MarketingSection title="Service Desk">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Request type */}
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Request Type
+            <label className="block text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-tertiary)' }}>
+              Inquiry Category
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { id: 'general', label: 'General', icon: '💬' },
-                { id: 'deletion', label: 'Delete Data', icon: '🗑️' },
-                { id: 'data', label: 'Data Request', icon: '📦' },
+                { id: 'general', label: 'General Support', icon: '💬' },
+                { id: 'deletion', label: 'Data Deletion', icon: '🗑️' },
+                { id: 'data', label: 'Data Export', icon: '📦' },
               ].map((rt) => (
                 <button
                   key={rt.id}
                   type="button"
                   onClick={() => setRequestType(rt.id)}
-                  className="flex flex-col items-center gap-1 p-3 rounded-xl text-xs font-medium"
+                  className="flex items-center gap-3 p-4 rounded-2xl text-xs font-semibold transition-all"
                   style={{
                     background: requestType === rt.id ? 'rgba(59,130,246,0.1)' : 'var(--overlay)',
                     border: `1px solid ${requestType === rt.id ? 'var(--accent-primary)' : 'var(--border)'}`,
                     color: requestType === rt.id ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                    transition: 'all 0.2s',
                   }}
                 >
-                  <span className="text-lg">{rt.icon}</span>
+                  <span className="text-base">{rt.icon}</span>
                   {rt.label}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Your Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="John Doe"
-              className="input-glass"
-              required
-            />
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Name */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="John Doe"
+                className="input-glass"
+                required
+              />
+            </div>
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="john@example.com"
-              className="input-glass"
-              required
-            />
+            {/* Email */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="john@example.com"
+                className="input-glass"
+                required
+              />
+            </div>
           </div>
 
           {/* Subject */}
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+            <label className="block text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>
               Subject
             </label>
             <input
@@ -135,10 +141,10 @@ export default function ContactPage() {
               onChange={(e) => setSubject(e.target.value)}
               placeholder={
                 requestType === 'deletion'
-                  ? 'Request to delete my account and data'
+                  ? 'Request for Account & Data Deletion'
                   : requestType === 'data'
-                  ? 'Request copy of my data'
-                  : 'What is this regarding?'
+                  ? 'Request for Personal Data Archive'
+                  : 'How can we help?'
               }
               className="input-glass"
               required
@@ -147,19 +153,19 @@ export default function ContactPage() {
 
           {/* Message */}
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Message
+            <label className="block text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>
+              Inquiry Details
             </label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={
                 requestType === 'deletion'
-                  ? 'Please include the email address associated with your account...'
-                  : 'Describe your inquiry...'
+                  ? 'Please confirm the email associated with your account. Note that deletion is irreversible.'
+                  : 'Please provide as much detail as possible...'
               }
               className="input-glass"
-              style={{ minHeight: '120px', resize: 'vertical' }}
+              style={{ minHeight: '140px', resize: 'vertical' }}
               required
             />
           </div>
@@ -168,21 +174,16 @@ export default function ContactPage() {
           <button
             type="submit"
             disabled={submitted}
-            className="w-full py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 text-white"
+            className="btn-primary-gradient w-full py-4 text-base flex items-center justify-center gap-3"
             style={{
-              background: submitted
-                ? 'var(--success)'
-                : 'linear-gradient(135deg, var(--accent-primary), #60a5fa)',
-              boxShadow: submitted
-                ? '0 10px 20px rgba(52, 199, 89, 0.3)'
-                : '0 10px 20px rgba(59, 130, 246, 0.3)',
-              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              background: submitted ? 'var(--success)' : undefined,
+              boxShadow: submitted ? '0 10px 30px rgba(52, 199, 89, 0.3)' : undefined,
             }}
           >
             {submitted ? (
-              <><CheckCircle size={20} /> Email Client Opened!</>
+              <><CheckCircle size={20} /> Email Client Opened</>
             ) : (
-              <><Send size={18} /> Send Message</>
+              <><Send size={18} /> Open Email Client</>
             )}
           </button>
         </form>
@@ -190,16 +191,16 @@ export default function ContactPage() {
 
       {requestType === 'deletion' && (
         <div
-          className="mt-6 p-4 rounded-xl text-sm"
+          className="mt-8 p-6 rounded-2xl text-sm italic relative overflow-hidden"
           style={{
             background: 'var(--warning-bg)',
             border: '1px solid rgba(255, 149, 0, 0.2)',
             color: 'var(--warning)',
           }}
         >
-          <strong>Note:</strong> You can also delete your account directly from{' '}
-          <a href="/settings" style={{ textDecoration: 'underline' }}>Settings</a>.
-          Account deletion is immediate and irreversible.
+          <div className="relative z-10">
+            <strong>Security Notice:</strong> You can perform a self-service account deletion immediately from your <a href="/settings" className="font-bold underline hover:opacity-80 transition-opacity">Settings</a> panel. This will permanently purge all your financial records and profile data from our servers.
+          </div>
         </div>
       )}
     </MarketingPageShell>

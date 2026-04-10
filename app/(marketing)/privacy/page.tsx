@@ -5,76 +5,108 @@ import { MarketingPageShell, MarketingSection } from '../MarketingPageShell'
 
 export default function PrivacyPage() {
   return (
-    <MarketingPageShell title="Privacy Policy" subtitle="Effective Date: April 2026" icon={Shield}>
-      <div className="space-y-8">
+    <MarketingPageShell title="Privacy Policy" subtitle="Your data, your privacy. Zero compromise." icon={Shield}>
+      <div className="space-y-12">
         <MarketingSection title="Our Commitment">
+            <p className="text-lg" style={{ color: 'var(--text-primary)' }}>
+              Ledger is built with one principle: <strong className="text-white">your financial data is yours</strong>.
+            </p>
             <p>
-              Ledger is built with one principle: <strong>your financial data is yours</strong>.
-              We do not sell it, share it, or use it to target you with advertising — ever.
+              We do not sell it, share it, or use it to target you with advertising — ever. Your privacy isn't just a feature; it's our foundation.
             </p>
         </MarketingSection>
 
         <MarketingSection title="What We Collect">
-            <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--border)' }}>
-              <table className="w-full text-sm">
+            <p className="mb-6">
+              We collect the minimum amount of data required to provide you with a secure, personalized experience.
+            </p>
+            <div className="overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] shadow-inner">
+              <table className="w-full text-sm text-left">
                 <thead>
-                  <tr style={{ background: 'var(--overlay)' }}>
-                    <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>Data</th>
-                    <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>Purpose</th>
-                    <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>Storage</th>
+                  <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+                    <th className="p-4 font-bold uppercase tracking-wider text-[10px]" style={{ color: 'var(--text-tertiary)' }}>Data</th>
+                    <th className="p-4 font-bold uppercase tracking-wider text-[10px]" style={{ color: 'var(--text-tertiary)' }}>Purpose</th>
+                    <th className="p-4 font-bold uppercase tracking-wider text-[10px]" style={{ color: 'var(--text-tertiary)' }}>Storage</th>
                   </tr>
                 </thead>
-                <tbody style={{ color: 'var(--text-secondary)' }}>
-                  <tr><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Email address</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Authentication</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Supabase Auth</td></tr>
-                  <tr><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Display name</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Your profile</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Supabase DB</td></tr>
-                  <tr><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Transaction data</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Core functionality</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Supabase DB</td></tr>
-                  <tr><td className="p-3">App preferences</td><td className="p-3">Personalisation</td><td className="p-3">Supabase + localStorage</td></tr>
+                <tbody className="divide-y divide-white/5" style={{ color: 'var(--text-secondary)' }}>
+                  <tr className="hover:bg-white/[0.02] transition-colors">
+                    <td className="p-4 font-medium text-white">Email address</td>
+                    <td className="p-4">Secure Authentication</td>
+                    <td className="p-4 opacity-70">Supabase Auth</td>
+                  </tr>
+                  <tr className="hover:bg-white/[0.02] transition-colors">
+                    <td className="p-4 font-medium text-white">Display name</td>
+                    <td className="p-4">Personalization</td>
+                    <td className="p-4 opacity-70">Secured Database</td>
+                  </tr>
+                  <tr className="hover:bg-white/[0.02] transition-colors">
+                    <td className="p-4 font-bold text-white">Financial Data</td>
+                    <td className="p-4">Core Functionality</td>
+                    <td className="p-4 opacity-70">Secured Database</td>
+                  </tr>
+                  <tr className="hover:bg-white/[0.02] transition-colors">
+                    <td className="p-4 font-medium text-white">App preferences</td>
+                    <td className="p-4">User Experience</td>
+                    <td className="p-4 opacity-70">Local + Database</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
-            <p className="mt-4">
-              We do <strong>not</strong> collect: device identifiers, IP address logs, browsing behaviour,
-              location data, or any data beyond what you explicitly enter.
-            </p>
+            <div className="mt-6 flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/5 text-xs italic">
+                <span className="text-var(--accent-primary)">ⓘ</span>
+                <p>
+                  We do <strong>not</strong> collect device identifiers, IP logs, browsing behavior, or location data.
+                </p>
+            </div>
         </MarketingSection>
 
-        <MarketingSection title="What We Do Not Do">
-            <ul className="list-disc list-inside space-y-2">
-              <li>We do not sell your data to any third party.</li>
-              <li>We do not serve advertisements.</li>
-              <li>We do not use third-party analytics (no Google Analytics, Mixpanel, or equivalent).</li>
-              <li>We do not share your data with anyone except as required by law.</li>
-            </ul>
-        </MarketingSection>
-
-        <MarketingSection title="Data Storage & Security">
-            <p>
-              Your data is stored in Supabase (PostgreSQL) hosted on AWS infrastructure. All data is encrypted
-              in transit (TLS 1.2+) and at rest. Row Level Security (RLS) ensures only you can access your records.
-            </p>
+        <MarketingSection title="Guarantees">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                "No selling of user data",
+                "Zero third-party advertising",
+                "No third-party analytics trackers",
+                "End-to-end data encryption"
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-var(--accent-primary)" />
+                  <span className="text-sm font-medium">{item}</span>
+                </div>
+              ))}
+            </div>
         </MarketingSection>
 
         <MarketingSection title="Your Rights">
-            <ul className="list-disc list-inside space-y-2">
-              <li><strong>Export</strong>: Download all your data (JSON + CSV) at any time from Settings.</li>
-              <li><strong>Deletion</strong>: Permanently delete your account and all data from Settings. Deletion is immediate and irreversible.</li>
-              <li><strong>Correction</strong>: Edit any data at any time within the app.</li>
-            </ul>
+            <div className="space-y-6">
+              <div className="group">
+                <h4 className="font-bold text-white mb-1 group-hover:text-var(--accent-primary) transition-colors">Full Data Export</h4>
+                <p className="text-xs">Download all your records in JSON or CSV format at any time from your settings.</p>
+              </div>
+              <div className="group">
+                <h4 className="font-bold text-white mb-1 group-hover:text-var(--danger) transition-colors">Right to be Forgotten</h4>
+                <p className="text-xs">Permanently delete your account and all associated data. This action is immediate and non-recoverable.</p>
+              </div>
+            </div>
         </MarketingSection>
 
-        <MarketingSection title="Open Source">
-            <p>
-              Ledger&apos;s source code is publicly available. You can audit exactly how your data is handled.
-            </p>
-        </MarketingSection>
-
-        <MarketingSection title="Contact">
-            <p>
-              For privacy questions: <a href="mailto:privacy@bunorden.com" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>privacy@bunorden.com</a>
-            </p>
-            <p>
-              Or use our <a href="/contact" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>Contact Form</a>.
-            </p>
+        <MarketingSection title="Get in Touch">
+            <div className="flex flex-wrap gap-4">
+              <a 
+                href="mailto:privacy@bunorden.com" 
+                className="flex-1 min-w-[200px] p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/20 transition-all text-center group"
+              >
+                <div className="text-xs mb-1" style={{ color: 'var(--text-tertiary)' }}>Privacy Office</div>
+                <div className="font-bold text-white group-hover:text-var(--accent-primary)">privacy@bunorden.com</div>
+              </a>
+              <a 
+                href="/contact" 
+                className="flex-1 min-w-[200px] p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/20 transition-all text-center group"
+              >
+                <div className="text-xs mb-1" style={{ color: 'var(--text-tertiary)' }}>Help Center</div>
+                <div className="font-bold text-white group-hover:text-var(--accent-primary)">Contact Form</div>
+              </a>
+            </div>
         </MarketingSection>
       </div>
     </MarketingPageShell>

@@ -1,17 +1,52 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { PERSONA_PRESETS } from '@/lib/presets'
-import { Check, ArrowLeft, Sparkles } from 'lucide-react'
+import { Check, ArrowLeft, Sparkles, Mail, RefreshCw } from 'lucide-react'
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1)
   const [selectedPersona, setSelectedPersona] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [checkingAuth, setCheckingAuth] = useState(true)
   const router = useRouter()
+
+  useEffect(() => {
+    async function checkUser() {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setCheckingAuth(false)
+      
+      if (!user) {
+        router.push('/login')
+      }
+    }
+    checkUser()
+  }, [router])
+
+  const handleResendEmail = async () => {
+    if (!user?.email) return
+    setResending(true)
+    try {
+      await supabase.auth.resend({
+        type: 'signup',
+        email: user.email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
+      })
+      alert('Verification email resent!')
+    } catch (err) {
+      console.error('Error resending email:', err)
+    } finally {
+      setResending(false)
+    }
+  }
 
   const handleComplete = async () => {
     setLoading(true)
@@ -54,6 +89,78 @@ export default function OnboardingPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    )
+  }
+
+  // Verification Gate
+  if (user && !user.email_confirmed_at) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 text-center">
+        <div
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%)
+            `,
+          }}
+        />
+        
+        <div className="w-full max-w-md relative z-10 glass-card p-10 rounded-[2.5rem] border border-white/5 space-y-8 shadow-2xl">
+          <div
+            className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center animate-bounce"
+            style={{
+              background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+              boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+            }}
+          >
+            <Mail size={40} color="#fff" />
+          </div>
+
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight mb-3" style={{ color: 'var(--text-primary)' }}>
+              Verify your email
+            </h1>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+              We've sent a confirmation link to <span className="text-white font-medium">{user.email}</span>. 
+              Please verify your email to unlock your account features.
+            </p>
+          </div>
+
+          <div className="pt-4 space-y-4">
+            <button
+              onClick={() => window.location.reload()}
+              className="btn-primary-gradient w-full py-4 text-base flex items-center justify-center gap-2"
+            >
+              <RefreshCw size={18} /> I&apos;ve verified my email
+            </button>
+            <button
+              onClick={handleResendEmail}
+              disabled={resending}
+              className="w-full py-4 text-sm font-medium rounded-2xl transition-all border border-white/5 hover:bg-white/5"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              {resending ? 'Sending...' : 'Resend verification email'}
+            </button>
+          </div>
+
+          <button
+            onClick={() => supabase.auth.signOut().then(() => router.push('/login'))}
+            className="text-xs font-medium"
+            style={{ color: 'var(--text-quaternary)' }}
+          >
+            Sign out and try another email
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
