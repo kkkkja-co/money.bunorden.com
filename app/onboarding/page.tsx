@@ -33,16 +33,18 @@ export default function OnboardingPage() {
     if (!user?.email) return
     setResending(true)
     try {
-      await supabase.auth.resend({
+      const { error } = await supabase.auth.resend({
         type: 'signup',
         email: user.email,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         }
       })
-      alert('Verification email resent!')
-    } catch (err) {
+      if (error) throw error
+      alert('Verification email resent! Please check your spam folder too.')
+    } catch (err: any) {
       console.error('Error resending email:', err)
+      alert(`Error: ${err.message || 'Could not resend email'}`)
     } finally {
       setResending(false)
     }
@@ -54,22 +56,26 @@ export default function OnboardingPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
-      // Update profile
-      await supabase
+      // Update/Create profile
+      const { error: profileError } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           onboarding_done: true,
           display_name: displayName.trim() || null,
         })
-        .eq('id', user.id)
+
+      if (profileError) throw profileError
 
       // Create default account
-      await supabase.from('accounts').insert({
+      const { error: accountError } = await supabase.from('accounts').insert({
         user_id: user.id,
         name: 'Main Account',
         icon: '💳',
         is_default: true,
       })
+
+      if (accountError) throw accountError
 
       // Create categories based on persona
       const persona = PERSONA_PRESETS.find((p) => p.id === selectedPersona)
@@ -80,12 +86,14 @@ export default function OnboardingPage() {
           icon: cat.icon,
           type: cat.type,
         }))
-        await supabase.from('categories').insert(categories)
+        const { error: catError } = await supabase.from('categories').insert(categories)
+        if (catError) throw catError
       }
 
       router.push('/dashboard')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Onboarding error:', error)
+      alert(error.message || 'Failed to complete onboarding')
     } finally {
       setLoading(false)
     }
