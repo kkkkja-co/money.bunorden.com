@@ -18,12 +18,29 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
+    const runId = `login_${Date.now()}`
+    // #region agent log
+    fetch('http://127.0.0.1:7760/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ed94b1'},body:JSON.stringify({sessionId:'ed94b1',runId,hypothesisId:'H1',location:'app/(auth)/login/page.tsx:23',message:'Login submit started',data:{emailHasAt:email.includes('@'),passwordLength:password.length},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      // #region agent log
+      fetch('http://127.0.0.1:7760/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ed94b1'},body:JSON.stringify({sessionId:'ed94b1',runId,hypothesisId:'H2',location:'app/(auth)/login/page.tsx:28',message:'signInWithPassword returned',data:{hasError:!!error,errorMessage:error?.message??null,hasSession:!!data.session,hasUser:!!data.user},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       if (error) throw error
+      const { data: userResult, error: userError } = await supabase.auth.getUser()
+      // #region agent log
+      fetch('http://127.0.0.1:7760/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ed94b1'},body:JSON.stringify({sessionId:'ed94b1',runId,hypothesisId:'H3',location:'app/(auth)/login/page.tsx:32',message:'getUser after login',data:{userError:userError?.message??null,hasUser:!!userResult.user,emailConfirmedAt:userResult.user?.email_confirmed_at??null},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      // #region agent log
+      fetch('http://127.0.0.1:7760/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ed94b1'},body:JSON.stringify({sessionId:'ed94b1',runId,hypothesisId:'H4',location:'app/(auth)/login/page.tsx:34',message:'Navigating to dashboard',data:{target:'/dashboard'},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       router.push('/dashboard')
     } catch (err) {
+      // #region agent log
+      fetch('http://127.0.0.1:7760/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ed94b1'},body:JSON.stringify({sessionId:'ed94b1',runId,hypothesisId:'H5',location:'app/(auth)/login/page.tsx:38',message:'Login failed in catch',data:{errorMessage:err instanceof Error ? err.message : 'Login failed'},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
       setLoading(false)
