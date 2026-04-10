@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { Eye, EyeOff, UserPlus } from 'lucide-react'
+import { signUpWithAutoConfirm } from './actions'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -31,9 +32,22 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signUp({ email, password })
-      if (error) throw error
+      // Use the server action to bypass SMTP/Email verification
+      const res = await signUpWithAutoConfirm(email, password)
+      
+      if (res.error) {
+        throw new Error(res.error)
+      }
+
+      // Automatically sign in since the account is already confirmed
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      
+      if (signInError) {
+        throw signInError
+      }
+
       router.push('/onboarding')
+      router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed')
     } finally {
@@ -149,7 +163,6 @@ export default function SignupPage() {
             )}
           </button>
         </form>
-
         <div className="text-center animate-fade-up delay-5">
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
             Already have an account?{' '}
