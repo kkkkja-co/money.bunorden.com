@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { Eye, EyeOff, UserPlus, Languages } from 'lucide-react'
 import { useTheme, useTranslation, useLanguage } from '@/app/providers'
+import { TurnstileWidget } from '../TurnstileWidget'
+
+const TURNSTILE_SITE_KEY = '0x4AAAAAAC58QEXTzEw4Mr-A'
 
 export default function SignupPage() {
   const { t } = useTranslation()
@@ -18,12 +21,18 @@ export default function SignupPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const [captchaResetSignal, setCaptchaResetSignal] = useState(0)
   const router = useRouter()
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setSuccess(false)
+    if (!captchaToken) {
+      setError('Please complete Turnstile verification.')
+      return
+    }
 
     if (password !== confirmPassword) {
       setError(t('auth.pass_match_error'))
@@ -45,11 +54,12 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.signUp({ 
+      const { error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
+          captchaToken,
         }
       })
       
@@ -58,6 +68,8 @@ export default function SignupPage() {
       setSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed')
+      setCaptchaToken('')
+      setCaptchaResetSignal((current) => current + 1)
     } finally {
       setLoading(false)
     }
@@ -196,6 +208,18 @@ export default function SignupPage() {
                   required
                 />
               </div>
+
+              <div className="animate-fade-up delay-4">
+                <TurnstileWidget
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onVerify={(token) => {
+                    setCaptchaToken(token)
+                    setError('')
+                  }}
+                  onExpire={() => setCaptchaToken('')}
+                  resetSignal={captchaResetSignal}
+                />
+              </div>
             </>
           )}
 
@@ -234,7 +258,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-4"
+              className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-5"
             >
               {loading ? (
                 <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />

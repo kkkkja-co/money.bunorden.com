@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { Eye, EyeOff, LogIn, Shield, ArrowLeft, Languages } from 'lucide-react'
 import { useTranslation, useTheme, useLanguage } from '@/app/providers'
+import { TurnstileWidget } from '../TurnstileWidget'
+
+const TURNSTILE_SITE_KEY = '0x4AAAAAAC58QEXTzEw4Mr-A'
 
 export default function LoginPage() {
   const { t } = useTranslation()
@@ -18,6 +21,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [resetMode, setResetMode] = useState(false)
   const [resetSent, setResetSent] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const [captchaResetSignal, setCaptchaResetSignal] = useState(0)
 
   // MFA States
   const [showMfa, setShowMfa] = useState(false)
@@ -29,10 +34,18 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    if (!captchaToken) {
+      setError('Please complete Turnstile verification.')
+      return
+    }
     setLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+        options: { captchaToken },
+      })
       if (error) throw error
 
       // Check for MFA factors
@@ -48,6 +61,8 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
+      setCaptchaToken('')
+      setCaptchaResetSignal((current) => current + 1)
     } finally {
       if (!showMfa) setLoading(false)
     }
@@ -291,6 +306,20 @@ export default function LoginPage() {
               </div>
             )}
 
+            {!resetMode && (
+              <div className="animate-fade-up delay-3">
+                <TurnstileWidget
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onVerify={(token) => {
+                    setCaptchaToken(token)
+                    setError('')
+                  }}
+                  onExpire={() => setCaptchaToken('')}
+                  resetSignal={captchaResetSignal}
+                />
+              </div>
+            )}
+
             {error && (
               <div
                 className="p-3 rounded-xl text-sm font-medium animate-scale-in"
@@ -303,7 +332,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-3"
+              className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-4"
             >
               {loading ? (
                 <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
