@@ -1,0 +1,20 @@
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "Identifier[name='SUPABASE_SERVICE_ROLE_KEY']",
+        "message": "SUPABASE_SERVICE_ROLE_KEY must only be used in /app/api/ route handlers. Never import it in client files."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["app/api/**/*.ts", "lib/supabase/server.ts"],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    }
+  ]
+}

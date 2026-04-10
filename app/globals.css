@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input[type='date']::-webkit-calendar-picker-indicator,
+  input[type='time']::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2.5 bg-[#007AFF] text-white rounded-[12px] font-medium 
+      transition-all duration-200 hover:opacity-90 active:scale-95 
+      disabled:opacity-50 disabled:cursor-not-allowed;
+    touch-action: manipulation;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2.5 bg-[#F2F2F7] dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white 
+      rounded-[12px] font-medium transition-all duration-200 hover:opacity-70 
+      active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed 
+      border border-[#E5E5EA] dark:border-[#38383A];
+    touch-action: manipulation;
+  }
+
+  .btn-danger {
+    @apply px-4 py-2.5 bg-[#FF3B30] text-white rounded-[12px] font-medium 
+      transition-all duration-200 hover:opacity-90 active:scale-95 
+      disabled:opacity-50 disabled:cursor-not-allowed;
+    touch-action: manipulation;
+  }
+
+  .card {
+    @apply bg-[#F2F2F7] dark:bg-[#1C1C1E] rounded-[16px] p-4 
+      shadow-subtle border border-[#E5E5EA] dark:border-[#38383A];
+  }
+
+  .input {
+    @apply w-full px-4 py-2.5 bg-white dark:bg-[#0A0A0B] text-[#1C1C1E] dark:text-white 
+      rounded-[12px] border border-[#E5E5EA] dark:border-[#38383A] 
+      placeholder-[#636366] dark:placeholder-[#8E8E93] 
+      focus:outline-none focus:ring-2 focus:ring-[#007AFF] 
+      transition-all duration-200;
+  }
+
+  .skeleton {
+    @apply animate-pulse bg-[#E5E5EA] dark:bg-[#38383A] rounded-[8px];
+  }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Smooth scrolling for horizontal scroll areas */
+.scroll-smooth {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar while keeping scrollability */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Numeric input without spinner */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
