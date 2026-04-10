@@ -28,6 +28,7 @@ export default function SettingsPage() {
   const [exporting, setExporting] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmNewPassword, setConfirmNewPassword] = useState('')
+  const [currentPassword, setCurrentPassword] = useState('')
   const [toast, setToast] = useState('')
   
   // MFA States
@@ -142,6 +143,12 @@ export default function SettingsPage() {
   }
 
   const handleUpdatePassword = async () => {
+    if (!currentPassword) {
+      setToast('Please enter your current password')
+      setTimeout(() => setToast(''), 3000)
+      return
+    }
+
     if (newPassword !== confirmNewPassword) {
       setToast('Passwords do not match')
       setTimeout(() => setToast(''), 3000)
@@ -162,11 +169,19 @@ export default function SettingsPage() {
 
     setLoading(true)
     try {
+      // First verify the current password
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password: currentPassword
+      })
+      if (signInError) throw new Error('Current password verification failed')
+
       const { error } = await supabase.auth.updateUser({ password: newPassword })
       if (error) throw error
       setToast('Password updated successfully')
       setNewPassword('')
       setConfirmNewPassword('')
+      setCurrentPassword('')
     } catch (err: any) {
       setToast(err.message || 'Error updating password')
     } finally {
@@ -362,6 +377,18 @@ export default function SettingsPage() {
             {t('settings.security')}
           </h2>
           <div className="glass-card space-y-4">
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                {t('settings.current_password')}
+              </label>
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="••••••••"
+                className="input-glass"
+              />
+            </div>
             <div>
               <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
                 {t('settings.new_password')}
@@ -649,7 +676,7 @@ export default function SettingsPage() {
         <div className="modal-overlay" onClick={() => setShowMfaModal(false)}>
           <div className="modal-content p-6 max-w-sm" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{t('settings.mfa_title')}</h3>
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{t('settings.mfa_setup_title')}</h3>
               <button onClick={() => setShowMfaModal(false)} className="p-1" style={{ color: 'var(--text-tertiary)' }}>
                 <X size={20} />
               </button>
@@ -658,23 +685,37 @@ export default function SettingsPage() {
             <div className="space-y-6">
               <div className="text-center">
                 <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
-                  Scan this QR code with your authenticator app
+                  {t('settings.mfa_setup_desc')}
                 </p>
-                <div className="p-4 bg-white rounded-2xl inline-block mb-4">
+                <div className="p-4 bg-white rounded-2xl inline-block mb-4 overflow-hidden">
                   <img 
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(mfaEnrollData.totp.uri)}`} 
                     alt="2FA QR Code"
                     className="w-[180px] h-[180px]"
                   />
                 </div>
+
+                <div className="p-3 mb-4 rounded-xl bg-white/5 border border-white/5 text-left">
+                  <p className="text-[10px] uppercase font-bold mb-1" style={{ color: 'var(--text-tertiary)' }}>{t('settings.mfa_secret_label')}</p>
+                  <p className="text-sm font-mono break-all select-all font-bold" style={{ color: 'var(--accent-primary)' }}>
+                    {mfaEnrollData.totp.secret}
+                  </p>
+                </div>
+
+                <div className="p-3 mb-6 rounded-xl bg-warning-bg border border-warning/20 text-left">
+                  <p className="text-[11px] font-medium italic" style={{ color: 'var(--warning)' }}>
+                    {t('settings.mfa_warning')}
+                  </p>
+                </div>
+
                 <div className="p-3 rounded-xl bg-white/5 border border-white/5">
                   <p className="text-[10px] uppercase font-bold mb-1" style={{ color: 'var(--text-tertiary)' }}>Verification Code</p>
                   <input
                     type="text"
                     maxLength={6}
                     value={mfaVerifyCode}
-                    onChange={(e) => setMfaVerifyCode(e.target.value)}
-                    placeholder="000000"
+                    onChange={(e) => setMfaVerifyCode(e.target.value.replace(/[^0-9]/g, ''))}
+                    placeholder={t('settings.mfa_verify_placeholder')}
                     className="w-full bg-transparent text-center text-2xl font-bold tracking-[0.5em] focus:outline-none"
                     style={{ color: 'var(--text-primary)' }}
                   />

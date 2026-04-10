@@ -256,7 +256,7 @@ export default function LoginPage() {
               <div className="animate-fade-up delay-2">
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                    {t('settings.security')}
+                    {t('auth.password')}
                   </label>
                   <button
                     type="button"

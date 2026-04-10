@@ -141,7 +141,7 @@ export default function SignupPage() {
 
               <div className="animate-fade-up delay-2">
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                  {t('settings.security')}
+                  {t('auth.password')}
                 </label>
                 <div className="relative">
                   <input
