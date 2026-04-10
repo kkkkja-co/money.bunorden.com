@@ -47,7 +47,7 @@ export default function ContactPage() {
       <MarketingSection title="Reach Out">
         <div className="grid grid-cols-1 gap-6">
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            We typically respond to all inquiries within 24 hours. Whether it's a technical issue, a feature suggestion, or a data request, we're all ears.
+            We typically respond to all inquiries within 24 hours. Whether it&apos;s a technical issue, a feature suggestion, or a data request, we&apos;re all ears.
           </p>
           <div
             className="rounded-2xl p-6 text-center group transition-all hover:bg-white/[0.04]"

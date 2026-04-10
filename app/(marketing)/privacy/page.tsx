@@ -12,7 +12,7 @@ export default function PrivacyPage() {
               Ledger is built with one principle: <strong className="text-white">your financial data is yours</strong>.
             </p>
             <p>
-              We do not sell it, share it, or use it to target you with advertising — ever. Your privacy isn't just a feature; it's our foundation.
+              We do not sell it, share it, or use it to target you with advertising — ever. Your privacy isn&apos;t just a feature; it&apos;s our foundation.
             </p>
         </MarketingSection>
 

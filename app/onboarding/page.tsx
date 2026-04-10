@@ -129,7 +129,7 @@ export default function OnboardingPage() {
               Verify your email
             </h1>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
-              We've sent a confirmation link to <span className="text-white font-medium">{user.email}</span>. 
+              We&apos;ve sent a confirmation link to <span className="text-white font-medium">{user.email}</span>. 
               Please verify your email to unlock your account features.
             </p>
           </div>
