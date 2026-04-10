@@ -303,7 +303,7 @@ export default function CategoriesPage() {
               className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border-2 border-dashed border-white/10 hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-all text-sm font-bold mt-4 group"
               style={{ color: 'var(--text-tertiary)' }}
             >
-               <Plus size={18} className="group-hover:text-accent-primary transition-colors" /> Add Category
+               <Plus size={18} className="group-hover:text-accent-primary transition-colors" /> {t('settings.categories_add')}
             </button>
           </div>
         )}
@@ -316,19 +316,19 @@ export default function CategoriesPage() {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content p-6" onClick={e => e.stopPropagation()}>
             <h3 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-              {editingCategory ? 'Edit Category' : `New ${type === 'expense' ? 'Expense' : 'Income'} Category`}
+              {editingCategory ? t('settings.categories_edit') : t('settings.categories_new')}
             </h3>
             
             <form onSubmit={handleSave} className="space-y-6">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>
-                  Name
+                  {t('settings.categories_name')}
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="e.g. Food, Salary"
+                  placeholder={t('settings.categories_name_placeholder')}
                   className="input-glass"
                   autoFocus
                   required
@@ -337,17 +337,22 @@ export default function CategoriesPage() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--text-tertiary)' }}>
-                  Icon
+                  {t('settings.categories_icon')}
                 </label>
                 <div className="grid grid-cols-5 gap-2 h-40 overflow-y-auto pr-1 custom-scrollbar">
-                  {ICONS.map(i => (
+                  {['☕', '🍔', '🛒', '🚕', '🏠', '💡', '🎮', '💊', '💰', '💼', '🎁', '🔌', '🎥', '🏋️', '✈️', '🧴'].map(emoji => (
                     <button
-                      key={i}
+                      key={emoji}
                       type="button"
-                      onClick={() => setIcon(i)}
-                      className={`h-12 rounded-xl text-xl transition-all ${icon === i ? 'bg-accent-primary/20 scale-110 shadow-lg ring-2 ring-accent-primary' : 'bg-white/5'}`}
+                      onClick={() => setIcon(emoji)}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-all hover:scale-110 active:scale-95"
+                      style={{ 
+                        background: icon === emoji ? 'var(--accent-primary)' : 'var(--overlay)',
+                        color: icon === emoji ? 'white' : 'inherit',
+                        border: icon === emoji ? 'none' : '1px solid var(--border)'
+                      }}
                     >
-                      {i}
+                      {emoji}
                     </button>
                   ))}
                 </div>
@@ -355,7 +360,7 @@ export default function CategoriesPage() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--text-tertiary)' }}>
-                  Colour
+                  {t('settings.categories_colour')}
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {COLOURS.map(c => (
@@ -376,14 +381,14 @@ export default function CategoriesPage() {
                   onClick={() => setShowModal(false)}
                   className="btn-secondary-glass flex-1 py-3 font-bold"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={processing || !name.trim()}
                   className="btn-primary-gradient flex-1 py-3 font-bold"
                 >
-                  {processing ? 'Saving...' : 'Save Category'}
+                  {processing ? t('common.loading') : t('common.save')}
                 </button>
               </div>
             </form>
@@ -399,18 +404,18 @@ export default function CategoriesPage() {
               <div className="w-16 h-16 rounded-full bg-danger-bg flex items-center justify-center mx-auto mb-4">
                 <Trash2 size={32} style={{ color: 'var(--danger)' }} />
               </div>
-              <h3 className="text-lg font-bold mb-2">Delete Category?</h3>
+              <h3 className="text-lg font-bold mb-2">{t('settings.categories_delete_confirm')}</h3>
               <p className="text-sm mb-8" style={{ color: 'var(--text-tertiary)' }}>
-                Archive this category. Previous transactions will keep this category record.
+                {t('settings.categories_delete_warning')}
               </p>
               <div className="flex gap-3">
-                <button onClick={() => setShowDeleteModal(null)} className="btn-secondary-glass flex-1 py-3 font-bold">Cancel</button>
+                <button onClick={() => setShowDeleteModal(null)} className="btn-secondary-glass flex-1 py-3 font-bold">{t('common.cancel')}</button>
                 <button 
                   onClick={() => handleDelete(showDeleteModal)} 
                   disabled={processing}
                   className="btn-danger-glass flex-1 py-3 font-bold"
                 >
-                  Archive
+                  {t('common.delete')}
                 </button>
               </div>
             </div>

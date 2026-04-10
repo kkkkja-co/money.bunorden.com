@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { Eye, EyeOff, UserPlus } from 'lucide-react'
-import { useTheme } from '@/app/providers'
+import { useTheme, useTranslation } from '@/app/providers'
 
 export default function SignupPage() {
+  const { t } = useTranslation()
   const { theme } = useTheme()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,7 +25,7 @@ export default function SignupPage() {
     setSuccess(false)
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('auth.pass_match_error'))
       return
     }
     
@@ -36,7 +37,7 @@ export default function SignupPage() {
     const isLongEnough = password.length >= 8
 
     if (!isLongEnough || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSymbol) {
-      setError('Password does not meet the security requirements')
+      setError(t('auth.pass_requirements_error'))
       return
     }
 
@@ -90,10 +91,10 @@ export default function SignupPage() {
             />
           </div>
           <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
-            Create account
+            {t('auth.signup')}
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-            Join Clavi — your privacy is our priority
+            {t('auth.signup_slogan')}
           </p>
         </div>
 
@@ -102,7 +103,7 @@ export default function SignupPage() {
             <>
               <div className="animate-fade-up delay-1">
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                  Email
+                  {t('settings.email')}
                 </label>
                 <input
                   type="email"
@@ -117,7 +118,7 @@ export default function SignupPage() {
 
               <div className="animate-fade-up delay-2">
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                  Password
+                  {t('settings.security')}
                 </label>
                 <div className="relative">
                   <input
@@ -141,10 +142,10 @@ export default function SignupPage() {
                 {/* Requirements indicator */}
                 <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 px-1 py-1">
                   {[
-                    { label: '8+ Characters', met: password.length >= 8 },
-                    { label: 'Uppercase', met: /[A-Z]/.test(password) },
-                    { label: 'Lowercase', met: /[a-z]/.test(password) },
-                    { label: 'Digit & Symbol', met: /[0-9]/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+                    { label: t('auth.pass_8_chars'), met: password.length >= 8 },
+                    { label: t('auth.pass_upper'), met: /[A-Z]/.test(password) },
+                    { label: t('auth.pass_lower'), met: /[a-z]/.test(password) },
+                    { label: t('auth.pass_digit_symbol'), met: /[0-9]/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password) },
                   ].map((req, i) => (
                     <div key={i} className="flex items-center gap-1.5 transition-all">
                       <div 
@@ -161,7 +162,7 @@ export default function SignupPage() {
 
               <div className="animate-fade-up delay-3">
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                  Confirm password
+                  {t('auth.confirm_password')}
                 </label>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -192,10 +193,10 @@ export default function SignupPage() {
               <div className="w-12 h-12 bg-green-500 rounded-full mx-auto flex items-center justify-center text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
               </div>
-              <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Check your email</h2>
+              <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{t('auth.check_email')}</h2>
               <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                We&apos;ve sent a confirmation link to <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{email}</span>. 
-                Please click it to activate your account.
+                {t('auth.reset_link_sent').replace('{email}', email)} 
+                {t('auth.activation_sent')}
               </p>
               <button
                 type="button"
@@ -203,7 +204,7 @@ export default function SignupPage() {
                 className="text-xs font-semibold underline"
                 style={{ color: 'var(--accent-primary)' }}
               >
-                Use another email
+                {t('auth.use_another_email')}
               </button>
             </div>
           ) : (
@@ -215,25 +216,25 @@ export default function SignupPage() {
               {loading ? (
                 <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
               ) : (
-                <><UserPlus size={18} /> Create account</>
+                <><UserPlus size={18} /> {t('auth.signup')}</>
               )}
             </button>
           )}
         </form>
         <div className="text-center animate-fade-up delay-5">
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-            Already have an account?{' '}
+            {t('auth.have_account')}{' '}
             <Link href="/login" className="font-semibold" style={{ color: 'var(--accent-primary)' }}>
-              Sign in
+              {t('auth.signin')}
             </Link>
           </p>
         </div>
 
         {/* Footer links */}
         <div className="flex items-center justify-center gap-4 mt-8 animate-fade-up delay-6">
-          <Link href="/privacy" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Privacy</Link>
+          <Link href="/privacy" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('settings.privacy')}</Link>
           <span style={{ color: 'var(--text-tertiary)' }}>·</span>
-          <Link href="/terms" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Terms</Link>
+          <Link href="/terms" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('settings.terms')}</Link>
           <span style={{ color: 'var(--text-tertiary)' }}>·</span>
           <a href="https://bunorden.com" target="_blank" rel="noopener noreferrer" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
             Bunorden

@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { ArrowLeft, Check, Settings, Plus, X, Trash2 } from 'lucide-react'
+import { useTranslation } from '@/app/providers'
 
 interface Category {
   id: string
@@ -21,6 +22,7 @@ interface Account {
 type TxType = 'expense' | 'income' | 'transfer'
 
 function AddTransactionForm() {
+  const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('id')
@@ -206,8 +208,8 @@ function AddTransactionForm() {
           >
             <Check size={40} style={{ color: 'var(--success)' }} />
           </div>
-          <p className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Saved!</p>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>Redirecting...</p>
+          <p className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{t('transactions.save_success')}</p>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>{t('transactions.redirecting')}</p>
         </div>
       </div>
     )
@@ -231,28 +233,28 @@ function AddTransactionForm() {
             <ArrowLeft size={20} />
           </button>
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-            Add Transaction
+            {editId ? t('transactions.edit_title') : t('transactions.add_title')}
           </h1>
         </div>
 
         {/* Type Selector */}
         <div className="glass-card p-1.5 flex gap-1 mb-6 animate-fade-up delay-1">
-          {(['expense', 'income', 'transfer'] as TxType[]).map((t) => (
+          {(['expense', 'income', 'transfer'] as TxType[]).map((t_index) => (
             <button
-              key={t}
-              onClick={() => { setType(t); setCategoryId('') }}
+              key={t_index}
+              onClick={() => { setType(t_index); setCategoryId('') }}
               className="flex-1 py-2.5 rounded-xl text-sm font-semibold capitalize"
               style={{
-                background: type === t
-                  ? (t === 'expense' ? 'var(--danger-bg)' : t === 'income' ? 'var(--success-bg)' : 'rgba(59,130,246,0.1)')
+                background: type === t_index
+                  ? (t_index === 'expense' ? 'var(--danger-bg)' : t_index === 'income' ? 'var(--success-bg)' : 'rgba(59,130,246,0.1)')
                   : 'transparent',
-                color: type === t
-                  ? (t === 'expense' ? 'var(--danger)' : t === 'income' ? 'var(--success)' : 'var(--accent-primary)')
+                color: type === t_index
+                  ? (t_index === 'expense' ? 'var(--danger)' : t_index === 'income' ? 'var(--success)' : 'var(--accent-primary)')
                   : 'var(--text-tertiary)',
                 transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
             >
-              {t}
+              {t(`transactions.filter_${t_index === 'transfer' ? 'all' : t_index}`)}
             </button>
           ))}
         </div>
@@ -261,7 +263,7 @@ function AddTransactionForm() {
           {/* Amount */}
           <div className="animate-fade-up delay-2">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Amount ({currency})
+              {t('transactions.amount')} ({currency})
             </label>
             <input
               type="number"
@@ -285,7 +287,7 @@ function AddTransactionForm() {
             <div className="animate-fade-up delay-3">
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                  Category
+                  {t('transactions.category')}
                 </label>
                 <div className="flex gap-2">
                   <button
@@ -299,7 +301,7 @@ function AddTransactionForm() {
                     className="p-1 px-2 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1"
                     style={{ background: 'var(--overlay)', border: '1px solid var(--border)', color: 'var(--accent-primary)' }}
                   >
-                    <Plus size={10} strokeWidth={3} /> Add
+                    <Plus size={10} strokeWidth={3} /> {t('common.add_transaction').split(' ')[0]}
                   </button>
                 </div>
               </div>
@@ -350,7 +352,7 @@ function AddTransactionForm() {
                 
                 {filteredCategories.length === 0 && (
                   <div className="col-span-full py-6 text-center text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                    No categories for {type}. Click &quot;Add&quot; to create one.
+                    {t('transactions.no_cats_for_type').replace('{type}', t(`transactions.filter_${type}`))}
                   </div>
                 )}
               </div>
@@ -363,7 +365,7 @@ function AddTransactionForm() {
               <div className="modal-content p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-                    {editingCat ? 'Edit Category' : 'New Category'}
+                    {editingCat ? t('settings.categories_edit') : t('settings.categories_new')}
                   </h3>
                   <button onClick={() => setShowCatModal(false)} style={{ color: 'var(--text-tertiary)' }}>
                     <X size={20} />
@@ -382,7 +384,7 @@ function AddTransactionForm() {
                     </button>
                     <div className="flex-1">
                       <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                        Category Icon
+                        {t('settings.categories_icon')}
                       </label>
                       <div className="flex flex-wrap gap-1.5">
                         {['☕', '🍔', '🛒', '🚕', '🏠', '💡', '🎮', '💊', '💰', '💼', '🎁', '🔌', '🎥', '🏋️', '✈️', '🧴'].map(emoji => (
@@ -406,14 +408,14 @@ function AddTransactionForm() {
                   
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                      Category Name
+                      {t('settings.categories_name')}
                     </label>
                     <input
                       type="text"
                       value={catName}
                       onChange={(e) => setCatName(e.target.value)}
                       className="input-glass"
-                      placeholder="e.g. Coffee"
+                      placeholder={t('settings.categories_name_placeholder')}
                       autoFocus
                     />
                   </div>
@@ -436,7 +438,7 @@ function AddTransactionForm() {
                       onClick={handleSaveCategory}
                       className="btn-primary-gradient flex-1 py-3"
                     >
-                      {catLoading ? 'Saving...' : 'Save Category'}
+                      {catLoading ? t('common.loading') : t('common.save')}
                     </button>
                   </div>
                 </div>
@@ -448,7 +450,7 @@ function AddTransactionForm() {
           {accounts.length > 1 && (
             <div className="animate-fade-up delay-3">
               <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                Account
+                {t('transactions.account')}
               </label>
               <div className="flex gap-2 flex-wrap">
                 {accounts.map((acc) => (
@@ -475,7 +477,7 @@ function AddTransactionForm() {
           {/* Date */}
           <div className="animate-fade-up delay-4">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Date
+              {t('transactions.date')}
             </label>
             <input
               type="date"
@@ -490,9 +492,9 @@ function AddTransactionForm() {
           <div className="animate-fade-up delay-5 flex items-center justify-between p-1">
             <div>
               <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                Recurring
+                {t('transactions.recurring')}
               </label>
-              <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>Repeat this transaction monthly</p>
+              <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{t('transactions.recurring_subtitle')}</p>
             </div>
             <button
               type="button"
@@ -515,13 +517,13 @@ function AddTransactionForm() {
           {/* Note */}
           <div className="animate-fade-up delay-6">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Note (optional)
+              {t('transactions.note')} ({t('common.continue').toLowerCase()}) 
             </label>
             <input
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Coffee, Groceries, Rent..."
+              placeholder={t('transactions.note_placeholder')}
               className="input-glass"
               maxLength={280}
             />
@@ -543,7 +545,7 @@ function AddTransactionForm() {
             disabled={loading || !amount}
             className="btn-primary-gradient w-full py-4 text-base animate-fade-up delay-6"
           >
-            {loading ? 'Saving...' : 'Save Transaction'}
+            {loading ? t('common.loading') : t('common.save')}
           </button>
         </form>
       </div>

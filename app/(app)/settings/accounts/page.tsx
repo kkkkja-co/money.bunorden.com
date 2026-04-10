@@ -182,7 +182,7 @@ export default function AccountsPage() {
                     <p className="font-bold text-base truncate" style={{ color: 'var(--text-primary)' }}>{account.name}</p>
                     {account.is_default && (
                       <span className="text-[10px] bg-accent-primary/10 text-accent-primary px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">
-                        Default
+                        {t('common.default')}
                       </span>
                     )}
                   </div>
@@ -219,7 +219,7 @@ export default function AccountsPage() {
               <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center group-hover:border-accent-primary group-hover:text-accent-primary transition-colors">
                 <Plus size={18} />
               </div>
-              Add Account
+              {t('settings.accounts_new')}
             </button>
           </div>
         )}
@@ -232,19 +232,19 @@ export default function AccountsPage() {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content p-6" onClick={e => e.stopPropagation()}>
             <h3 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-              {editingAccount ? 'Edit Account' : 'New Account'}
+              {editingAccount ? t('settings.accounts_edit') : t('settings.accounts_new')}
             </h3>
             
             <form onSubmit={handleSave} className="space-y-6">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>
-                  Account Name
+                  {t('settings.accounts_name')}
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="e.g. Savings, Wallet"
+                  placeholder={t('settings.accounts_name_placeholder')}
                   className="input-glass text-lg"
                   autoFocus
                   required
@@ -253,7 +253,7 @@ export default function AccountsPage() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--text-tertiary)' }}>
-                  Icon
+                  {t('settings.accounts_icon')}
                 </label>
                 <div className="grid grid-cols-5 gap-2">
                   {ICONS.map(i => (
@@ -271,7 +271,7 @@ export default function AccountsPage() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--text-tertiary)' }}>
-                  Theme Colour
+                  {t('settings.accounts_colour')}
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {COLOURS.map(c => (
@@ -292,14 +292,14 @@ export default function AccountsPage() {
                   onClick={() => setShowModal(false)}
                   className="btn-secondary-glass flex-1 py-3 font-bold"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={processing || !name.trim()}
                   className="btn-primary-gradient flex-1 py-3 font-bold"
                 >
-                  {processing ? 'Saving...' : 'Save Account'}
+                  {processing ? t('common.loading') : t('common.save')}
                 </button>
               </div>
             </form>
@@ -315,18 +315,18 @@ export default function AccountsPage() {
               <div className="w-16 h-16 rounded-full bg-danger-bg flex items-center justify-center mx-auto mb-4">
                 <Trash2 size={32} style={{ color: 'var(--danger)' }} />
               </div>
-              <h3 className="text-lg font-bold mb-2">Delete Account?</h3>
+              <h3 className="text-lg font-bold mb-2">{t('settings.accounts_delete_confirm')}</h3>
               <p className="text-sm mb-8" style={{ color: 'var(--text-tertiary)' }}>
-                This will fail if any transactions are linked to this account.
+                {t('settings.accounts_delete_warning')}
               </p>
               <div className="flex gap-3">
-                <button onClick={() => setShowDeleteModal(null)} className="btn-secondary-glass flex-1 py-3 font-bold">Cancel</button>
+                <button onClick={() => setShowDeleteModal(null)} className="btn-secondary-glass flex-1 py-3 font-bold">{t('common.cancel')}</button>
                 <button 
                   onClick={() => handleDelete(showDeleteModal)} 
                   disabled={processing}
                   className="btn-danger-glass flex-1 py-3 font-bold"
                 >
-                  Delete
+                  {t('common.delete')}
                 </button>
               </div>
             </div>

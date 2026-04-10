@@ -136,8 +136,8 @@ export default function LoginPage() {
             {showMfa 
               ? t('auth.mfa_subtitle')
               : resetMode 
-                ? t('auth.verify_email_subtitle', { email: '' }).split('{')[0]
-                : 'Sign in to your Clavi account'}
+                ? t('auth.signin_subtitle')
+                : t('auth.signin_subtitle')}
           </p>
         </div>
 
@@ -146,16 +146,16 @@ export default function LoginPage() {
             <div className="w-12 h-12 rounded-full bg-success-bg flex items-center justify-center mx-auto mb-4 text-success">
               <LogIn size={20} />
             </div>
-            <h3 className="font-bold mb-2">Check your email</h3>
+            <h3 className="font-bold mb-2">{t('auth.check_email')}</h3>
             <p className="text-sm mb-6" style={{ color: 'var(--text-tertiary)' }}>
-              We&apos;ve sent a password reset link to <span className="text-white">{email}</span>.
+              {t('auth.reset_link_sent').replace('{email}', email)}
             </p>
             <button
               onClick={() => { setResetSent(false); setResetMode(false) }}
               className="text-sm font-semibold"
               style={{ color: 'var(--accent-primary)' }}
             >
-              Back to Sign in
+              {t('auth.back_to_signin')}
             </button>
           </div>
         ) : showMfa ? (
@@ -216,7 +216,7 @@ export default function LoginPage() {
           <form onSubmit={resetMode ? handlePasswordReset : handleLogin} className="space-y-4 mb-6">
             <div className="animate-fade-up delay-1">
               <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                Email
+                {t('settings.email')}
               </label>
               <input
                 type="email"
@@ -233,7 +233,7 @@ export default function LoginPage() {
               <div className="animate-fade-up delay-2">
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                    Password
+                    {t('settings.security')}
                   </label>
                   <button
                     type="button"
@@ -241,7 +241,7 @@ export default function LoginPage() {
                     className="text-xs font-semibold"
                     style={{ color: 'var(--accent-primary)' }}
                   >
-                    Forgot?
+                    {t('auth.forgot_password')}
                   </button>
                 </div>
                 <div className="relative">
@@ -282,7 +282,7 @@ export default function LoginPage() {
               {loading ? (
                 <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
               ) : (
-                <>{resetMode ? <LogIn size={18} /> : <LogIn size={18} />} {resetMode ? 'Send reset link' : 'Sign in'}</>
+                <>{resetMode ? <LogIn size={18} /> : <LogIn size={18} />} {resetMode ? t('auth.send_reset_link') : t('auth.signin')}</>
               )}
             </button>
 
@@ -293,7 +293,7 @@ export default function LoginPage() {
                 className="w-full text-center text-sm font-medium"
                 style={{ color: 'var(--text-tertiary)' }}
               >
-                Back to Sign in
+                {t('auth.back_to_signin')}
               </button>
             )}
           </form>
@@ -302,9 +302,9 @@ export default function LoginPage() {
         {!showMfa && (
           <div className="text-center animate-fade-up delay-4">
             <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-              Don&apos;t have an account?{' '}
+              {t('auth.no_account')}{' '}
               <Link href="/signup" className="font-semibold" style={{ color: 'var(--accent-primary)' }}>
-                Create one
+                {t('auth.create_one')}
               </Link>
             </p>
           </div>
@@ -312,9 +312,9 @@ export default function LoginPage() {
 
         {/* Footer links */}
         <div className="flex items-center justify-center gap-4 mt-8 animate-fade-up delay-5">
-          <Link href="/privacy" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Privacy</Link>
+          <Link href="/privacy" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('settings.privacy')}</Link>
           <span style={{ color: 'var(--text-tertiary)' }}>·</span>
-          <Link href="/terms" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Terms</Link>
+          <Link href="/terms" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('settings.terms')}</Link>
           <span style={{ color: 'var(--text-tertiary)' }}>·</span>
           <a href="https://bunorden.com" target="_blank" rel="noopener noreferrer" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
             Bunorden

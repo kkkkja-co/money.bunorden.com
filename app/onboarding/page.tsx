@@ -76,7 +76,7 @@ export default function OnboardingPage() {
       // Create default account
       const { error: accountError } = await supabase.from('accounts').insert({
         user_id: user.id,
-        name: language === 'zh-TW' ? '主要帳戶' : 'Main Account',
+        name: t('common.main_account'),
         icon: '💳',
         is_default: true,
       })
@@ -88,7 +88,7 @@ export default function OnboardingPage() {
       if (persona && persona.id !== 'custom') {
         const categories = persona.categories.map((cat) => ({
           user_id: user.id,
-          name: cat.name,
+          name: t(cat.name as any),
           icon: cat.icon,
           type: cat.type,
         }))
@@ -332,10 +332,10 @@ export default function OnboardingPage() {
                 >
                   <div className="text-4xl mb-3">{persona.icon}</div>
                   <h3 className="font-semibold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>
-                    {persona.label}
+                    {t(persona.label as any)}
                   </h3>
                   <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                    {persona.description}
+                    {t(persona.description as any)}
                   </p>
                 </button>
               ))}
