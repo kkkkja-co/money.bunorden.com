@@ -9,6 +9,13 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, ChevronRight, Shield, X } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import { useTranslation, useLanguage } from '@/app/providers'
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
+
+const COLORS = [
+  '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444', 
+  '#f59e0b', '#10b981', '#06b6d4', '#6366f1',
+  '#f43f5e', '#a855f7'
+]
 
 interface Profile {
   display_name: string | null
@@ -198,6 +205,72 @@ export default function DashboardPage() {
             </p>
           </div>
         </div>
+
+        {/* Dashboard Chart Preview */}
+        {transactions.length > 0 && (
+          <div className="glass-card mb-6 animate-fade-up delay-2 overflow-hidden">
+            <div className="flex items-center justify-between mb-4 px-1">
+              <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{t('reports.expenses_by_category')}</h3>
+              <Link href="/reports" className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--accent-primary)' }}>
+                {t('common.view_all')}
+              </Link>
+            </div>
+            <div className="h-[140px] w-full flex items-center gap-4">
+              <div className="w-1/2 h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={Object.values(
+                        transactions
+                          .filter(t => t.type === 'expense')
+                          .reduce((acc: any, t) => {
+                            const name = t.category?.name || 'Other'
+                            if (!acc[name]) acc[name] = { name, value: 0 }
+                            acc[name].value += Number(t.amount)
+                            return acc
+                          }, {})
+                      ).slice(0, 5)}
+                      innerRadius={45}
+                      outerRadius={60}
+                      paddingAngle={4}
+                      dataKey="value"
+                      cornerRadius={4}
+                    >
+                      {COLORS.map((color, index) => (
+                        <Cell key={`cell-${index}`} fill={color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="w-1/2 space-y-2">
+                {Object.values(
+                  transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((acc: any, t) => {
+                      const name = t.category?.name || 'Other'
+                      if (!acc[name]) acc[name] = { name, value: 0 }
+                      acc[name].value += Number(t.amount)
+                      return acc
+                    }, {})
+                )
+                .sort((a: any, b: any) => b.value - a.value)
+                .slice(0, 3)
+                .map((item: any, i) => (
+                  <div key={item.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                      <span className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>{item.name}</span>
+                    </div>
+                    <span className="text-[10px] font-bold" style={{ color: 'var(--text-primary)' }}>
+                      {Math.round((item.value / totals.expense) * 100)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Income / Expense cards */}
         <div className="grid grid-cols-2 gap-4 mb-6">
