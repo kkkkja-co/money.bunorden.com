@@ -8,6 +8,7 @@ import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, ChevronRight, Shield, X } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
+import { useTranslation, useLanguage } from '@/app/providers'
 
 interface Profile {
   display_name: string | null
@@ -26,6 +27,8 @@ interface Transaction {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation()
+  const { language } = useLanguage()
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -106,7 +109,7 @@ export default function DashboardPage() {
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin"
             style={{ borderColor: 'var(--accent-primary)', borderTopColor: 'transparent' }} />
-          <span className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Loading...</span>
+          <span className="text-sm" style={{ color: 'var(--text-tertiary)' }}>{t('common.loading')}</span>
         </div>
       </div>
     )
@@ -132,10 +135,10 @@ export default function DashboardPage() {
             className="text-3xl lg:text-4xl font-bold tracking-tight mb-1"
             style={{ color: 'var(--text-primary)' }}
           >
-            Welcome{profile?.display_name ? `, ${profile.display_name}` : ''}
+            {t('common.welcome')}{profile?.display_name ? `, ${profile.display_name}` : ''}
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            {new Date().toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
 
@@ -153,11 +156,11 @@ export default function DashboardPage() {
                 <Shield size={20} />
               </div>
               <div className="flex-1 min-w-0 pr-6">
-                <p className="font-bold text-sm mb-0.5" style={{ color: 'var(--text-primary)' }}>Secure your account</p>
+                <p className="font-bold text-sm mb-0.5" style={{ color: 'var(--text-primary)' }}>{t('dashboard.secure_account')}</p>
                 <p className="text-xs leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
-                  Activate 2FA authentication to add an extra layer of security.
+                  {t('dashboard.mfa_reminder')}
                   <Link href="/settings" className="ml-1 font-bold underline" style={{ color: 'var(--accent-primary)' }}>
-                    Go to Settings
+                    {t('dashboard.go_to_settings')}
                   </Link>
                 </p>
               </div>
@@ -185,7 +188,7 @@ export default function DashboardPage() {
           />
           <div className="relative">
             <p className="text-sm font-medium mb-2" style={{ color: 'var(--text-tertiary)' }}>
-              This Month&apos;s Balance
+              {t('dashboard.balance_title')}
             </p>
             <p
               className="text-4xl lg:text-5xl font-bold tracking-tight mb-1"
@@ -203,7 +206,7 @@ export default function DashboardPage() {
               <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--success-bg)' }}>
                 <TrendingUp size={14} style={{ color: 'var(--success)' }} />
               </div>
-              <span className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Income</span>
+              <span className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>{t('dashboard.income')}</span>
             </div>
             <p className="text-xl lg:text-2xl font-bold" style={{ color: 'var(--success)' }}>
               {formatCurrency(totals.income, currency)}
@@ -214,7 +217,7 @@ export default function DashboardPage() {
               <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--danger-bg)' }}>
                 <TrendingDown size={14} style={{ color: 'var(--danger)' }} />
               </div>
-              <span className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Expenses</span>
+              <span className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>{t('dashboard.expenses')}</span>
             </div>
             <p className="text-xl lg:text-2xl font-bold" style={{ color: 'var(--danger)' }}>
               {formatCurrency(totals.expense, currency)}
@@ -233,14 +236,14 @@ export default function DashboardPage() {
           }}
         >
           <Plus size={20} strokeWidth={2.5} />
-          Add Transaction
+          {t('common.add_transaction')}
         </Link>
 
         {/* Recent Transactions */}
         <div className="animate-fade-up delay-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-              Recent Transactions
+              {t('dashboard.recent_title')}
             </h2>
             {transactions.length > 0 && (
               <Link
@@ -248,7 +251,7 @@ export default function DashboardPage() {
                 className="flex items-center gap-1 text-sm font-medium"
                 style={{ color: 'var(--accent-primary)' }}
               >
-                View all <ChevronRight size={14} />
+                {t('common.view_all')} <ChevronRight size={14} />
               </Link>
             )}
           </div>
@@ -257,10 +260,10 @@ export default function DashboardPage() {
             <div className="glass-card text-center py-12">
               <div className="text-4xl mb-3">📝</div>
               <p className="font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-                No transactions yet
+                {t('common.no_transactions')}
               </p>
               <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                Add your first transaction to start tracking
+                {t('common.start_tracking')}
               </p>
             </div>
           ) : (

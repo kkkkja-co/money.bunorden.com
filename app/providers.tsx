@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useState, createContext, useContext, useCallback } from 'react'
+import { useEffect, useState, createContext, useContext, useCallback, useMemo } from 'react'
+import { Language, translations } from '@/lib/i18n/translations'
+import { supabase } from '@/lib/supabase/client'
 
 type Theme = 'dark' | 'light'
 
@@ -9,25 +11,75 @@ interface ThemeContextType {
   toggleTheme: () => void
 }
 
+interface LanguageContextType {
+  language: Language
+  setLanguage: (lang: Language) => void
+  t: (path: string, params?: Record<string, string>) => string
+}
+
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'dark',
   toggleTheme: () => {},
 })
 
+const LanguageContext = createContext<LanguageContextType>({
+  language: 'en',
+  setLanguage: () => {},
+  t: (path: string) => path,
+})
+
 export const useTheme = () => useContext(ThemeContext)
+export const useLanguage = () => useContext(LanguageContext)
+
+export const useTranslation = () => {
+  const { t, language } = useLanguage()
+  return { t, language }
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark')
+  const [language, setLanguageState] = useState<Language>('en')
   const [mounted, setMounted] = useState(false)
 
+  // Initialization
   useEffect(() => {
-    const stored = localStorage.getItem('ledger-theme') as Theme | null
+    // Theme
+    const storedTheme = localStorage.getItem('ledger-theme') as Theme | null
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const initial = stored || (prefersDark ? 'dark' : 'light')
-    setTheme(initial)
-    document.documentElement.setAttribute('data-theme', initial)
+    const initialTheme = storedTheme || (prefersDark ? 'dark' : 'light')
+    setTheme(initialTheme)
+    document.documentElement.setAttribute('data-theme', initialTheme)
+
+    // Language
+    const storedLang = localStorage.getItem('ledger-lang') as Language | null
+    if (storedLang) {
+      setLanguageState(storedLang)
+    }
+
     setMounted(true)
   }, [])
+
+  // Sync language with Supabase for logged in users
+  useEffect(() => {
+    if (!mounted) return
+
+    const syncLang = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('language')
+          .eq('id', user.id)
+          .single()
+        
+        if (data?.language && data.language !== language) {
+          setLanguageState(data.language as Language)
+          localStorage.setItem('ledger-lang', data.language)
+        }
+      }
+    }
+    syncLang()
+  }, [mounted])
 
   const toggleTheme = useCallback(() => {
     setTheme(prev => {
@@ -38,13 +90,50 @@ export function Providers({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
+  const setLanguage = useCallback((lang: Language) => {
+    setLanguageState(lang)
+    localStorage.setItem('ledger-lang', lang)
+    
+    // Attempt to sync to Supabase if logged in
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        supabase.from('profiles').update({ language: lang }).eq('id', user.id).then()
+      }
+    })
+  }, [])
+
+  const t = useCallback((path: string, params?: Record<string, string>) => {
+    const keys = path.split('.')
+    let result: any = translations[language]
+    
+    for (const key of keys) {
+      if (result && result[key]) {
+        result = result[key]
+      } else {
+        return path
+      }
+    }
+
+    if (typeof result === 'string' && params) {
+      let templated = result
+      Object.entries(params).forEach(([key, value]) => {
+        templated = templated.replace(`{${key}}`, value)
+      })
+      return templated
+    }
+
+    return typeof result === 'string' ? result : path
+  }, [language])
+
   if (!mounted) {
     return <div style={{ visibility: 'hidden' }}>{children}</div>
   }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
+      <LanguageContext.Provider value={{ language, setLanguage, t }}>
+        {children}
+      </LanguageContext.Provider>
     </ThemeContext.Provider>
   )
 }

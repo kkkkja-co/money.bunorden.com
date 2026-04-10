@@ -4,10 +4,14 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { PERSONA_PRESETS } from '@/lib/presets'
-import { Check, ArrowLeft, Sparkles, Mail, RefreshCw } from 'lucide-react'
+import { Check, ArrowLeft, Sparkles, Mail, RefreshCw, Languages } from 'lucide-react'
+import { useTranslation, useLanguage } from '@/app/providers'
+import { Language } from '@/lib/i18n/translations'
 
 export default function OnboardingPage() {
-  const [step, setStep] = useState(1)
+  const { t } = useTranslation()
+  const { language, setLanguage } = useLanguage()
+  const [step, setStep] = useState(0)
   const [selectedPersona, setSelectedPersona] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [loading, setLoading] = useState(false)
@@ -63,6 +67,7 @@ export default function OnboardingPage() {
           id: user.id,
           onboarding_done: true,
           display_name: displayName.trim() || null,
+          language: language,
         })
 
       if (profileError) throw profileError
@@ -70,7 +75,7 @@ export default function OnboardingPage() {
       // Create default account
       const { error: accountError } = await supabase.from('accounts').insert({
         user_id: user.id,
-        name: 'Main Account',
+        name: language === 'zh-TW' ? '主要帳戶' : 'Main Account',
         icon: '💳',
         is_default: true,
       })
@@ -134,11 +139,10 @@ export default function OnboardingPage() {
 
           <div>
             <h1 className="text-3xl font-bold tracking-tight mb-3" style={{ color: 'var(--text-primary)' }}>
-              Verify your email
+              {t('auth.verify_email_title')}
             </h1>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
-              We&apos;ve sent a confirmation link to <span className="text-white font-medium">{user.email}</span>. 
-              Please verify your email to unlock your account features.
+              {t('auth.verify_email_subtitle', { email: user.email })}
             </p>
           </div>
 
@@ -147,7 +151,7 @@ export default function OnboardingPage() {
               onClick={() => window.location.reload()}
               className="btn-primary-gradient w-full py-4 text-base flex items-center justify-center gap-2"
             >
-              <RefreshCw size={18} /> I&apos;ve verified my email
+              <RefreshCw size={18} /> {t('auth.verify_email_button')}
             </button>
             <button
               onClick={handleResendEmail}
@@ -155,7 +159,7 @@ export default function OnboardingPage() {
               className="w-full py-4 text-sm font-medium rounded-2xl transition-all border border-white/5 hover:bg-white/5"
               style={{ color: 'var(--text-secondary)' }}
             >
-              {resending ? 'Sending...' : 'Resend verification email'}
+              {resending ? t('common.loading') : t('auth.resend_email')}
             </button>
           </div>
 
@@ -164,7 +168,7 @@ export default function OnboardingPage() {
             className="text-xs font-medium"
             style={{ color: 'var(--text-quaternary)' }}
           >
-            Sign out and try another email
+            {t('auth.try_another_email')}
           </button>
         </div>
       </div>
@@ -186,7 +190,7 @@ export default function OnboardingPage() {
       <div className="w-full max-w-2xl relative z-10">
         {/* Step indicator */}
         <div className="flex items-center justify-center gap-2 mb-8 animate-fade-up">
-          {[1, 2, 3].map((s) => (
+          {[0, 1, 2, 3].map((s) => (
             <div
               key={s}
               className="h-1.5 rounded-full"
@@ -202,9 +206,54 @@ export default function OnboardingPage() {
           ))}
         </div>
 
+        {/* Step 0: Language */}
+        {step === 0 && (
+          <div className="animate-fade-up text-center">
+            <div
+              className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+                boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+              }}
+            >
+              <Languages size={36} color="#fff" />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+              {t('onboarding.lang_title')}
+            </h1>
+            <p className="text-sm mb-8" style={{ color: 'var(--text-tertiary)' }}>
+              {t('onboarding.lang_subtitle')}
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto mb-8">
+              <button
+                onClick={() => { setLanguage('en'); setStep(1); }}
+                className="p-6 rounded-2xl glass-card border border-white/5 hover:border-accent-primary transition-all group"
+              >
+                <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">🇺🇸</span>
+                <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>English</span>
+              </button>
+              <button
+                onClick={() => { setLanguage('zh-TW'); setStep(1); }}
+                className="p-6 rounded-2xl glass-card border border-white/5 hover:border-accent-primary transition-all group"
+              >
+                <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">🇭🇰</span>
+                <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>繁體中文</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Step 1: Name */}
         {step === 1 && (
           <div className="animate-fade-up text-center">
+            <button
+              onClick={() => setStep(0)}
+              className="flex items-center gap-2 mb-6 text-sm font-medium"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
+              <ArrowLeft size={16} /> {t('common.back')}
+            </button>
             <div
               className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center"
               style={{
@@ -215,17 +264,17 @@ export default function OnboardingPage() {
               <Sparkles size={36} color="#fff" />
             </div>
             <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
-              Welcome to Ledger
+              {t('onboarding.step1_title')}
             </h1>
             <p className="text-sm mb-8" style={{ color: 'var(--text-tertiary)' }}>
-              Let&apos;s set up your account. What should we call you?
+              {t('onboarding.step1_subtitle')}
             </p>
 
             <input
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Your name (optional)"
+              placeholder={t('onboarding.step1_placeholder')}
               className="input-glass text-center text-lg py-4 mb-6 max-w-sm mx-auto"
             />
 
@@ -233,7 +282,7 @@ export default function OnboardingPage() {
               onClick={() => setStep(2)}
               className="btn-primary-gradient w-full max-w-sm mx-auto py-4 text-base block"
             >
-              Continue
+              {t('common.continue')}
             </button>
           </div>
         )}
@@ -246,14 +295,14 @@ export default function OnboardingPage() {
               className="flex items-center gap-2 mb-6 text-sm font-medium"
               style={{ color: 'var(--text-tertiary)' }}
             >
-              <ArrowLeft size={16} /> Back
+              <ArrowLeft size={16} /> {t('common.back')}
             </button>
 
             <h1 className="text-3xl font-bold tracking-tight mb-2 text-center" style={{ color: 'var(--text-primary)' }}>
-              Which best describes you?
+              {t('onboarding.step2_title')}
             </h1>
             <p className="text-sm text-center mb-8" style={{ color: 'var(--text-tertiary)' }}>
-              We&apos;ll set up categories to get you started
+              {t('onboarding.step2_subtitle')}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
@@ -292,7 +341,7 @@ export default function OnboardingPage() {
               className="flex items-center gap-2 mb-6 text-sm font-medium"
               style={{ color: 'var(--text-tertiary)' }}
             >
-              <ArrowLeft size={16} /> Back
+              <ArrowLeft size={16} /> {t('common.back')}
             </button>
 
             <div
@@ -302,10 +351,10 @@ export default function OnboardingPage() {
               <Check size={40} style={{ color: 'var(--success)' }} />
             </div>
             <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
-              Ready to go!
+              {t('onboarding.step3_title')}
             </h1>
             <p className="text-sm mb-8" style={{ color: 'var(--text-tertiary)' }}>
-              Your account is set up. Start tracking your finances now.
+              {t('onboarding.step3_subtitle')}
             </p>
 
             <button
@@ -316,7 +365,7 @@ export default function OnboardingPage() {
               {loading ? (
                 <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
               ) : (
-                'Get started'
+                t('onboarding.step3_button')
               )}
             </button>
           </div>

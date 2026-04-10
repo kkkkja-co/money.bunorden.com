@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { Trash2, X, TrendingUp, TrendingDown, ArrowLeftRight, Plus, Search } from 'lucide-react'
+import { useTranslation, useLanguage } from '@/app/providers'
 
 interface Transaction {
   id: string
@@ -18,6 +19,8 @@ interface Transaction {
 }
 
 export default function TransactionsPage() {
+  const { t } = useTranslation()
+  const { language } = useLanguage()
   const router = useRouter()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
@@ -60,7 +63,7 @@ export default function TransactionsPage() {
       if (error) throw error
       setTransactions(prev => prev.filter(t => t.id !== deleteId))
       setDeleteId(null)
-      setToast('Transaction deleted')
+      setToast(t('transactions.toast_deleted'))
       setTimeout(() => setToast(''), 3000)
     } catch (err) {
       console.error('Delete error:', err)
@@ -89,7 +92,7 @@ export default function TransactionsPage() {
 
   const monthLabel = (key: string) => {
     const [y, m] = key.split('-')
-    return new Date(Number(y), Number(m) - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    return new Date(Number(y), Number(m) - 1).toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { month: 'long', year: 'numeric' })
   }
 
   return (
@@ -98,7 +101,7 @@ export default function TransactionsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6 animate-fade-up">
           <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-            Transactions
+            {t('transactions.title')}
           </h1>
           <button
             onClick={() => router.push('/add')}
@@ -120,7 +123,7 @@ export default function TransactionsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search transactions..."
+            placeholder={t('transactions.search_placeholder')}
             className="input-glass pl-10"
           />
         </div>
@@ -138,7 +141,7 @@ export default function TransactionsPage() {
                 transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
             >
-              {f}
+              {t(`transactions.filter_${f}`)}
             </button>
           ))}
         </div>
@@ -154,10 +157,10 @@ export default function TransactionsPage() {
           <div className="glass-card text-center py-16 animate-fade-up">
             <div className="text-5xl mb-4">{search ? '🔍' : '📝'}</div>
             <p className="font-semibold text-lg mb-1" style={{ color: 'var(--text-secondary)' }}>
-              {search ? 'No matches found' : 'No transactions yet'}
+              {search ? t('transactions.no_matches') : t('common.no_transactions')}
             </p>
             <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-              {search ? 'Try a different search' : 'Tap + to add your first transaction'}
+              {search ? t('transactions.try_different_search') : t('transactions.tap_plus')}
             </p>
           </div>
         ) : (
@@ -227,24 +230,24 @@ export default function TransactionsPage() {
                 <Trash2 size={24} style={{ color: 'var(--danger)' }} />
               </div>
               <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                Delete Transaction?
+                {t('transactions.delete_title')}
               </h3>
               <p className="text-sm mb-6" style={{ color: 'var(--text-tertiary)' }}>
-                This action cannot be undone.
+                {t('transactions.delete_subtitle')}
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setDeleteId(null)}
                   className="btn-secondary-glass flex-1 py-3"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={deleting}
                   className="btn-danger-glass flex-1 py-3"
                 >
-                  {deleting ? 'Deleting...' : 'Delete'}
+                  {deleting ? t('common.loading') : t('common.delete')}
                 </button>
               </div>
             </div>

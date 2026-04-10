@@ -4,16 +4,19 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
-import { useTheme } from '@/app/providers'
+import { useTheme, useTranslation, useLanguage } from '@/app/providers'
 import {
   Sun, Moon, LogOut, Trash2, Download, Shield, Mail,
-  Scale, ChevronRight, User, AlertTriangle, X
+  Scale, ChevronRight, User, AlertTriangle, X, Globe
 } from 'lucide-react'
 import Link from 'next/link'
+import { Language } from '@/lib/i18n/translations'
 
 export default function SettingsPage() {
   const router = useRouter()
   const { theme, toggleTheme } = useTheme()
+  const { t } = useTranslation()
+  const { language, setLanguage } = useLanguage()
   const [email, setEmail] = useState('')
   const [profileName, setProfileName] = useState('')
   const [currency, setCurrency] = useState('HKD')
@@ -44,7 +47,7 @@ export default function SettingsPage() {
 
     const { data } = await supabase
       .from('profiles')
-      .select('display_name, currency')
+      .select('display_name, currency, language')
       .eq('id', user.id)
       .single()
 
@@ -130,10 +133,10 @@ export default function SettingsPage() {
 
     await supabase
       .from('profiles')
-      .update({ display_name: profileName || null, currency })
+      .update({ display_name: profileName || null, currency, language })
       .eq('id', user.id)
 
-    setToast('Profile updated')
+    setToast(t('common.save'))
     setTimeout(() => setToast(''), 3000)
   }
 
@@ -217,7 +220,7 @@ export default function SettingsPage() {
       URL.revokeObjectURL(url)
 
       setShowExportModal(false)
-      setToast(`Exported as ${format.toUpperCase()}`)
+      setToast(`${t('settings.export_data')} ${format.toUpperCase()}`)
       setTimeout(() => setToast(''), 3000)
     } catch (err) {
       console.error('Export error:', err)
@@ -252,7 +255,7 @@ export default function SettingsPage() {
     onClick,
     danger = false,
   }: {
-    icon: typeof Sun
+    icon: any
     label: string
     sublabel?: string
     right?: React.ReactNode
@@ -290,18 +293,18 @@ export default function SettingsPage() {
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-2xl mx-auto w-full">
         <h1 className="text-3xl font-bold tracking-tight mb-8 animate-fade-up" style={{ color: 'var(--text-primary)' }}>
-          Settings
+          {t('common.settings')}
         </h1>
 
         {/* Profile Section */}
         <div className="mb-6 animate-fade-up delay-1">
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            PROFILE
+            {t('settings.profile')}
           </h2>
           <div className="glass-card space-y-4">
             <div>
               <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                Display Name
+                {t('settings.display_name')}
               </label>
               <input
                 type="text"
@@ -313,26 +316,41 @@ export default function SettingsPage() {
             </div>
             <div>
               <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                Email
+                {t('settings.email')}
               </label>
               <p className="text-sm font-medium px-1" style={{ color: 'var(--text-secondary)' }}>{email}</p>
             </div>
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                Currency
-              </label>
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="input-glass"
-              >
-                {['HKD', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'MYR', 'SGD', 'TWD', 'KRW', 'AUD', 'CAD'].map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                  {t('settings.currency')}
+                </label>
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="input-glass"
+                >
+                  {['HKD', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'MYR', 'SGD', 'TWD', 'KRW', 'AUD', 'CAD'].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                  {t('settings.language')}
+                </label>
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value as Language)}
+                  className="input-glass"
+                >
+                  <option value="en">English</option>
+                  <option value="zh-TW">繁體中文</option>
+                </select>
+              </div>
             </div>
             <button onClick={handleUpdateProfile} className="btn-primary-gradient w-full py-3 text-sm">
-              Save Changes
+              {t('common.save')}
             </button>
           </div>
         </div>
@@ -340,12 +358,12 @@ export default function SettingsPage() {
         {/* Security Section */}
         <div className="mb-6 animate-fade-up delay-2">
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            SECURITY
+            {t('settings.security')}
           </h2>
           <div className="glass-card space-y-4">
             <div>
               <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                New Password
+                {t('settings.new_password')}
               </label>
               <input
                 type="password"
@@ -355,7 +373,6 @@ export default function SettingsPage() {
                 className="input-glass"
               />
               
-              {/* Requirements indicator (same as signup) */}
               <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 px-1 py-1">
                 {[
                   { label: '8+ Characters', met: newPassword.length >= 8 },
@@ -377,7 +394,7 @@ export default function SettingsPage() {
             </div>
             <div>
               <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                Confirm New Password
+                {t('settings.confirm_password')}
               </label>
               <input
                 type="password"
@@ -393,14 +410,14 @@ export default function SettingsPage() {
               className="btn-secondary-glass w-full py-3 text-sm"
               style={{ opacity: !newPassword ? 0.5 : 1 }}
             >
-              Update Password
+              {t('settings.update_password')}
             </button>
 
             <div className="pt-4 border-t border-white/5">
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Two-Factor Authentication</p>
-                  <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Add an extra layer of security to your account.</p>
+                  <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{t('settings.mfa_title')}</p>
+                  <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('settings.mfa_subtitle')}</p>
                 </div>
                 <div 
                   className="px-2 py-1 rounded-md text-[10px] font-bold uppercase"
@@ -410,7 +427,7 @@ export default function SettingsPage() {
                     border: '1px solid var(--border)'
                   }}
                 >
-                  {mfaFactors.length > 0 ? 'ACTIVE' : 'INACTIVE'}
+                  {mfaFactors.length > 0 ? t('settings.mfa_active') : t('settings.mfa_inactive')}
                 </div>
               </div>
               
@@ -420,7 +437,7 @@ export default function SettingsPage() {
                   className="w-full py-3 rounded-xl text-xs font-semibold mt-2"
                   style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
                 >
-                  Disable 2FA
+                  {t('settings.mfa_disable')}
                 </button>
               ) : (
                 <button
@@ -429,7 +446,7 @@ export default function SettingsPage() {
                   className="w-full py-3 rounded-xl text-xs font-semibold mt-2"
                   style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-primary)', border: '1px solid rgba(59, 130, 246, 0.2)' }}
                 >
-                  {mfaProcessing ? 'Processing...' : 'Activate 2FA'}
+                  {mfaProcessing ? t('common.loading') : t('settings.mfa_enable')}
                 </button>
               )}
             </div>
@@ -439,13 +456,13 @@ export default function SettingsPage() {
         {/* Appearance */}
         <div className="mb-6 animate-fade-up delay-3">
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            APPEARANCE
+            {t('settings.appearance')}
           </h2>
           <div className="space-y-2">
             <SettingsItem
               icon={theme === 'dark' ? Moon : Sun}
-              label="Theme"
-              sublabel={`Currently ${theme} mode`}
+              label={t('settings.theme')}
+              sublabel={theme === 'dark' ? t('settings.theme_dark') : t('settings.theme_light')}
               onClick={toggleTheme}
               right={
                 <div
@@ -473,13 +490,13 @@ export default function SettingsPage() {
         {/* Data */}
         <div className="mb-6 animate-fade-up delay-4">
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            DATA
+            {t('settings.data')}
           </h2>
           <div className="space-y-2">
             <SettingsItem
               icon={Download}
-              label="Export Data"
-              sublabel="Download your data as JSON or CSV"
+              label={t('settings.export_data')}
+              sublabel={t('settings.export_subtitle')}
               onClick={() => setShowExportModal(true)}
             />
           </div>
@@ -488,17 +505,17 @@ export default function SettingsPage() {
         {/* Legal */}
         <div className="mb-6 animate-fade-up delay-5">
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            LEGAL
+            {t('settings.legal')}
           </h2>
           <div className="space-y-2">
             <Link href="/privacy">
-              <SettingsItem icon={Shield} label="Privacy Policy" sublabel="How we handle your data" />
+              <SettingsItem icon={Shield} label={t('settings.privacy')} sublabel="How we handle your data" />
             </Link>
             <Link href="/terms">
-              <SettingsItem icon={Scale} label="Terms of Use" sublabel="Rules and guidelines" />
+              <SettingsItem icon={Scale} label={t('settings.terms')} sublabel="Rules and guidelines" />
             </Link>
             <Link href="/contact">
-              <SettingsItem icon={Mail} label="Contact Us" sublabel="contact@bunorden.com" />
+              <SettingsItem icon={Mail} label={t('settings.contact')} sublabel="contact@bunorden.com" />
             </Link>
           </div>
         </div>
@@ -506,19 +523,19 @@ export default function SettingsPage() {
         {/* Danger Zone */}
         <div className="mb-6 animate-fade-up delay-6">
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--danger)' }}>
-            DANGER ZONE
+            {t('settings.danger_zone')}
           </h2>
           <div className="space-y-2">
             <SettingsItem
               icon={LogOut}
-              label="Sign Out"
+              label={t('common.logout')}
               onClick={handleLogout}
               danger
             />
             <SettingsItem
               icon={Trash2}
-              label="Delete Account"
-              sublabel="Permanently delete all your data"
+              label={t('settings.delete_account')}
+              sublabel={t('settings.delete_subtitle')}
               onClick={() => setShowDeleteModal(true)}
               danger
             />
@@ -533,7 +550,7 @@ export default function SettingsPage() {
         <div className="modal-overlay" onClick={() => setShowExportModal(false)}>
           <div className="modal-content p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Export Data</h3>
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{t('settings.export_data')}</h3>
               <button onClick={() => setShowExportModal(false)} className="p-1" style={{ color: 'var(--text-tertiary)' }}>
                 <X size={20} />
               </button>
@@ -568,10 +585,10 @@ export default function SettingsPage() {
                 <AlertTriangle size={24} style={{ color: 'var(--danger)' }} />
               </div>
               <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                Delete Account Forever?
+                {t('settings.delete_account')}?
               </h3>
               <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                This will permanently delete your account and all your data. This action cannot be undone.
+                {t('settings.delete_subtitle')}. This action cannot be undone.
               </p>
             </div>
             <div className="mb-4">
@@ -588,7 +605,7 @@ export default function SettingsPage() {
             </div>
             <div className="flex gap-3">
               <button onClick={() => { setShowDeleteModal(false); setDeleteConfirm('') }} className="btn-secondary-glass flex-1 py-3">
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleDeleteAccount}
@@ -596,7 +613,7 @@ export default function SettingsPage() {
                 className="btn-danger-glass flex-1 py-3"
                 style={{ opacity: deleteConfirm !== 'DELETE' ? 0.4 : 1 }}
               >
-                {loading ? 'Deleting...' : 'Delete Forever'}
+                {loading ? t('common.loading') : t('common.delete')}
               </button>
             </div>
           </div>
@@ -608,7 +625,7 @@ export default function SettingsPage() {
         <div className="modal-overlay" onClick={() => setShowMfaModal(false)}>
           <div className="modal-content p-6 max-w-sm" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Setup 2FA</h3>
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{t('settings.mfa_title')}</h3>
               <button onClick={() => setShowMfaModal(false)} className="p-1" style={{ color: 'var(--text-tertiary)' }}>
                 <X size={20} />
               </button>
@@ -617,7 +634,7 @@ export default function SettingsPage() {
             <div className="space-y-6">
               <div className="text-center">
                 <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
-                  Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)
+                  Scan this QR code with your authenticator app
                 </p>
                 <div className="p-4 bg-white rounded-2xl inline-block mb-4">
                   <img 
@@ -645,7 +662,7 @@ export default function SettingsPage() {
                 disabled={mfaVerifyCode.length !== 6 || mfaProcessing}
                 className="btn-primary-gradient w-full py-4 text-base"
               >
-                {mfaProcessing ? 'Verifying...' : 'Enable 2FA'}
+                {mfaProcessing ? t('common.loading') : t('settings.mfa_enable')}
               </button>
             </div>
           </div>
