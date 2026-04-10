@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
-import { Eye, EyeOff, LogIn } from 'lucide-react'
+import { Eye, EyeOff, LogIn, Shield, ArrowLeft } from 'lucide-react'
+import { useTranslation } from '@/app/providers'
 
 export default function LoginPage() {
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -14,6 +16,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [resetMode, setResetMode] = useState(false)
   const [resetSent, setResetSent] = useState(false)
+  
+  // MFA States
+  const [showMfa, setShowMfa] = useState(false)
+  const [mfaCode, setMfaCode] = useState('')
+  const [mfaFactors, setMfaFactors] = useState<any[]>([])
+  
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -22,11 +30,50 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
-      router.push('/dashboard')
+
+      // Check for MFA factors
+      const { data: factors, error: mfaError } = await supabase.auth.mfa.listFactors()
+      if (mfaError) throw mfaError
+
+      if (factors?.all?.length > 0) {
+        setMfaFactors(factors.all)
+        setShowMfa(true)
+        setLoading(false)
+      } else {
+        router.push('/dashboard')
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
+    } finally {
+      if (!showMfa) setLoading(false)
+    }
+  }
+
+  const handleMfaVerify = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (mfaCode.length !== 6) return
+    setError('')
+    setLoading(true)
+
+    try {
+      const factorId = mfaFactors[0].id
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId
+      })
+      if (challengeError) throw challengeError
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challengeData.id,
+        code: mfaCode
+      })
+      if (verifyError) throw verifyError
+
+      router.push('/dashboard')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'MFA verification failed')
     } finally {
       setLoading(false)
     }
@@ -79,12 +126,14 @@ export default function LoginPage() {
             className="text-3xl font-bold tracking-tight mb-2"
             style={{ color: 'var(--text-primary)' }}
           >
-            {resetMode ? 'Reset password' : 'Welcome back'}
+            {showMfa ? t('auth.mfa_title') : resetMode ? t('common.settings') : t('common.welcome')}
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-            {resetMode 
-              ? 'We\'ll send a link to your email to reset your password' 
-              : 'Sign in to your Ledger account'}
+            {showMfa 
+              ? t('auth.mfa_subtitle')
+              : resetMode 
+                ? t('auth.verify_email_subtitle', { email: '' }).split('{')[0]
+                : 'Sign in to your Ledger account'}
           </p>
         </div>
 
@@ -105,6 +154,60 @@ export default function LoginPage() {
               Back to Sign in
             </button>
           </div>
+        ) : showMfa ? (
+          <form onSubmit={handleMfaVerify} className="space-y-6 animate-fade-up">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center"
+                style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-primary)' }}>
+                <Shield size={32} />
+              </div>
+              
+              <div className="relative">
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={mfaCode}
+                  onChange={(e) => setMfaCode(e.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder={t('auth.mfa_code_placeholder')}
+                  className="input-glass text-center text-3xl font-bold tracking-[0.5em] py-6"
+                  required
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div
+                className="p-3 rounded-xl text-sm font-medium animate-scale-in"
+                style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
+              >
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <button
+                type="submit"
+                disabled={loading || mfaCode.length !== 6}
+                className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                ) : (
+                  <>{t('auth.verify_button')}</>
+                )}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => { setShowMfa(false); setMfaCode(''); }}
+                className="w-full py-3 text-sm font-medium flex items-center justify-center gap-2"
+                style={{ color: 'var(--text-tertiary)' }}
+              >
+                <ArrowLeft size={16} /> {t('common.back')}
+              </button>
+            </div>
+          </form>
         ) : (
           <form onSubmit={resetMode ? handlePasswordReset : handleLogin} className="space-y-4 mb-6">
             <div className="animate-fade-up delay-1">
@@ -192,14 +295,16 @@ export default function LoginPage() {
           </form>
         )}
 
-        <div className="text-center animate-fade-up delay-4">
-          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className="font-semibold" style={{ color: 'var(--accent-primary)' }}>
-              Create one
-            </Link>
-          </p>
-        </div>
+        {!showMfa && (
+          <div className="text-center animate-fade-up delay-4">
+            <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
+              Don&apos;t have an account?{' '}
+              <Link href="/signup" className="font-semibold" style={{ color: 'var(--accent-primary)' }}>
+                Create one
+              </Link>
+            </p>
+          </div>
+        )}
 
         {/* Footer links */}
         <div className="flex items-center justify-center gap-4 mt-8 animate-fade-up delay-5">

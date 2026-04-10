@@ -96,6 +96,10 @@ export const translations = {
       verify_email_button: "I've verified my email",
       resend_email: 'Resend verification email',
       try_another_email: 'Sign out and try another email',
+      mfa_title: 'Two-Factor Authentication',
+      mfa_subtitle: 'Enter the 6-digit code from your authenticator app.',
+      mfa_code_placeholder: '000000',
+      verify_button: 'Verify and Sign In',
     }
   },
   'zh-TW': {
@@ -193,6 +197,10 @@ export const translations = {
       verify_email_button: '我已完成驗證',
       resend_email: '重新發送驗證郵件',
       try_another_email: '使用其他電子郵件登入',
+      mfa_title: '雙重認證 (2FA)',
+      mfa_subtitle: '請輸入您驗證器應用程式中的 6 位數驗證碼。',
+      mfa_code_placeholder: '000000',
+      verify_button: '驗證並登入',
     }
   }
 };
