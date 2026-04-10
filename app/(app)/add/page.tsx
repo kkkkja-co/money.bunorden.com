@@ -278,12 +278,11 @@ function AddTransactionForm() {
               </select>
             </div>
             <input
-              type="number"
+              type="text"
               inputMode="decimal"
-              step="0.01"
-              min="0"
+              pattern="[0-9]*[.,]?[0-9]*"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => setAmount(e.target.value.replace(/[^0-9.,]/g, ''))}
               placeholder="0.00"
               className="input-glass text-3xl font-bold text-center py-6"
               style={{

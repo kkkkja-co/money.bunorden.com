@@ -718,6 +718,7 @@ export default function SettingsPage() {
                     placeholder={t('settings.mfa_verify_placeholder')}
                     className="w-full bg-transparent text-center text-2xl font-bold tracking-[0.5em] focus:outline-none"
                     style={{ color: 'var(--text-primary)' }}
+                    autoComplete="one-time-code"
                   />
                 </div>
               </div>

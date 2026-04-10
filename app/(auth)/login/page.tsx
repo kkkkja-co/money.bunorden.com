@@ -199,6 +199,7 @@ export default function LoginPage() {
                   className="input-glass text-center text-3xl font-bold tracking-[0.5em] py-6"
                   required
                   autoFocus
+                  autoComplete="one-time-code"
                 />
               </div>
             </div>
