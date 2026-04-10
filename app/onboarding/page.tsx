@@ -15,6 +15,8 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(0)
   const [selectedPersona, setSelectedPersona] = useState('')
   const [displayName, setDisplayName] = useState('')
+  const [accountName, setAccountName] = useState('')
+  const [currency, setCurrency] = useState('HKD')
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -29,6 +31,8 @@ export default function OnboardingPage() {
       
       if (!user) {
         router.push('/login')
+      } else {
+        setAccountName(t('common.main_account'))
       }
     }
     checkUser()
@@ -69,6 +73,7 @@ export default function OnboardingPage() {
           onboarding_done: true,
           display_name: displayName.trim() || null,
           language: language,
+          currency: currency,
         })
 
       if (profileError) throw profileError
@@ -76,7 +81,7 @@ export default function OnboardingPage() {
       // Create default account
       const { error: accountError } = await supabase.from('accounts').insert({
         user_id: user.id,
-        name: t('common.main_account'),
+        name: accountName.trim() || t('common.main_account'),
         icon: '💳',
         is_default: true,
       })
@@ -194,7 +199,7 @@ export default function OnboardingPage() {
       <div className="w-full max-w-2xl relative z-10">
         {/* Step indicator */}
         <div className="flex items-center justify-center gap-2 mb-8 animate-fade-up">
-          {[0, 1, 2, 3].map((s) => (
+          {[0, 1, 2, 3, 4].map((s) => (
             <div
               key={s}
               className="h-1.5 rounded-full"
@@ -297,11 +302,75 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Step 2: Persona */}
+        {/* Step 2: Wallet & Currency */}
         {step === 2 && (
-          <div className="animate-fade-up">
+          <div className="animate-fade-up text-center">
             <button
               onClick={() => setStep(1)}
+              className="flex items-center gap-2 mb-6 text-sm font-medium"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
+              <ArrowLeft size={16} /> {t('common.back')}
+            </button>
+            <div
+              className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center bg-accent-primary/10 text-accent-primary"
+              style={{
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <Sparkles size={32} />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+              {t('onboarding.wallet_title')}
+            </h1>
+            <p className="text-sm mb-8 px-4" style={{ color: 'var(--text-tertiary)' }}>
+              {t('onboarding.wallet_subtitle')}
+            </p>
+
+            <div className="space-y-4 max-w-sm mx-auto mb-8 text-left">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 px-1" style={{ color: 'var(--text-tertiary)' }}>
+                  {t('onboarding.account_name')}
+                </label>
+                <input
+                  type="text"
+                  value={accountName}
+                  onChange={(e) => setAccountName(e.target.value)}
+                  placeholder="e.g. Daily Account"
+                  className="input-glass"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 px-1" style={{ color: 'var(--text-tertiary)' }}>
+                  {t('onboarding.currency')}
+                </label>
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="input-glass"
+                >
+                  {['HKD', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'MYR', 'SGD', 'TWD', 'KRW', 'AUD', 'CAD'].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setStep(3)}
+              className="btn-primary-gradient w-full max-w-sm mx-auto py-4 text-base block"
+            >
+              {t('common.continue')}
+            </button>
+          </div>
+        )}
+
+        {/* Step 3: Persona */}
+        {step === 3 && (
+          <div className="animate-fade-up">
+            <button
+              onClick={() => setStep(2)}
               className="flex items-center gap-2 mb-6 text-sm font-medium"
               style={{ color: 'var(--text-tertiary)' }}
             >
@@ -321,7 +390,7 @@ export default function OnboardingPage() {
                   key={persona.id}
                   onClick={() => {
                     setSelectedPersona(persona.id)
-                    setStep(3)
+                    setStep(4)
                   }}
                   className="p-5 rounded-2xl text-center"
                   style={{
@@ -343,11 +412,11 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Step 3: Ready */}
-        {step === 3 && (
+        {/* Step 4: Ready */}
+        {step === 4 && (
           <div className="animate-fade-up text-center">
             <button
-              onClick={() => setStep(2)}
+              onClick={() => setStep(3)}
               className="flex items-center gap-2 mb-6 text-sm font-medium"
               style={{ color: 'var(--text-tertiary)' }}
             >

@@ -262,9 +262,21 @@ function AddTransactionForm() {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Amount */}
           <div className="animate-fade-up delay-2">
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              {t('transactions.amount')} ({currency})
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                {t('transactions.amount')}
+              </label>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="bg-transparent text-xs font-bold uppercase tracking-wider outline-none p-1 rounded-lg border border-white/5 hover:border-white/10 transition-all"
+                style={{ color: 'var(--accent-primary)' }}
+              >
+                {['HKD', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'MYR', 'SGD', 'TWD', 'KRW', 'AUD', 'CAD'].map(c => (
+                  <option key={c} value={c} className="bg-zinc-900">{c}</option>
+                ))}
+              </select>
+            </div>
             <input
               type="number"
               inputMode="decimal"
@@ -447,7 +459,7 @@ function AddTransactionForm() {
           )}
 
           {/* Account */}
-          {accounts.length > 1 && (
+          {accounts.length > 0 && (
             <div className="animate-fade-up delay-3">
               <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                 {t('transactions.account')}

@@ -116,6 +116,10 @@ export const translations = {
       step3_button: "Get Started",
       lang_title: 'Choose your language',
       lang_subtitle: 'Select your preferred language to continue',
+      wallet_title: 'Setup your primary wallet',
+      wallet_subtitle: 'Give your first account a name and choose your preferred currency.',
+      account_name: 'Account Name',
+      currency: 'Default Currency',
     },
     personas: {
       freelancer: 'Freelancer / Self-employed',
@@ -460,6 +464,10 @@ export const translations = {
       step3_button: "開始使用",
       lang_title: '選擇語言',
       lang_subtitle: '選擇您偏好的語言以繼續',
+      wallet_title: '設定您的首個錢包',
+      wallet_subtitle: '為您的第一個帳戶命名並選擇您的常用幣別。',
+      account_name: '帳戶名稱',
+      currency: '預設幣別',
     },
     personas: {
       freelancer: '自由職業者 / 特約人員',
