@@ -1,3 +1,4 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
@@ -7,20 +8,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        surface: {
-          light: '#F2F2F7',
-          dark: '#1C1C1E',
+        accent: {
+          DEFAULT: '#3b82f6',
+          hover: '#2563eb',
+          secondary: '#8b5cf6',
         },
-        text: {
-          primary: '#1C1C1E',
-          secondary: '#636366',
-        },
-        accent: '#007AFF',
-        danger: '#FF3B30',
-        success: '#34C759',
+        success: '#34c759',
+        danger: '#ff3b30',
+        warning: '#ff9500',
       },
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', 'sans-serif'],
       },
       borderRadius: {
         card: '16px',
@@ -30,23 +28,15 @@ module.exports = {
       spacing: {
         'safe-bottom': 'env(safe-area-inset-bottom)',
         'safe-top': 'env(safe-area-inset-top)',
-        'safe-left': 'env(safe-area-inset-left)',
-        'safe-right': 'env(safe-area-inset-right)',
       },
       boxShadow: {
         subtle: '0 2px 20px rgba(0,0,0,0.06)',
+        glass: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+        glow: '0 8px 24px rgba(59, 130, 246, 0.3)',
       },
       letterSpacing: {
         tight: '-0.02em',
-      },
-      animation: {
-        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-      },
-      keyframes: {
-        pulse: {
-          '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.5' },
-        },
+        tighter: '-0.04em',
       },
     },
   },

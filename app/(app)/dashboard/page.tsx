@@ -1,9 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
+import { formatCurrency, formatDate } from '@/lib/utils'
+import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, ChevronRight } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
 interface Profile {
@@ -12,105 +15,243 @@ interface Profile {
   onboarding_done: boolean
 }
 
+interface Transaction {
+  id: string
+  type: 'expense' | 'income' | 'transfer'
+  amount: number
+  currency: string
+  date: string
+  note: string | null
+  category?: { name: string; icon: string } | null
+}
+
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
+  const [totals, setTotals] = useState({ income: 0, expense: 0 })
   const router = useRouter()
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
+  const fetchData = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
+      setUser(user)
 
-        if (!user) {
-          router.push('/login')
-          return
-        }
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
 
-        setUser(user)
+      if (!profileData?.onboarding_done) { router.push('/onboarding'); return }
+      setProfile(profileData)
 
-        // Fetch profile
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
+      // Fetch recent transactions with categories
+      const { data: txData } = await supabase
+        .from('transactions')
+        .select('id, type, amount, currency, date, note, category:categories(name, icon)')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false })
+        .limit(5)
 
-        if (error) throw error
-        setProfile(data)
+      // Supabase returns joined relations as arrays; flatten to single object
+      const mapped = (txData || []).map((t: any) => ({
+        ...t,
+        category: Array.isArray(t.category) ? t.category[0] || null : t.category,
+      }))
+      setTransactions(mapped)
 
-        // Check if onboarding is complete
-        if (!data?.onboarding_done) {
-          router.push('/onboarding')
-        }
-      } catch (error) {
-        console.error('Error fetching profile:', error)
-        router.push('/login')
-      } finally {
-        setLoading(false)
-      }
+      // Calculate totals for current month
+      const now = new Date()
+      const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+      const { data: monthTx } = await supabase
+        .from('transactions')
+        .select('type, amount')
+        .eq('user_id', user.id)
+        .gte('date', monthStart)
+
+      let inc = 0, exp = 0
+      ;(monthTx || []).forEach(t => {
+        if (t.type === 'income') inc += Number(t.amount)
+        else if (t.type === 'expense') exp += Number(t.amount)
+      })
+      setTotals({ income: inc, expense: exp })
+    } catch (error) {
+      console.error('Dashboard error:', error)
+      router.push('/login')
+    } finally {
+      setLoading(false)
     }
-
-    checkAuth()
   }, [router])
+
+  useEffect(() => { fetchData() }, [fetchData])
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center">
-        <div className="animate-pulse">Loading...</div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin"
+            style={{ borderColor: 'var(--accent-primary)', borderTopColor: 'transparent' }} />
+          <span className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Loading...</span>
+        </div>
       </div>
     )
   }
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-black flex flex-col pb-20 md:pb-0">
-      <div className="flex-1 px-4 py-8 max-w-2xl mx-auto w-full">
-        <h1 className="text-3xl font-bold text-[#1C1C1E] dark:text-white mb-2">
-          Welcome, {profile?.display_name || 'User'}
-        </h1>
-        <p className="text-[#636366] dark:text-[#8E8E93] mb-8">
-          Your dashboard is ready
-        </p>
+  const balance = totals.income - totals.expense
+  const currency = profile?.currency || 'HKD'
 
-        {/* Balance card */}
-        <div className="card mb-6 text-center">
-          <p className="text-[#636366] dark:text-[#8E8E93] text-sm mb-2">Total Balance</p>
-          <p className="text-4xl font-bold text-[#1C1C1E] dark:text-white">
-            HK$0.00
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'income': return <TrendingUp size={16} style={{ color: 'var(--success)' }} />
+      case 'expense': return <TrendingDown size={16} style={{ color: 'var(--danger)' }} />
+      default: return <ArrowLeftRight size={16} style={{ color: 'var(--accent-primary)' }} />
+    }
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto w-full">
+        {/* Header */}
+        <div className="mb-8 animate-fade-up">
+          <h1
+            className="text-3xl lg:text-4xl font-bold tracking-tight mb-1"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            Welcome{profile?.display_name ? `, ${profile.display_name}` : ''}
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
 
-        {/* Quick stats */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="card">
-            <p className="text-[#636366] dark:text-[#8E8E93] text-xs mb-1">Income</p>
-            <p className="text-2xl font-bold text-[#34C759]">HK$0.00</p>
-          </div>
-          <div className="card">
-            <p className="text-[#636366] dark:text-[#8E8E93] text-xs mb-1">Expenses</p>
-            <p className="text-2xl font-bold text-[#FF3B30]">HK$0.00</p>
-          </div>
-        </div>
-
-        {/* Placeholder for recent transactions */}
-        <div>
-          <h2 className="text-lg font-semibold text-[#1C1C1E] dark:text-white mb-4">
-            Recent Transactions
-          </h2>
-          <div className="card text-center py-8">
-            <p className="text-[#636366] dark:text-[#8E8E93]">
-              No transactions yet. Add your first transaction to get started.
+        {/* Balance Card */}
+        <div className="glass-card mb-6 animate-fade-up delay-1 text-center relative overflow-hidden">
+          <div
+            className="absolute inset-0 opacity-30"
+            style={{
+              background: 'radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), transparent 70%)',
+            }}
+          />
+          <div className="relative">
+            <p className="text-sm font-medium mb-2" style={{ color: 'var(--text-tertiary)' }}>
+              This Month&apos;s Balance
+            </p>
+            <p
+              className="text-4xl lg:text-5xl font-bold tracking-tight mb-1"
+              style={{ color: balance >= 0 ? 'var(--success)' : 'var(--danger)' }}
+            >
+              {formatCurrency(balance, currency)}
             </p>
           </div>
         </div>
+
+        {/* Income / Expense cards */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="glass-card animate-fade-up delay-2">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--success-bg)' }}>
+                <TrendingUp size={14} style={{ color: 'var(--success)' }} />
+              </div>
+              <span className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Income</span>
+            </div>
+            <p className="text-xl lg:text-2xl font-bold" style={{ color: 'var(--success)' }}>
+              {formatCurrency(totals.income, currency)}
+            </p>
+          </div>
+          <div className="glass-card animate-fade-up delay-3">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--danger-bg)' }}>
+                <TrendingDown size={14} style={{ color: 'var(--danger)' }} />
+              </div>
+              <span className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Expenses</span>
+            </div>
+            <p className="text-xl lg:text-2xl font-bold" style={{ color: 'var(--danger)' }}>
+              {formatCurrency(totals.expense, currency)}
+            </p>
+          </div>
+        </div>
+
+        {/* Quick Add Button */}
+        <Link
+          href="/add"
+          className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl mb-8 font-semibold text-white animate-fade-up delay-4"
+          style={{
+            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+            boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        >
+          <Plus size={20} strokeWidth={2.5} />
+          Add Transaction
+        </Link>
+
+        {/* Recent Transactions */}
+        <div className="animate-fade-up delay-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+              Recent Transactions
+            </h2>
+            {transactions.length > 0 && (
+              <Link
+                href="/transactions"
+                className="flex items-center gap-1 text-sm font-medium"
+                style={{ color: 'var(--accent-primary)' }}
+              >
+                View all <ChevronRight size={14} />
+              </Link>
+            )}
+          </div>
+
+          {transactions.length === 0 ? (
+            <div className="glass-card text-center py-12">
+              <div className="text-4xl mb-3">📝</div>
+              <p className="font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
+                No transactions yet
+              </p>
+              <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                Add your first transaction to start tracking
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {transactions.map((tx, i) => (
+                <Link
+                  key={tx.id}
+                  href="/transactions"
+                  className="glass-card-interactive flex items-center gap-3 py-3 px-4"
+                  style={{ animationDelay: `${0.3 + i * 0.05}s` }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
+                    style={{ background: 'var(--overlay)' }}
+                  >
+                    {tx.category?.icon || (tx.type === 'income' ? '💰' : '💸')}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate" style={{ color: 'var(--text-primary)' }}>
+                      {tx.category?.name || tx.note || tx.type}
+                    </p>
+                    <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                      {formatDate(tx.date)}
+                    </p>
+                  </div>
+                  <span
+                    className="font-semibold text-sm"
+                    style={{ color: tx.type === 'income' ? 'var(--success)' : 'var(--danger)' }}
+                  >
+                    {tx.type === 'income' ? '+' : '-'}{formatCurrency(Number(tx.amount), tx.currency)}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="mt-auto">
-        <BunordenFooter />
-      </div>
+      <BunordenFooter />
     </div>
   )
 }

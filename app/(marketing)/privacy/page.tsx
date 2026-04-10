@@ -1,125 +1,112 @@
-import { BunordenFooter } from '@/components/layout/BunordenFooter'
+'use client'
 
 export default function PrivacyPage() {
-  const buildDate = new Date().toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-
   return (
-    <div className="min-h-screen bg-white dark:bg-black">
-      <article className="max-w-2xl mx-auto px-4 py-16 prose prose-invert">
-        <h1 className="text-4xl font-bold text-[#1C1C1E] dark:text-white mb-2">
+    <div className="max-w-3xl mx-auto px-4 py-12 lg:py-20">
+      <div
+        className="glass-card p-8 lg:p-12 animate-fade-up"
+        style={{ animationDelay: '0.1s' }}
+      >
+        <h1
+          className="text-3xl lg:text-4xl font-bold text-center mb-2 tracking-tight"
+          style={{
+            background: 'linear-gradient(to right, var(--text-primary), var(--text-tertiary))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
           Privacy Policy
         </h1>
-        <p className="text-[#636366] dark:text-[#8E8E93] mb-8">
-          Last updated: {buildDate}
+        <p className="text-center text-sm mb-10" style={{ color: 'var(--text-tertiary)' }}>
+          Effective Date: April 2026
         </p>
 
-        <div className="space-y-8 text-[#1C1C1E] dark:text-[#F5F5F7]">
-          <section>
-            <h2 className="text-2xl font-bold mb-4">Our commitment</h2>
+        <div className="space-y-8">
+          <Section title="Our Commitment">
             <p>
-              Ledger is built with one principle: <strong>your financial data is yours</strong>. We do not sell it,
-              share it, or use it to target you with advertising — ever.
+              Ledger is built with one principle: <strong>your financial data is yours</strong>.
+              We do not sell it, share it, or use it to target you with advertising — ever.
             </p>
-          </section>
+          </Section>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-4">What we collect</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-[#E5E5EA] dark:border-[#38383A]">
-                <thead className="bg-[#F2F2F7] dark:bg-[#1C1C1E]">
-                  <tr>
-                    <th className="border border-[#E5E5EA] dark:border-[#38383A] p-3 text-left">Data</th>
-                    <th className="border border-[#E5E5EA] dark:border-[#38383A] p-3 text-left">Why</th>
-                    <th className="border border-[#E5E5EA] dark:border-[#38383A] p-3 text-left">Stored</th>
+          <Section title="What We Collect">
+            <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--border)' }}>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ background: 'var(--overlay)' }}>
+                    <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>Data</th>
+                    <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>Purpose</th>
+                    <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>Storage</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">Email address</td>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">Authentication</td>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">Supabase Auth</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">Display name & avatar</td>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">Your profile</td>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">Supabase DB</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">Transaction data you enter</td>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">Core app functionality</td>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">Supabase DB</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">App preferences</td>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">Personalisation</td>
-                    <td className="border border-[#E5E5EA] dark:border-[#38383A] p-3">Supabase DB + localStorage</td>
-                  </tr>
+                <tbody style={{ color: 'var(--text-secondary)' }}>
+                  <tr><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Email address</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Authentication</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Supabase Auth</td></tr>
+                  <tr><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Display name</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Your profile</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Supabase DB</td></tr>
+                  <tr><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Transaction data</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Core functionality</td><td className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>Supabase DB</td></tr>
+                  <tr><td className="p-3">App preferences</td><td className="p-3">Personalisation</td><td className="p-3">Supabase + localStorage</td></tr>
                 </tbody>
               </table>
             </div>
             <p className="mt-4">
-              We do <strong>not</strong> collect: device identifiers, IP address logs, browsing behaviour, location
-              data, or any data beyond what you explicitly enter.
+              We do <strong>not</strong> collect: device identifiers, IP address logs, browsing behaviour,
+              location data, or any data beyond what you explicitly enter.
             </p>
-          </section>
+          </Section>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-4">What we do not do</h2>
+          <Section title="What We Do Not Do">
             <ul className="list-disc list-inside space-y-2">
               <li>We do not sell your data to any third party.</li>
               <li>We do not serve advertisements.</li>
-              <li>We do not use third-party analytics (no Google Analytics, Mixpanel, Hotjar, or equivalent).</li>
+              <li>We do not use third-party analytics (no Google Analytics, Mixpanel, or equivalent).</li>
               <li>We do not share your data with anyone except as required by law.</li>
             </ul>
-          </section>
+          </Section>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-4">Data storage & security</h2>
+          <Section title="Data Storage & Security">
             <p>
-              Your data is stored in Supabase (PostgreSQL) hosted on AWS infrastructure. All data is encrypted in
-              transit (TLS 1.2+) and at rest. Row Level Security ensures only you can access your records.
+              Your data is stored in Supabase (PostgreSQL) hosted on AWS infrastructure. All data is encrypted
+              in transit (TLS 1.2+) and at rest. Row Level Security (RLS) ensures only you can access your records.
             </p>
-          </section>
+          </Section>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-4">Your rights</h2>
+          <Section title="Your Rights">
             <ul className="list-disc list-inside space-y-2">
-              <li>
-                <strong>Export</strong>: Download all your data (JSON + CSV) at any time from Settings.
-              </li>
-              <li>
-                <strong>Deletion</strong>: Permanently delete your account and all associated data from Settings.
-                Deletion is immediate and irreversible.
-              </li>
-              <li>
-                <strong>Correction</strong>: Edit any data at any time within the app.
-              </li>
+              <li><strong>Export</strong>: Download all your data (JSON + CSV) at any time from Settings.</li>
+              <li><strong>Deletion</strong>: Permanently delete your account and all data from Settings. Deletion is immediate and irreversible.</li>
+              <li><strong>Correction</strong>: Edit any data at any time within the app.</li>
             </ul>
-          </section>
+          </Section>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-4">Open source</h2>
+          <Section title="Open Source">
             <p>
               Ledger&apos;s source code is publicly available. You can audit exactly how your data is handled.
             </p>
-          </section>
+          </Section>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-4">Contact</h2>
+          <Section title="Contact">
             <p>
-              For privacy questions: <strong>privacy@bunorden.com</strong>
+              For privacy questions: <a href="mailto:privacy@bunorden.com" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>privacy@bunorden.com</a>
             </p>
-          </section>
+            <p>
+              Or use our <a href="/contact" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>Contact Form</a>.
+            </p>
+          </Section>
         </div>
-      </article>
-
-      <div className="max-w-2xl mx-auto px-4">
-        <BunordenFooter />
       </div>
     </div>
+  )
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <h2 className="text-xl font-bold mb-3 flex items-center gap-3" style={{ color: 'var(--text-primary)' }}>
+        <div className="w-6 h-1 rounded-full" style={{ background: 'var(--accent-primary)' }} />
+        {title}
+      </h2>
+      <div className="text-sm leading-relaxed space-y-3" style={{ color: 'var(--text-secondary)' }}>
+        {children}
+      </div>
+    </section>
   )
 }

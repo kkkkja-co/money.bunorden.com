@@ -10,30 +10,31 @@ export default function Page() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-
-        if (user) {
-          router.push('/dashboard')
-        } else {
-          router.push('/login')
-        }
-      } catch (error) {
-        console.error('Auth check error:', error)
+        const { data: { user } } = await supabase.auth.getUser()
+        router.push(user ? '/dashboard' : '/login')
+      } catch {
         router.push('/login')
       }
     }
-
     checkAuth()
   }, [router])
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white dark:bg-black">
-      <div className="text-center">
-        <div className="animate-pulse text-[#636366] dark:text-[#8E8E93]">
-          Loading...
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center gap-3">
+        <div
+          className="w-12 h-12 rounded-2xl flex items-center justify-center text-white text-xl font-bold"
+          style={{
+            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+            animation: 'float 2s ease-in-out infinite',
+          }}
+        >
+          L
         </div>
+        <div
+          className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin"
+          style={{ borderColor: 'var(--accent-primary)', borderTopColor: 'transparent' }}
+        />
       </div>
     </div>
   )

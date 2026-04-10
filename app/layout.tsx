@@ -1,11 +1,17 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Providers } from './providers'
 import './globals.css'
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#09090b',
+}
+
 export const metadata: Metadata = {
   title: 'Ledger — Privacy-First Personal Finance',
-  description: 'Your financial data is yours. No ads, no tracking, no data selling.',
-  viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
+  description: 'Your financial data is yours. No ads, no tracking, no data selling. Open-source personal finance by Bunorden.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -15,7 +21,6 @@ export const metadata: Metadata = {
   icons: {
     apple: '/assets/icon-192.png',
   },
-  themeColor: '#007AFF',
 }
 
 export default function RootLayout({
@@ -26,14 +31,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#007AFF" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Ledger" />
         <link rel="apple-touch-icon" href="/assets/icon-192.png" />
-        <meta name="description" content="Your financial data is yours. No ads, no tracking, no data selling." />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="bg-white dark:bg-black text-[#1C1C1E] dark:text-white">
+      <body>
         <Providers>{children}</Providers>
       </body>
     </html>

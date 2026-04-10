@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
-import { BunordenFooter } from '@/components/layout/BunordenFooter'
+import { Eye, EyeOff, LogIn } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -19,13 +20,8 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
-
       router.push('/dashboard')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
@@ -35,20 +31,44 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-black px-4 py-8">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-[#1C1C1E] dark:text-white mb-2">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
+      {/* Background gradient orbs */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: `
+            radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%)
+          `,
+        }}
+      />
+
+      <div className="w-full max-w-sm relative z-10">
+        {/* Logo */}
+        <div className="text-center mb-10 animate-fade-up">
+          <div
+            className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
+            style={{
+              background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+              boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+            }}
+          >
+            L
+          </div>
+          <h1
+            className="text-3xl font-bold tracking-tight mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
             Welcome back
           </h1>
-          <p className="text-[#636366] dark:text-[#8E8E93]">
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
             Sign in to your Ledger account
           </p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4 mb-6">
-          <div>
-            <label className="block text-sm font-medium text-[#1C1C1E] dark:text-white mb-2">
+          <div className="animate-fade-up delay-1">
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
               Email
             </label>
             <input
@@ -56,27 +76,41 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className="input"
+              className="input-glass"
               required
+              autoFocus
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-[#1C1C1E] dark:text-white mb-2">
+          <div className="animate-fade-up delay-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
               Password
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="input"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="input-glass pr-12"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                style={{ color: 'var(--text-tertiary)' }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           {error && (
-            <div className="p-3 bg-[#FF3B30]/10 border border-[#FF3B30]/20 rounded-[12px] text-[#FF3B30] text-sm">
+            <div
+              className="p-3 rounded-xl text-sm font-medium animate-scale-in"
+              style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
+            >
               {error}
             </div>
           )}
@@ -84,24 +118,35 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary w-full"
+            className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-3"
           >
-            {loading ? 'Signing in...' : 'Sign in'}
+            {loading ? (
+              <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+            ) : (
+              <><LogIn size={18} /> Sign in</>
+            )}
           </button>
         </form>
 
-        <div className="text-center">
-          <p className="text-[#636366] dark:text-[#8E8E93] text-sm">
+        <div className="text-center animate-fade-up delay-4">
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
             Don&apos;t have an account?{' '}
-            <Link href="/signup" className="text-[#007AFF] hover:opacity-70 font-medium">
+            <Link href="/signup" className="font-semibold" style={{ color: 'var(--accent-primary)' }}>
               Create one
             </Link>
           </p>
         </div>
-      </div>
 
-      <div className="mt-auto pt-8">
-        <BunordenFooter />
+        {/* Footer links */}
+        <div className="flex items-center justify-center gap-4 mt-8 animate-fade-up delay-5">
+          <Link href="/privacy" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Privacy</Link>
+          <span style={{ color: 'var(--text-tertiary)' }}>·</span>
+          <Link href="/terms" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Terms</Link>
+          <span style={{ color: 'var(--text-tertiary)' }}>·</span>
+          <a href="https://bunorden.com" target="_blank" rel="noopener noreferrer" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+            Bunorden
+          </a>
+        </div>
       </div>
     </div>
   )
