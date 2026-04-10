@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Mail, Send, CheckCircle } from 'lucide-react'
+import { MarketingPageShell, MarketingSection } from '../MarketingPageShell'
 
 export default function ContactPage() {
   const [name, setName] = useState('')
@@ -37,25 +38,15 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12 lg:py-20">
-      <div className="glass-card p-8 lg:p-12 animate-fade-up" style={{ animationDelay: '0.1s' }}>
-        <h1
-          className="text-3xl lg:text-4xl font-bold text-center mb-2 tracking-tight"
-          style={{
-            background: 'linear-gradient(to right, var(--text-primary), var(--text-tertiary))',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          Contact Support
-        </h1>
-        <p className="text-center text-sm mb-8" style={{ color: 'var(--text-tertiary)' }}>
-          Have a question, feedback, or need to make a request?
-        </p>
-
-        {/* Direct email */}
+    <MarketingPageShell
+      title="Contact Support"
+      subtitle="Have a question, feedback, or need to make a request?"
+      icon={Mail}
+      maxWidthClass="max-w-2xl"
+    >
+      <MarketingSection title="Direct Contact">
         <div
-          className="rounded-xl p-4 text-center mb-8"
+          className="rounded-xl p-4 text-center"
           style={{ background: 'var(--overlay)', border: '1px solid var(--border)' }}
         >
           <span className="text-xs block mb-1" style={{ color: 'var(--text-tertiary)' }}>
@@ -69,7 +60,9 @@ export default function ContactPage() {
             contact@bunorden.com
           </a>
         </div>
+      </MarketingSection>
 
+      <MarketingSection title="Send a Message">
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Request type */}
           <div>
@@ -193,23 +186,22 @@ export default function ContactPage() {
             )}
           </button>
         </form>
+      </MarketingSection>
 
-        {/* Note for deletion requests */}
-        {requestType === 'deletion' && (
-          <div
-            className="mt-6 p-4 rounded-xl text-sm"
-            style={{
-              background: 'var(--warning-bg)',
-              border: '1px solid rgba(255, 149, 0, 0.2)',
-              color: 'var(--warning)',
-            }}
-          >
-            <strong>Note:</strong> You can also delete your account directly from{' '}
-            <a href="/settings" style={{ textDecoration: 'underline' }}>Settings</a>.
-            Account deletion is immediate and irreversible.
-          </div>
-        )}
-      </div>
-    </div>
+      {requestType === 'deletion' && (
+        <div
+          className="mt-6 p-4 rounded-xl text-sm"
+          style={{
+            background: 'var(--warning-bg)',
+            border: '1px solid rgba(255, 149, 0, 0.2)',
+            color: 'var(--warning)',
+          }}
+        >
+          <strong>Note:</strong> You can also delete your account directly from{' '}
+          <a href="/settings" style={{ textDecoration: 'underline' }}>Settings</a>.
+          Account deletion is immediate and irreversible.
+        </div>
+      )}
+    </MarketingPageShell>
   )
 }
