@@ -9,10 +9,13 @@ export default function PrivacyPage() {
       <div className="space-y-12">
         <MarketingSection title="Our Commitment">
             <p className="text-lg" style={{ color: 'var(--text-primary)' }}>
-              Ledger is built with one principle: <strong className="text-white">your financial data is yours</strong>.
+              <strong>Clavi</strong> — from Latin <em>clavis</em>, meaning key.
             </p>
-            <p>
-              We do not sell it, share it, or use it to target you with advertising — ever. Your privacy isn&apos;t just a feature; it&apos;s our foundation.
+            <p className="mt-4">
+              A key does not store your wealth — it grants you access to it. Clavi was built on the same principle: your financial data belongs to you, and only you hold the key.
+            </p>
+            <p className="mt-4">
+              We believe managing money should feel like freedom, not surveillance. Clavi is built for people who want full ownership of their financial story — no ads, no algorithms watching, no data sold to strangers.
             </p>
         </MarketingSection>
 

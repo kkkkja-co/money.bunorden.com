@@ -4,7 +4,7 @@ export const translations = {
   en: {
     common: {
       continue: 'Continue',
-      back: 'Back',
+      back: 'Go Back',
       save: 'Save Changes',
       cancel: 'Cancel',
       confirm: 'Confirm',
@@ -17,7 +17,9 @@ export const translations = {
       add_transaction: 'Add Transaction',
       no_transactions: 'No transactions yet',
       start_tracking: 'Add your first transaction to start tracking',
-      welcome: 'Welcome',
+      welcome: 'Welcome back',
+      no_data: 'No records found',
+      clavi_vision: 'You hold the key.',
     },
     nav: {
       dashboard: 'Dashboard',
@@ -53,7 +55,7 @@ export const translations = {
       total_spent: 'Total Spent',
     },
     tour: {
-      welcome_title: 'Welcome to Ledger!',
+      welcome_title: 'Welcome to Clavi!',
       welcome_desc: 'Let\'s take a quick 1-minute tour of your new financial dashboard.',
       balance_title: 'Secure Balance',
       balance_desc: 'Your total balance is here. Use the eye icon to hide your numbers in public.',
@@ -82,7 +84,7 @@ export const translations = {
       toast_deleted: 'Transaction deleted',
     },
     onboarding: {
-      step1_title: 'Welcome to Ledger',
+      step1_title: 'Welcome to Clavi',
       step1_subtitle: "Let's set up your account. What should we call you?",
       step1_placeholder: 'Your name (optional)',
       step2_title: 'Which best describes you?',
@@ -152,7 +154,9 @@ export const translations = {
       add_transaction: '新增交易',
       no_transactions: '尚無交易紀錄',
       start_tracking: '新增您的第一筆交易，開始追蹤財務狀況',
-      welcome: '歡迎',
+      welcome: '歡迎回來',
+      no_data: '查無數據',
+      clavi_vision: '金鑰在手，資產我有。',
     },
     nav: {
       dashboard: '儀表板',
@@ -188,7 +192,7 @@ export const translations = {
       total_spent: '總支出',
     },
     tour: {
-      welcome_title: '歡迎使用 Ledger！',
+      welcome_title: '歡迎使用 Clavi！',
       welcome_desc: '讓我們花 1 分鐘快速了解您的個人理財控制台。',
       balance_title: '安全結餘顯示',
       balance_desc: '您的總結餘顯示在這裡。在公共場合可以使用眼睛圖標隱藏金額。',
@@ -217,7 +221,7 @@ export const translations = {
       toast_deleted: '交易已刪除',
     },
     onboarding: {
-      step1_title: '歡迎使用 Ledger',
+      step1_title: '歡迎使用 Clavi',
       step1_subtitle: '讓我們開始設定您的帳戶。我們該如何稱呼您？',
       step1_placeholder: '您的名字 (選填)',
       step2_title: '哪種描述最符合您？',

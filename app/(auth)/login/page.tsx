@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { Eye, EyeOff, LogIn, Shield, ArrowLeft } from 'lucide-react'
-import { useTranslation } from '@/app/providers'
+import { useTranslation, useTheme } from '@/app/providers'
 
 export default function LoginPage() {
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -114,13 +115,16 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-10 animate-fade-up">
           <div
-            className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
+            className="w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-              boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
             }}
           >
-            L
+            <img 
+              src={theme === 'dark' ? '/assets/clavi-icon-dark.svg' : '/assets/clavi-icon-light.svg'} 
+              alt="Clavi Logo" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <h1
             className="text-3xl font-bold tracking-tight mb-2"
@@ -133,7 +137,7 @@ export default function LoginPage() {
               ? t('auth.mfa_subtitle')
               : resetMode 
                 ? t('auth.verify_email_subtitle', { email: '' }).split('{')[0]
-                : 'Sign in to your Ledger account'}
+                : 'Sign in to your Clavi account'}
           </p>
         </div>
 

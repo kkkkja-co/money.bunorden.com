@@ -18,7 +18,7 @@ export function ProductTour() {
 
   useEffect(() => {
     // Check if user has seen the tour
-    const hasSeenTour = localStorage.getItem('ledger-tour-seen')
+    const hasSeenTour = localStorage.getItem('clavi-tour-seen')
     if (!hasSeenTour) {
       // Delay tour start slightly for smoother entrance
       const timer = setTimeout(() => setIsVisible(true), 2000)
@@ -59,12 +59,12 @@ export function ProductTour() {
 
   const finishTour = () => {
     setIsVisible(false)
-    localStorage.setItem('ledger-tour-seen', 'true')
+    localStorage.setItem('clavi-tour-seen', 'true')
   }
 
   const skipTour = () => {
     setIsVisible(false)
-    localStorage.setItem('ledger-tour-seen', 'true')
+    localStorage.setItem('clavi-tour-seen', 'true')
   }
 
   useEffect(() => {

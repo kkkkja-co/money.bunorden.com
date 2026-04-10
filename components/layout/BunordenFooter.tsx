@@ -76,7 +76,7 @@ export function BunordenFooter() {
         <div className="text-center pb-8 max-w-xl mx-auto">
           <p className="text-xs leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
             <strong style={{ color: 'var(--text-secondary)' }}>Your data is yours.</strong>{' '}
-            Ledger does not sell, share, or use your financial data for advertising.
+            Clavi does not sell, share, or use your financial data for advertising.
             All data is encrypted and protected by Row Level Security.
           </p>
           <div className="mt-4 flex items-center justify-center gap-2">

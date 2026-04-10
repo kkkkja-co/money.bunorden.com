@@ -198,7 +198,7 @@ export default function SettingsPage() {
           category: Array.isArray(t.category) ? t.category[0] || null : t.category,
         }))
         content = JSON.stringify(mapped, null, 2)
-        filename = `ledger-export-${new Date().toISOString().split('T')[0]}.json`
+        filename = `clavi-export-${new Date().toISOString().split('T')[0]}.json`
         mimeType = 'application/json'
       } else {
         const header = 'Date,Type,Amount,Currency,Category,Note\n'
@@ -207,7 +207,7 @@ export default function SettingsPage() {
           return `${t.date},${t.type},${t.amount},${t.currency},"${category?.name || ''}","${t.note || ''}"`
         }).join('\n')
         content = header + rows
-        filename = `ledger-export-${new Date().toISOString().split('T')[0]}.csv`
+        filename = `clavi-export-${new Date().toISOString().split('T')[0]}.csv`
         mimeType = 'text/csv'
       }
 

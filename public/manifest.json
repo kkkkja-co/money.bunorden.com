@@ -1,7 +1,7 @@
 {
-  "name": "Ledger",
-  "short_name": "Ledger",
-  "description": "Privacy-first bookkeeping app. Your data, your control.",
+  "name": "Clavi",
+  "short_name": "Clavi",
+  "description": "Privacy-first personal finance. You hold the key.",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",

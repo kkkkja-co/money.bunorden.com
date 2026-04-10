@@ -1,4 +1,4 @@
-# Ledger — Setup Guide
+# Clavi — Setup Guide
 
 A privacy-first, open-source bookkeeping app by Bunorden.
 
@@ -13,8 +13,8 @@ A privacy-first, open-source bookkeeping app by Bunorden.
 ## 1. Clone & install
 
 ```bash
-git clone https://github.com/your-org/ledger.git
-cd ledger
+git clone https://github.com/your-org/clavi.git
+cd clavi
 pnpm install
 ```
 

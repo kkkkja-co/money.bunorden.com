@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings } from 'lucide-react'
+import { useTheme } from '@/app/providers'
+import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Key } from 'lucide-react'
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -14,6 +15,7 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const { theme } = useTheme()
 
   return (
     <aside
@@ -26,18 +28,21 @@ export function Sidebar() {
       }}
     >
       {/* Logo */}
-      <Link href="/dashboard" className="flex items-center gap-3 px-6 py-6">
+      <Link href="/dashboard" className="flex items-center gap-3 px-6 py-6 transition-all hover:opacity-80">
         <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-sm"
+          className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
           }}
         >
-          L
+          <img 
+            src={theme === 'dark' ? '/assets/clavi-icon-dark.svg' : '/assets/clavi-icon-light.svg'} 
+            alt="Clavi Logo" 
+            className="w-full h-full object-cover transition-all duration-500"
+          />
         </div>
-        <span className="font-bold text-lg tracking-tight" style={{ color: 'var(--text-primary)' }}>
-          Ledger
+        <span className="font-bold text-xl tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          Clavi
         </span>
       </Link>
 

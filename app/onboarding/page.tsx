@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { PERSONA_PRESETS } from '@/lib/presets'
 import { Check, ArrowLeft, Sparkles, Mail, RefreshCw, Languages } from 'lucide-react'
-import { useTranslation, useLanguage } from '@/app/providers'
+import { useTranslation, useLanguage, useTheme } from '@/app/providers'
 import { Language } from '@/lib/i18n/translations'
 
 export default function OnboardingPage() {
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const { language, setLanguage } = useLanguage()
   const [step, setStep] = useState(0)
   const [selectedPersona, setSelectedPersona] = useState('')
@@ -128,13 +129,16 @@ export default function OnboardingPage() {
         
         <div className="w-full max-w-md relative z-10 glass-card p-10 rounded-[2.5rem] border border-white/5 space-y-8 shadow-2xl">
           <div
-            className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center animate-bounce"
+            className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-              boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
             }}
           >
-            <Mail size={40} color="#fff" />
+            <img 
+              src={theme === 'dark' ? '/assets/clavi-icon-dark.svg' : '/assets/clavi-icon-light.svg'} 
+              alt="Clavi Logo" 
+              className="w-full h-full object-cover"
+            />
           </div>
 
           <div>
@@ -210,13 +214,16 @@ export default function OnboardingPage() {
         {step === 0 && (
           <div className="animate-fade-up text-center">
             <div
-              className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center"
+              className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center overflow-hidden"
               style={{
-                background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-                boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
               }}
             >
-              <Languages size={36} color="#fff" />
+              <img 
+                src={theme === 'dark' ? '/assets/clavi-icon-dark.svg' : '/assets/clavi-icon-light.svg'} 
+                alt="Clavi Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
               {t('onboarding.lang_title')}
@@ -255,13 +262,16 @@ export default function OnboardingPage() {
               <ArrowLeft size={16} /> {t('common.back')}
             </button>
             <div
-              className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center"
+              className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center overflow-hidden"
               style={{
-                background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-                boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
               }}
             >
-              <Sparkles size={36} color="#fff" />
+              <img 
+                src={theme === 'dark' ? '/assets/clavi-icon-dark.svg' : '/assets/clavi-icon-light.svg'} 
+                alt="Clavi Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
               {t('onboarding.step1_title')}

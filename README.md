@@ -1,6 +1,6 @@
-# Ledger
+# Clavi — You hold the key
 
-> A privacy-first, open-source personal finance app. Your data stays yours.
+> Finance that serves the person, not the platform. Managed with full ownership and zero surveillance.
 
 ![Next.js](https://img.shields.io/badge/Next.js_14-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
@@ -8,8 +8,13 @@
 ![Vercel](https://img.shields.io/badge/Vercel-black?logo=vercel)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue)
 
+**Clavi** — from Latin *clavis*, meaning key. 
+A key does not store your wealth — it grants you access to it. Clavi was built on the same principle: your financial data belongs to you, and only you hold the key.
+
+The name is short, rooted in history, and universally pronounceable — a quiet signal of the trust we place in your hands.
+
 <!-- screenshot placeholder -->
-<!-- ![Ledger screenshot](docs/screenshot.png) -->
+<!-- ![Clavi screenshot](docs/screenshot.png) -->
 
 ## Features
 
@@ -28,8 +33,8 @@
 ## Quick start
 
 ```bash
-git clone https://github.com/your-org/ledger.git
-cd ledger
+git clone https://github.com/your-org/clavi.git
+cd clavi
 pnpm install
 cp .env.example .env.local   # fill in your Supabase keys
 pnpm dev
@@ -41,7 +46,7 @@ See [SETUP.md](./SETUP.md) for the full self-hosting guide.
 
 ## Self-hosting
 
-Ledger is designed to be self-hosted. You need:
+Clavi is designed to be self-hosted. You need:
 - A free Supabase project
 - A Vercel account (or any Node.js host)
 - A domain (optional but recommended)

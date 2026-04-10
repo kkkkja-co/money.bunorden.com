@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { Eye, EyeOff, UserPlus } from 'lucide-react'
+import { useTheme } from '@/app/providers'
 
 export default function SignupPage() {
+  const { theme } = useTheme()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -76,19 +78,22 @@ export default function SignupPage() {
         {/* Logo */}
         <div className="text-center mb-10 animate-fade-up">
           <div
-            className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
+            className="w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-              boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
             }}
           >
-            L
+            <img 
+              src={theme === 'dark' ? '/assets/clavi-icon-dark.svg' : '/assets/clavi-icon-light.svg'} 
+              alt="Clavi Logo" 
+              className="w-full h-full object-cover text-white"
+            />
           </div>
           <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
             Create account
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-            Join Ledger — your privacy is our priority
+            Join Clavi — your privacy is our priority
           </p>
         </div>
 

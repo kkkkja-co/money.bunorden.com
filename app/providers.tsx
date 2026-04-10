@@ -44,14 +44,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // Initialization
   useEffect(() => {
     // Theme
-    const storedTheme = localStorage.getItem('ledger-theme') as Theme | null
+    const storedTheme = localStorage.getItem('clavi-theme') as Theme | null
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     const initialTheme = storedTheme || (prefersDark ? 'dark' : 'light')
     setTheme(initialTheme)
     document.documentElement.setAttribute('data-theme', initialTheme)
 
     // Language
-    const storedLang = localStorage.getItem('ledger-lang') as Language | null
+    const storedLang = localStorage.getItem('clavi-lang') as Language | null
     if (storedLang) {
       setLanguageState(storedLang)
     }
@@ -74,7 +74,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         
         if (data?.language && data.language !== language) {
           setLanguageState(data.language as Language)
-          localStorage.setItem('ledger-lang', data.language)
+          localStorage.setItem('clavi-lang', data.language)
         }
       }
     }
@@ -85,14 +85,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
     setTheme(prev => {
       const next = prev === 'dark' ? 'light' : 'dark'
       document.documentElement.setAttribute('data-theme', next)
-      localStorage.setItem('ledger-theme', next)
+      localStorage.setItem('clavi-theme', next)
       return next
     })
   }, [])
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang)
-    localStorage.setItem('ledger-lang', lang)
+    localStorage.setItem('clavi-lang', lang)
     
     // Attempt to sync to Supabase if logged in
     supabase.auth.getUser().then(({ data: { user } }) => {

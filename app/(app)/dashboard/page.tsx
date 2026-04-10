@@ -51,14 +51,14 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const saved = localStorage.getItem('ledger-balance-visible')
+    const saved = localStorage.getItem('clavi-balance-visible')
     if (saved !== null) setIsVisible(saved === 'true')
   }, [])
 
   const toggleVisibility = () => {
     setIsVisible(prev => {
       const next = !prev
-      localStorage.setItem('ledger-balance-visible', String(next))
+      localStorage.setItem('clavi-balance-visible', String(next))
       return next
     })
   }

@@ -9,7 +9,7 @@ export default function TermsPage() {
       <div className="space-y-12">
         <MarketingSection title="1. Overview">
             <p className="text-lg" style={{ color: 'var(--text-primary)' }}>
-              By accessing and using Ledger (&quot;the Service&quot;), provided by Bunorden, you agree to be bound by these Terms of Use.
+              By accessing and using <strong>Clavi</strong> (&quot;the Service&quot;), provided by Bunorden, you agree to be bound by these Terms of Use.
             </p>
             <p>
               If you do not agree with any part of these terms, you should immediately discontinue use of the Service. We believe in simplicity and clarity, so we&apos;ve kept these terms as straightforward as possible.
@@ -18,7 +18,7 @@ export default function TermsPage() {
 
         <MarketingSection title="2. The Service">
             <p>
-              Ledger is a privacy-first personal finance application that allows you to track income, expenses, and transfers. The Service is provided &quot;as is&quot; and &quot;as available&quot;. While we strive for 100% uptime and accuracy, we do not provide legal or financial warranties.
+              Clavi is a privacy-first personal finance application that allows you to track income, expenses, and transfers. The Service is provided &quot;as is&quot; and &quot;as available&quot;. While we strive for 100% uptime and accuracy, we do not provide legal or financial warranties.
             </p>
         </MarketingSection>
 
@@ -64,7 +64,7 @@ export default function TermsPage() {
             <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/5">
                 <h4 className="font-bold text-white mb-2" style={{ color: 'var(--text-primary)' }}>You own your data. Period.</h4>
                 <p className="text-sm">
-                  All financial information entered into Ledger remains your property. You have the right to export your data or delete your account at any time. We do not claim any rights to your financial records.
+                  All financial information entered into Clavi remains your property. You have the right to export your data or delete your account at any time. We do not claim any rights to your financial records.
                 </p>
             </div>
         </MarketingSection>

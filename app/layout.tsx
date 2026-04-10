@@ -10,16 +10,20 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'Ledger — Privacy-First Personal Finance',
-  description: 'Your financial data is yours. No ads, no tracking, no data selling. Open-source personal finance by Bunorden.',
+  title: 'Clavi — Privacy-First Finance',
+  description: 'Your financial data is yours. Only you hold the key. Privacy-first, open-source personal finance by Bunorden.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Ledger',
+    title: 'Clavi',
   },
   icons: {
-    apple: '/assets/icon-192.png',
+    icon: [
+      { url: '/assets/clavi-icon-light.svg', media: '(prefers-color-scheme: light)' },
+      { url: '/assets/clavi-icon-dark.svg', media: '(prefers-color-scheme: dark)' },
+    ],
+    apple: '/assets/clavi-icon-dark.svg',
   },
 }
 
@@ -33,7 +37,7 @@ export default function RootLayout({
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Ledger" />
+        <meta name="apple-mobile-web-app-title" content="Clavi" />
         <link rel="apple-touch-icon" href="/assets/icon-192.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
