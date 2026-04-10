@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Mail, Send, CheckCircle } from 'lucide-react'
-import { MarketingPageShell, MarketingSection } from '../MarketingPageShell'
+import { MarketingPageShell, MarketingSection } from '@/components/layout/MarketingPageShell'
 
 export default function ContactPage() {
   const [name, setName] = useState('')

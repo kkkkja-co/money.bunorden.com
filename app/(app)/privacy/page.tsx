@@ -1,7 +1,7 @@
 'use client'
 
 import { Shield } from 'lucide-react'
-import { MarketingPageShell, MarketingSection } from '../MarketingPageShell'
+import { MarketingPageShell, MarketingSection } from '@/components/layout/MarketingPageShell'
 
 export default function PrivacyPage() {
   return (
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
                 "End-to-end data encryption"
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-var(--accent-primary)" />
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent-primary)' }} />
                   <span className="text-sm font-medium">{item}</span>
                 </div>
               ))}
@@ -80,11 +80,11 @@ export default function PrivacyPage() {
         <MarketingSection title="Your Rights">
             <div className="space-y-6">
               <div className="group">
-                <h4 className="font-bold text-white mb-1 group-hover:text-var(--accent-primary) transition-colors">Full Data Export</h4>
+                <h4 className="font-bold text-white mb-1 group-hover:text-primary transition-colors" style={{ color: 'var(--text-primary)' }}>Full Data Export</h4>
                 <p className="text-xs">Download all your records in JSON or CSV format at any time from your settings.</p>
               </div>
               <div className="group">
-                <h4 className="font-bold text-white mb-1 group-hover:text-var(--danger) transition-colors">Right to be Forgotten</h4>
+                <h4 className="font-bold text-white mb-1 group-hover:text-danger transition-colors" style={{ color: 'var(--text-primary)' }}>Right to be Forgotten</h4>
                 <p className="text-xs">Permanently delete your account and all associated data. This action is immediate and non-recoverable.</p>
               </div>
             </div>

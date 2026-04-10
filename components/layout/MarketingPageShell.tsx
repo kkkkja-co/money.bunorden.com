@@ -20,31 +20,8 @@ export function MarketingPageShell({
 }: MarketingPageShellProps) {
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Dynamic Background Orbs */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: `
-            radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
-            radial-gradient(circle at 90% 90%, rgba(139, 92, 246, 0.05) 0%, transparent 40%),
-            radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.02) 0%, transparent 60%)
-          `,
-        }}
-      />
 
-      <div className={`${maxWidthClass} mx-auto px-4 py-12 lg:py-20 relative z-10`}>
-        <div className="mb-8 animate-fade-in delay-1">
-          <Link
-            href="/dashboard"
-            className="group inline-flex items-center gap-2 text-sm font-semibold transition-all hover:translate-x-[-4px]"
-            style={{ color: 'var(--text-tertiary)' }}
-          >
-            <div className="p-1.5 rounded-lg bg-white/5 border border-white/5 group-hover:border-white/10 group-hover:bg-white/10 transition-colors">
-              <ArrowLeft size={16} />
-            </div>
-            Back to Dashboard
-          </Link>
-        </div>
+      <div className={`${maxWidthClass} mx-auto px-4 py-8 relative z-10`}>
 
         <div className="glass-card !p-8 lg:!p-16 animate-fade-up shadow-[0_32px_80px_rgba(0,0,0,0.4)]" style={{ animationDelay: '0.1s', borderRadius: '32px' }}>
           <div className="flex justify-center mb-6">

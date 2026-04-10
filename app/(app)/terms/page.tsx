@@ -1,7 +1,7 @@
 'use client'
 
 import { Scale } from 'lucide-react'
-import { MarketingPageShell, MarketingSection } from '../MarketingPageShell'
+import { MarketingPageShell, MarketingSection } from '@/components/layout/MarketingPageShell'
 
 export default function TermsPage() {
   return (
@@ -31,7 +31,7 @@ export default function TermsPage() {
                 "Full security responsibility"
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-var(--accent-primary)" />
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent-primary)' }} />
                   <span className="text-sm font-medium">{item}</span>
                 </div>
               ))}
@@ -62,7 +62,7 @@ export default function TermsPage() {
 
         <MarketingSection title="5. Data Ownership">
             <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/5">
-                <h4 className="font-bold text-white mb-2">You own your data. Period.</h4>
+                <h4 className="font-bold text-white mb-2" style={{ color: 'var(--text-primary)' }}>You own your data. Period.</h4>
                 <p className="text-sm">
                   All financial information entered into Ledger remains your property. You have the right to export your data or delete your account at any time. We do not claim any rights to your financial records.
                 </p>
