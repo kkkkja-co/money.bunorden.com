@@ -48,6 +48,9 @@ export const translations = {
       name: 'Name',
       total_income: 'Total Income',
       total_expenses: 'Total Expenses',
+      assets_overview: 'Assets Overview',
+      total_earned: 'Total Earned',
+      total_spent: 'Total Spent',
     },
     transactions: {
       title: 'Transactions',
@@ -164,6 +167,9 @@ export const translations = {
       name: '名稱',
       total_income: '總收入',
       total_expenses: '總支出',
+      assets_overview: '資產總值概覽',
+      total_earned: '總收入',
+      total_spent: '總支出',
     },
     transactions: {
       title: '交易紀錄',

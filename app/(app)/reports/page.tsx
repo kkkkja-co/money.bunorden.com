@@ -182,8 +182,41 @@ export default function ReportsPage() {
           </div>
         ) : (
           <div className="space-y-8 pb-10">
+            {/* Assets Overview Pie Chart */}
+            <div className="glass-card animate-fade-up delay-1 overflow-hidden">
+              <h3 className="text-sm font-bold mb-6 px-1" style={{ color: 'var(--text-primary)' }}>{t('reports.assets_overview')}</h3>
+              <div className="h-[240px] w-full relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: t('reports.total_earned'), value: totalIncome },
+                        { name: t('reports.total_spent'), value: totalExpense }
+                      ]}
+                      innerRadius={70}
+                      outerRadius={90}
+                      paddingAngle={8}
+                      dataKey="value"
+                      cornerRadius={8}
+                    >
+                      <Cell fill="var(--success)" />
+                      <Cell fill="var(--danger)" />
+                    </Pie>
+                    <RechartsTooltip content={<CustomTooltip />} />
+                    <Legend verticalAlign="bottom" height={36}/>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none" style={{ marginTop: '-18px' }}>
+                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>{t('dashboard.balance_title')}</p>
+                  <p className="text-2xl font-black" style={{ color: totalIncome - totalExpense >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                    {formatCurrency(totalIncome - totalExpense, currency)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Quick Summary Cards */}
-            <div className="grid grid-cols-2 gap-4 animate-fade-up delay-1">
+            <div className="grid grid-cols-2 gap-4 animate-fade-up delay-2">
               <div className="glass-card flex flex-col items-center text-center">
                 <div className="w-10 h-10 rounded-full bg-success-bg flex items-center justify-center mb-3">
                   <TrendingUp size={20} style={{ color: 'var(--success)' }} />
