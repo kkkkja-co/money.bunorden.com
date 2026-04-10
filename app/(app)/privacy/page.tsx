@@ -82,7 +82,7 @@ export default function PrivacyPage() {
                 {[
                   t('privacy.guarantee_no_sell'),
                   t('privacy.guarantee_no_ads'),
-                  t('privacy.guarantee_no_trackers'),
+                  'No selling or sharing personal financial records to data brokers',
                   t('privacy.guarantee_encryption')
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5">
