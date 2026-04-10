@@ -13,6 +13,7 @@ import {
 import type { User } from '@supabase/supabase-js'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
+import { ProductTour } from '@/components/ui/ProductTour'
 
 const COLORS = [
   '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444', 
@@ -195,7 +196,7 @@ export default function DashboardPage() {
         )}
 
         {/* Balance Card */}
-        <div className="glass-card mb-6 animate-fade-up delay-1 text-center relative overflow-hidden">
+        <div id="tour-balance" className="glass-card mb-6 animate-fade-up delay-1 text-center relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-30"
             style={{
@@ -226,7 +227,7 @@ export default function DashboardPage() {
 
         {/* Dashboard Chart Preview */}
         {transactions.length > 0 && (
-          <div className="glass-card mb-6 animate-fade-up delay-2 overflow-hidden">
+          <div id="tour-analytics" className="glass-card mb-6 animate-fade-up delay-2 overflow-hidden">
             <div className="flex items-center justify-between mb-4 px-1">
               <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{t('reports.expenses_by_category')}</h3>
               <Link href="/reports" className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--accent-primary)' }}>
@@ -318,6 +319,7 @@ export default function DashboardPage() {
 
         {/* Quick Add Button */}
         <Link
+          id="tour-action"
           href="/add"
           className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl mb-8 font-semibold text-white animate-fade-up delay-4"
           style={{
@@ -393,6 +395,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      <ProductTour />
       <BunordenFooter />
     </div>
   )
