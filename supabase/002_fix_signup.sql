@@ -1,86 +1,55 @@
--- Profiles (extends auth.users)
-CREATE TABLE IF NOT EXISTS profiles (
-  id           UUID PRIMARY KEY REFERENCES auth.users ON DELETE CASCADE,
-  display_name TEXT,
-  avatar_url   TEXT,
-  mode         TEXT NOT NULL DEFAULT 'simple' CHECK (mode IN ('simple','multi')),
-  motion_enabled BOOLEAN NOT NULL DEFAULT false,
-  dark_mode    BOOLEAN NOT NULL DEFAULT false,
-  currency     TEXT NOT NULL DEFAULT 'HKD',
-  onboarding_done BOOLEAN NOT NULL DEFAULT false,
-  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
+-- ============================================================
+-- 002_fix_signup.sql
+-- Fix: "Database error saving new user" on signup
+-- 
+-- Root cause: Duplicate RLS policies from repeated migrations
+-- and/or trigger not being created due to earlier SQL errors.
+--
+-- This script safely drops ALL existing policies, recreates
+-- them cleanly, and ensures the signup trigger works.
+-- ============================================================
 
--- Accounts
-CREATE TABLE IF NOT EXISTS accounts (
-  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id    UUID NOT NULL REFERENCES profiles ON DELETE CASCADE,
-  name       TEXT NOT NULL,
-  icon       TEXT NOT NULL DEFAULT '💳',
-  colour     TEXT NOT NULL DEFAULT '#007AFF',
-  is_default BOOLEAN NOT NULL DEFAULT false,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE(user_id, name)
-);
+-- ============================================
+-- 1. DROP ALL EXISTING POLICIES (safe cleanup)
+-- ============================================
 
--- Categories
-CREATE TABLE IF NOT EXISTS categories (
-  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id    UUID NOT NULL REFERENCES profiles ON DELETE CASCADE,
-  name       TEXT NOT NULL,
-  icon       TEXT NOT NULL DEFAULT '📁',
-  colour     TEXT NOT NULL DEFAULT '#636366',
-  type       TEXT NOT NULL CHECK (type IN ('expense','income')),
-  archived   BOOLEAN NOT NULL DEFAULT false,
-  sort_order INTEGER NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE(user_id, name, type)
-);
-
--- Transactions
-CREATE TABLE IF NOT EXISTS transactions (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id       UUID NOT NULL REFERENCES profiles ON DELETE CASCADE,
-  account_id    UUID NOT NULL REFERENCES accounts ON DELETE RESTRICT,
-  to_account_id UUID REFERENCES accounts ON DELETE RESTRICT,
-  category_id   UUID REFERENCES categories ON DELETE SET NULL,
-  type          TEXT NOT NULL CHECK (type IN ('expense','income','transfer')),
-  amount        NUMERIC(12,2) NOT NULL,
-  currency      TEXT NOT NULL DEFAULT 'HKD',
-  date          DATE NOT NULL,
-  note          TEXT CHECK (char_length(note) <= 280),
-  recurring     BOOLEAN NOT NULL DEFAULT false,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
--- RLS: enable on all tables (if not already enabled)
-ALTER TABLE profiles     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE accounts     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE categories   ENABLE ROW LEVEL SECURITY;
-ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
-
--- Drop ALL existing RLS policies before recreating (must match every policy name)
+-- Profiles
 DROP POLICY IF EXISTS "Users own their profile" ON profiles;
 DROP POLICY IF EXISTS "Users can update their profile" ON profiles;
 DROP POLICY IF EXISTS "Users can delete their profile" ON profiles;
 DROP POLICY IF EXISTS "Allow profile insert for auth users" ON profiles;
 
+-- Accounts
 DROP POLICY IF EXISTS "Users own their accounts" ON accounts;
 DROP POLICY IF EXISTS "Users can manage their accounts" ON accounts;
 DROP POLICY IF EXISTS "Users can update their accounts" ON accounts;
 DROP POLICY IF EXISTS "Users can delete their accounts" ON accounts;
 
+-- Categories
 DROP POLICY IF EXISTS "Users own their categories" ON categories;
 DROP POLICY IF EXISTS "Users can manage their categories" ON categories;
 DROP POLICY IF EXISTS "Users can update their categories" ON categories;
 DROP POLICY IF EXISTS "Users can delete their categories" ON categories;
 
+-- Transactions
 DROP POLICY IF EXISTS "Users own their transactions" ON transactions;
 DROP POLICY IF EXISTS "Users can create their transactions" ON transactions;
 DROP POLICY IF EXISTS "Users can update their transactions" ON transactions;
 DROP POLICY IF EXISTS "Users can delete their transactions" ON transactions;
 
--- RLS policies: Profiles
+-- ============================================
+-- 2. ENSURE RLS IS ENABLED
+-- ============================================
+ALTER TABLE profiles     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE accounts     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE categories   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+
+-- ============================================
+-- 3. RECREATE ALL RLS POLICIES
+-- ============================================
+
+-- Profiles
 CREATE POLICY "Users own their profile"
   ON profiles FOR SELECT USING (auth.uid() = id);
 
@@ -90,10 +59,13 @@ CREATE POLICY "Users can update their profile"
 CREATE POLICY "Users can delete their profile"
   ON profiles FOR DELETE USING (auth.uid() = id);
 
+-- Allow the signup trigger (SECURITY DEFINER) to insert profiles.
+-- WITH CHECK (true) is intentional: the trigger runs as the function owner (superuser),
+-- not as the end user, so auth.uid() is NULL during trigger execution.
 CREATE POLICY "Allow profile insert for auth users"
   ON profiles FOR INSERT WITH CHECK (true);
 
--- RLS policies: Accounts
+-- Accounts
 CREATE POLICY "Users own their accounts"
   ON accounts FOR SELECT USING (auth.uid() = user_id);
 
@@ -106,7 +78,7 @@ CREATE POLICY "Users can update their accounts"
 CREATE POLICY "Users can delete their accounts"
   ON accounts FOR DELETE USING (auth.uid() = user_id);
 
--- RLS policies: Categories
+-- Categories
 CREATE POLICY "Users own their categories"
   ON categories FOR SELECT USING (auth.uid() = user_id);
 
@@ -119,7 +91,7 @@ CREATE POLICY "Users can update their categories"
 CREATE POLICY "Users can delete their categories"
   ON categories FOR DELETE USING (auth.uid() = user_id);
 
--- RLS policies: Transactions
+-- Transactions
 CREATE POLICY "Users own their transactions"
   ON transactions FOR SELECT USING (auth.uid() = user_id);
 
@@ -132,9 +104,12 @@ CREATE POLICY "Users can update their transactions"
 CREATE POLICY "Users can delete their transactions"
   ON transactions FOR DELETE USING (auth.uid() = user_id);
 
--- Auto-create profile on signup
--- SECURITY DEFINER: runs as function owner, bypassing RLS
--- SET search_path = '': prevents search_path hijacking
+-- ============================================
+-- 4. RECREATE THE SIGNUP TRIGGER (CRITICAL FIX)
+-- ============================================
+
+-- The function must be SECURITY DEFINER so it bypasses RLS.
+-- SET search_path = '' prevents search_path hijacking (security best practice).
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -142,17 +117,32 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
 BEGIN
-  INSERT INTO public.profiles (id) VALUES (NEW.id);
+  INSERT INTO public.profiles (id)
+  VALUES (NEW.id);
   RETURN NEW;
 EXCEPTION
   WHEN unique_violation THEN
-    -- Profile already exists (e.g. retry), silently ignore
+    -- Profile already exists (e.g. from a retry), silently ignore
     RETURN NEW;
 END;
 $$;
 
+-- Drop and recreate the trigger
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
+
+-- ============================================
+-- 5. VERIFY: Check that the trigger exists
+-- ============================================
+-- (This SELECT will show results in the Supabase SQL editor output)
+SELECT 
+  tgname AS trigger_name,
+  tgrelid::regclass AS table_name,
+  proname AS function_name
+FROM pg_trigger t
+JOIN pg_proc p ON t.tgfoid = p.oid
+WHERE tgname = 'on_auth_user_created';
