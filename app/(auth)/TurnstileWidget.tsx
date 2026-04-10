@@ -31,6 +31,13 @@ type TurnstileWidgetProps = {
 export function TurnstileWidget({ siteKey, onVerify, onExpire, resetSignal = 0 }: TurnstileWidgetProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const widgetIdRef = useRef<string | null>(null)
+  const onVerifyRef = useRef(onVerify)
+  const onExpireRef = useRef(onExpire)
+
+  useEffect(() => {
+    onVerifyRef.current = onVerify
+    onExpireRef.current = onExpire
+  }, [onVerify, onExpire])
 
   useEffect(() => {
     const renderWidget = () => {
@@ -40,9 +47,9 @@ export function TurnstileWidget({ siteKey, onVerify, onExpire, resetSignal = 0 }
       }
       widgetIdRef.current = window.turnstile.render(containerRef.current, {
         sitekey: siteKey,
-        callback: onVerify,
-        'expired-callback': onExpire,
-        'error-callback': onExpire,
+        callback: (token) => onVerifyRef.current(token),
+        'expired-callback': () => onExpireRef.current(),
+        'error-callback': () => onExpireRef.current(),
         theme: 'auto',
       })
     }
@@ -67,9 +74,10 @@ export function TurnstileWidget({ siteKey, onVerify, onExpire, resetSignal = 0 }
     return () => {
       if (widgetIdRef.current && window.turnstile) {
         window.turnstile.remove(widgetIdRef.current)
+        widgetIdRef.current = null
       }
     }
-  }, [siteKey, onVerify, onExpire])
+  }, [siteKey])
 
   useEffect(() => {
     if (resetSignal > 0 && widgetIdRef.current && window.turnstile) {
