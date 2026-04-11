@@ -1,33 +1,31 @@
 'use client'
 
+import { useTheme } from '@/app/providers'
+
 export function PageSkeleton() {
+  const { theme } = useTheme()
+  const logoSrc = theme === 'light' ? '/assets/clavi-icon-light.svg' : '/assets/clavi-icon-dark.svg'
+
   return (
-    <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto w-full animate-pulse">
-      <header className="mb-8">
-        <div className="skeleton h-10 w-48 mb-3" style={{ borderRadius: '12px' }} />
-        <div className="skeleton h-5 w-32" style={{ borderRadius: '8px' }} />
-      </header>
-
-      <div className="space-y-6">
-        {/* Large card skeleton */}
-        <div className="skeleton h-40 w-full" style={{ borderRadius: '24px' }} />
-        
-        {/* Grid of smaller cards */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="skeleton h-32 w-full" style={{ borderRadius: '20px' }} />
-          <div className="skeleton h-32 w-full" style={{ borderRadius: '20px' }} />
-        </div>
-
-        {/* Medium card skeleton */}
-        <div className="skeleton h-48 w-full" style={{ borderRadius: '24px' }} />
-
-        {/* List items skeleton */}
-        <div className="space-y-3">
-          <div className="skeleton h-8 w-40 mb-4" style={{ borderRadius: '8px' }} />
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="skeleton h-16 w-full" style={{ borderRadius: '16px' }} />
-          ))}
-        </div>
+    <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] max-w-3xl mx-auto w-full">
+      <div 
+        className="w-16 h-16 rounded-3xl flex items-center justify-center mb-6 animate-breathe"
+        style={{
+          background: 'var(--bg-elevated)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+          border: '1px solid var(--border)'
+        }}
+      >
+        <img 
+          src={logoSrc} 
+          alt="Loading..." 
+          className="w-8 h-8 object-cover"
+        />
+      </div>
+      <div className="animate-pulse-slow">
+        <span className="font-black text-[10px] tracking-[0.3em] uppercase text-secondary">
+          Loading Data...
+        </span>
       </div>
     </div>
   )
