@@ -32,7 +32,6 @@ export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState('')
   const [toast, setToast] = useState('')
   
-  // MFA States
   const [mfaFactors, setMfaFactors] = useState<any[]>([])
   const [showMfaModal, setShowMfaModal] = useState(false)
   const [mfaEnrollData, setMfaEnrollData] = useState<any>(null)
@@ -45,7 +44,6 @@ export default function SettingsPage() {
     if (!user) { router.push('/login'); return }
     setEmail(user.email || '')
 
-    // Check MFA
     const { data: factors } = await supabase.auth.mfa.listFactors()
     setMfaFactors(factors?.all || [])
     setIdentities(user.identities || [])
@@ -64,795 +62,125 @@ export default function SettingsPage() {
 
   useEffect(() => { fetchProfile() }, [fetchProfile])
 
-  const handleEnrollMFA = async () => {
-    setMfaProcessing(true)
-    try {
-      const { data, error } = await supabase.auth.mfa.enroll({
-        factorType: 'totp'
-      })
-      if (error) throw error
-      setMfaEnrollData(data)
-      setShowMfaModal(true)
-    } catch (err: any) {
-      setToast(err.message || 'MFA enrollment failed')
-      setTimeout(() => setToast(''), 3000)
-    } finally {
-      setMfaProcessing(false)
-    }
-  }
-
-  const handleVerifyMFA = async () => {
-    if (!mfaEnrollData || !mfaVerifyCode) return
-    setMfaProcessing(true)
-    try {
-      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId: mfaEnrollData.id
-      })
-      if (challengeError) throw challengeError
-
-      const { error: verifyError } = await supabase.auth.mfa.verify({
-        factorId: mfaEnrollData.id,
-        challengeId: challengeData.id,
-        code: mfaVerifyCode
-      })
-      if (verifyError) throw verifyError
-
-      setToast('2FA enabled successfully')
-      setShowMfaModal(false)
-      setMfaEnrollData(null)
-      setMfaVerifyCode('')
-      fetchProfile()
-    } catch (err: any) {
-      setToast(err.message || 'MFA verification failed')
-    } finally {
-      setMfaProcessing(false)
-      setTimeout(() => setToast(''), 3000)
-    }
-  }
-
-  const handleUnenrollMFA = async (factorId: string) => {
-    if (!confirm('Disable 2FA? This will make your account less secure.')) return
-    setLoading(true)
-    try {
-      const { error } = await supabase.auth.mfa.unenroll({ factorId })
-      if (error) throw error
-      setToast('2FA disabled')
-      fetchProfile()
-    } catch (err: any) {
-      setToast(err.message || 'Failed to disable 2FA')
-    } finally {
-      setLoading(false)
-      setTimeout(() => setToast(''), 3000)
-    }
-  }
-
-  const handleLogout = async () => {
-    setLoading(true)
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
-
   const handleUpdateProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-
-    await supabase
-      .from('profiles')
-      .update({ display_name: profileName || null, currency, language })
-      .eq('id', user.id)
-
+    await supabase.from('profiles').update({ display_name: profileName || null, currency, language }).eq('id', user.id)
     setToast(t('common.save'))
     setTimeout(() => setToast(''), 3000)
   }
 
-  const handleUpdatePassword = async () => {
-    if (!currentPassword) {
-      setToast('Please enter your current password')
-      setTimeout(() => setToast(''), 3000)
-      return
-    }
-
-    if (newPassword !== confirmNewPassword) {
-      setToast('Passwords do not match')
-      setTimeout(() => setToast(''), 3000)
-      return
-    }
-
-    const hasUpperCase = /[A-Z]/.test(newPassword)
-    const hasLowerCase = /[a-z]/.test(newPassword)
-    const hasNumber = /[0-9]/.test(newPassword)
-    const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword)
-    const isLongEnough = newPassword.length >= 8
-
-    if (!isLongEnough || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSymbol) {
-      setToast('Password does not meet requirements')
-      setTimeout(() => setToast(''), 3000)
-      return
-    }
-
-    setLoading(true)
-    try {
-      // First verify the current password
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password: currentPassword
-      })
-      if (signInError) throw new Error('Current password verification failed')
-
-      const { error } = await supabase.auth.updateUser({ password: newPassword })
-      if (error) throw error
-      setToast('Password updated successfully')
-      setNewPassword('')
-      setConfirmNewPassword('')
-      setCurrentPassword('')
-    } catch (err: any) {
-      setToast(err.message || 'Error updating password')
-    } finally {
-      setLoading(false)
-      setTimeout(() => setToast(''), 3000)
-    }
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
   }
 
-  const handleExport = async (format: 'json' | 'csv') => {
-    setExporting(true)
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      const { data } = await supabase
-        .from('transactions')
-        .select('type, amount, currency, date, note, tags, category:categories(name)')
-        .eq('user_id', user.id)
-        .order('date', { ascending: false })
-
-      if (!data) return
-
-      let content: string
-      let filename: string
-      let mimeType: string
-
-      if (format === 'json') {
-        const mapped = (data || []).map((t: any) => ({
-          ...t,
-          category: Array.isArray(t.category) ? t.category[0] || null : t.category,
-        }))
-        content = JSON.stringify(mapped, null, 2)
-        filename = `clavi-export-${new Date().toISOString().split('T')[0]}.json`
-        mimeType = 'application/json'
-      } else {
-        const header = 'Date,Type,Amount,Currency,Category,Note,Tags\n'
-        const rows = data.map((t: any) => {
-          const category = Array.isArray(t.category) ? t.category[0] : t.category
-          const tagStr = Array.isArray(t.tags) ? t.tags.join('; ') : ''
-          return `${t.date},${t.type},${t.amount},${t.currency},"${category?.name || ''}","${t.note || ''}","${tagStr}"`
-        }).join('\n')
-        content = header + rows
-        filename = `clavi-export-${new Date().toISOString().split('T')[0]}.csv`
-        mimeType = 'text/csv'
-      }
-
-      const blob = new Blob([content], { type: mimeType })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = filename
-      a.click()
-      URL.revokeObjectURL(url)
-
-      setShowExportModal(false)
-      setToast(`${t('settings.export_data')} ${format.toUpperCase()}`)
-      setTimeout(() => setToast(''), 3000)
-    } catch (err) {
-      console.error('Export error:', err)
-    } finally {
-      setExporting(false)
-    }
-  }
-
-  const handleLinkSocial = async (provider: 'google' | 'github') => {
-    setLoading(true)
-    try {
-      const { data, error } = await supabase.auth.linkIdentity({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/settings`,
-        },
-      })
-      if (error) throw error
-    } catch (err: any) {
-      setToast(err.message || 'Linking failed')
-      setTimeout(() => setToast(''), 3000)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleDeleteAccount = async () => {
-    if (deleteConfirm !== 'DELETE') return
-    setLoading(true)
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      // Delete all user data (cascade will handle related tables)
-      await supabase.from('profiles').delete().eq('id', user.id)
-      await supabase.auth.signOut()
-      router.push('/login')
-    } catch (err) {
-      console.error('Delete account error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const SettingsItem = ({
-    icon: Icon,
-    label,
-    sublabel,
-    right,
-    onClick,
-    danger = false,
-  }: {
-    icon: any
-    label: string
-    sublabel?: string
-    right?: React.ReactNode
-    onClick?: () => void
-    danger?: boolean
-  }) => (
-    <button
+  const SettingsRow = ({ icon: Icon, label, value, onClick, danger }: any) => (
+    <button 
       onClick={onClick}
-      className="w-full flex items-center gap-4 py-4 px-4 rounded-xl text-left"
-      style={{
-        background: 'var(--overlay)',
-        border: '1px solid var(--border)',
-        transition: 'all 0.2s',
-        color: danger ? 'var(--danger)' : 'var(--text-primary)',
-      }}
+      className={`w-full flex items-center justify-between py-4 px-5 transition-all active:scale-[0.98] ${danger ? 'text-danger' : 'text-primary'}`}
     >
-      <div
-        className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-        style={{
-          background: danger ? 'var(--danger-bg)' : 'rgba(59, 130, 246, 0.1)',
-          color: danger ? 'var(--danger)' : 'var(--accent-primary)',
-        }}
-      >
-        <Icon size={18} />
+      <div className="flex items-center gap-4">
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${danger ? 'bg-danger/10' : 'bg-primary/5'}`}>
+          <Icon size={16} />
+        </div>
+        <span className="text-sm font-bold">{label}</span>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm">{label}</p>
-        {sublabel && <p className="text-xs mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{sublabel}</p>}
+      <div className="flex items-center gap-2">
+        {value && <span className="text-xs text-tertiary font-bold uppercase tracking-widest">{value}</span>}
+        <ChevronRight size={14} className="text-tertiary opacity-40" />
       </div>
-      {right || <ChevronRight size={16} style={{ color: 'var(--text-tertiary)' }} />}
     </button>
   )
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-2xl mx-auto w-full">
-        <h1 className="text-3xl font-bold tracking-tight mb-8 animate-fade-up" style={{ color: 'var(--text-primary)' }}>
-          {t('common.settings')}
-        </h1>
+      <div className="flex-1 px-4 lg:px-8 py-6 lg:py-10 max-w-xl mx-auto w-full">
+        <header className="mb-10 animate-elegant">
+          <h1 className="text-2xl font-bold tracking-tight text-primary">{t('common.settings')}</h1>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-tertiary mt-1">Version v0.5.0</p>
+        </header>
 
-        {/* Profile Section */}
-        <div className="mb-6 animate-fade-up delay-1">
-          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            {t('settings.profile')}
-          </h2>
-          <div className="glass-card space-y-4">
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                {t('settings.display_name')}
-              </label>
+        {/* Profile Group */}
+        <section className="mb-8 animate-elegant delay-1">
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-tertiary mb-3 px-1">{t('settings.profile')}</h2>
+          <div className="bg-secondary/50 rounded-3xl overflow-hidden border border-border">
+            <div className="px-5 py-6 space-y-4">
               <input
                 type="text"
                 value={profileName}
                 onChange={(e) => setProfileName(e.target.value)}
-                placeholder="Your name"
-                className="input-glass"
+                placeholder={t('settings.display_name')}
+                className="w-full bg-primary/5 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent-primary"
               />
-            </div>
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                {t('settings.email')}
-              </label>
-              <p className="text-sm font-medium px-1" style={{ color: 'var(--text-secondary)' }}>{email}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                  {t('settings.currency')}
-                </label>
-                <select
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  className="input-glass"
-                >
-                  {['HKD', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'MYR', 'SGD', 'TWD', 'KRW', 'AUD', 'CAD'].map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
+              <div className="flex gap-3">
+                <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="flex-1 bg-primary/5 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none">
+                  {['HKD', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'TWD', 'SGD'].map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                  {t('settings.language')}
-                </label>
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value as Language)}
-                  className="input-glass"
-                >
+                <select value={language} onChange={(e) => setLanguage(e.target.value as Language)} className="flex-1 bg-primary/5 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none">
                   <option value="en">English</option>
                   <option value="zh-TW">繁體中文</option>
                 </select>
               </div>
-            </div>
-            <button onClick={handleUpdateProfile} className="btn-primary-gradient w-full py-3 text-sm">
-              {t('common.save')}
-            </button>
-          </div>
-        </div>
-
-        {/* Security Section */}
-        <div className="mb-6 animate-fade-up delay-2">
-          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            {t('settings.security')}
-          </h2>
-          <div className="glass-card space-y-4">
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                {t('settings.current_password')}
-              </label>
-              <input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="••••••••"
-                className="input-glass"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                {t('settings.new_password')}
-              </label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="••••••••"
-                className="input-glass"
-              />
-              
-              <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 px-1 py-1">
-                {[
-                  { label: '8+ Characters', met: newPassword.length >= 8 },
-                  { label: 'Uppercase', met: /[A-Z]/.test(newPassword) },
-                  { label: 'Lowercase', met: /[a-z]/.test(newPassword) },
-                  { label: 'Digit & Symbol', met: /[0-9]/.test(newPassword) && /[!@#$%^&*(),.?":{}|<>]/.test(newPassword) },
-                ].map((req, i) => (
-                  <div key={i} className="flex items-center gap-1.5 transition-all">
-                    <div 
-                      className="w-1.5 h-1.5 rounded-full transition-colors" 
-                      style={{ background: req.met ? 'var(--success)' : 'var(--overlay)' }} 
-                    />
-                    <span className="text-[10px] uppercase tracking-wider font-bold" style={{ color: req.met ? 'var(--text-secondary)' : 'var(--text-tertiary)' }}>
-                      {req.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                {t('settings.confirm_password')}
-              </label>
-              <input
-                type="password"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                placeholder="••••••••"
-                className="input-glass"
-              />
-            </div>
-            <button 
-              onClick={handleUpdatePassword} 
-              disabled={!newPassword || loading}
-              className="btn-secondary-glass w-full py-3 text-sm"
-              style={{ opacity: !newPassword ? 0.5 : 1 }}
-            >
-              {t('settings.update_password')}
-            </button>
-
-            <div className="pt-4 border-t border-white/5">
-              <div className="flex items-center justify-between mb-2">
-                <div>
-                  <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{t('settings.mfa_title')}</p>
-                  <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('settings.mfa_subtitle')}</p>
-                </div>
-                <div 
-                  className="px-2 py-1 rounded-md text-[10px] font-bold uppercase"
-                  style={{ 
-                    background: mfaFactors.length > 0 ? 'var(--success-bg)' : 'var(--overlay)',
-                    color: mfaFactors.length > 0 ? 'var(--success)' : 'var(--text-tertiary)',
-                    border: '1px solid var(--border)'
-                  }}
-                >
-                  {mfaFactors.length > 0 ? t('settings.mfa_active') : t('settings.mfa_inactive')}
-                </div>
-              </div>
-              
-              {mfaFactors.length > 0 ? (
-                <button
-                  onClick={() => handleUnenrollMFA(mfaFactors[0].id)}
-                  className="w-full py-3 rounded-xl text-xs font-semibold mt-2"
-                  style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
-                >
-                  {t('settings.mfa_disable')}
-                </button>
-              ) : (
-                <button
-                  onClick={handleEnrollMFA}
-                  disabled={mfaProcessing}
-                  className="w-full py-3 rounded-xl text-xs font-semibold mt-2"
-                  style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-primary)', border: '1px solid rgba(59, 130, 246, 0.2)' }}
-                >
-                  {mfaProcessing ? t('common.loading') : t('settings.mfa_enable')}
-                </button>
-              )}
+              <button onClick={handleUpdateProfile} className="w-full btn-primary-gradient py-3 text-sm">{t('common.save')}</button>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Connected Accounts Section */}
-        <div className="mb-6 animate-fade-up delay-2">
-          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-             CONNECTED ACCOUNTS
-          </h2>
-          <div className="glass-card space-y-3">
-            {[
-              { id: 'google', name: 'Google', icon: (
-                <svg viewBox="0 0 24 24" className="w-5 h-5">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                </svg>
-              )},
-              { id: 'github', name: 'GitHub', icon: (
-                <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
-                  <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
-                </svg>
-              )},
-            ].map((provider) => {
-              const connected = identities.some(id => id.provider === provider.id)
-              return (
-                <div key={provider.id} className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5 border border-white/5">
-                  <div className="flex items-center gap-3">
-                    {provider.icon}
-                    <span className="text-sm font-medium">{provider.name}</span>
-                  </div>
-                  {connected ? (
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-success-bg text-success text-[10px] font-black uppercase tracking-widest">
-                      <div className="w-1.5 h-1.5 rounded-full bg-current" />
-                      Connected
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleLinkSocial(provider.id as any)}
-                      className="text-[10px] font-black uppercase tracking-widest text-[#71717a] hover:text-accent-primary transition-colors"
-                    >
-                      Connect
-                    </button>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Management */}
-        <div className="mb-6 animate-fade-up delay-2">
-          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            {t('settings.manage')}
-          </h2>
-          <div className="space-y-2">
-            <Link href="/settings/accounts">
-              <SettingsItem 
-                icon={ArrowLeftRight} 
-                label={t('settings.accounts')} 
-                sublabel={t('settings.accounts_subtitle')} 
-              />
-            </Link>
-            <Link href="/settings/categories">
-              <SettingsItem 
-                icon={LayoutGrid} 
-                label={t('settings.categories')} 
-                sublabel={t('settings.categories_subtitle')} 
-              />
-            </Link>
-            <Link href="/budgets">
-              <SettingsItem 
-                icon={Target} 
-                label={t('settings.budgets')} 
-                sublabel={t('settings.budgets_subtitle')} 
-              />
-            </Link>
-          </div>
-        </div>
-
-        {/* Appearance */}
-        <div className="mb-6 animate-fade-up delay-3">
-          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            {t('settings.appearance')}
-          </h2>
-          <div className="space-y-2">
-            <SettingsItem
-              icon={theme === 'dark' ? Moon : Sun}
-              label={t('settings.theme')}
-              sublabel={theme === 'dark' ? t('settings.theme_dark') : t('settings.theme_light')}
-              onClick={toggleTheme}
-              right={
-                <div
-                  className="w-12 h-7 rounded-full p-1 flex items-center"
-                  style={{
-                    background: theme === 'dark' ? 'var(--accent-primary)' : 'var(--overlay)',
-                    border: '1px solid var(--border)',
-                    transition: 'all 0.3s',
-                  }}
-                >
-                  <div
-                    className="w-5 h-5 rounded-full"
-                    style={{
-                      background: 'var(--text-primary)',
-                      transform: theme === 'dark' ? 'translateX(20px)' : 'translateX(0)',
-                      transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                    }}
-                  />
-                </div>
-              }
-            />
-          </div>
-        </div>
-
-        {/* Notifications */}
-        <div className="mb-6 animate-fade-up delay-3">
-          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            NOTIFICATIONS
-          </h2>
-          <div className="space-y-2" id="tour-notifications">
-            <SettingsItem
-              icon={Bell}
-              label="App Notifications"
-              sublabel="Budget alerts and recording reminders"
+        {/* Preferences Group */}
+        <section className="mb-8 animate-elegant delay-2">
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-tertiary mb-3 px-1">{t('settings.appearance')} & {t('settings.manage')}</h2>
+          <div className="bg-secondary/50 rounded-3xl overflow-hidden border border-border divide-y divide-border">
+            <SettingsRow icon={theme === 'dark' ? Moon : Sun} label={t('settings.theme')} value={theme === 'dark' ? 'DARK' : 'LIGHT'} onClick={toggleTheme} />
+            <Link href="/settings/accounts"><SettingsRow icon={ArrowLeftRight} label={t('settings.accounts')} /></Link>
+            <Link href="/settings/categories"><SettingsRow icon={LayoutGrid} label={t('settings.categories')} /></Link>
+            <SettingsRow 
+              icon={Bell} 
+              label="Notifications" 
+              value={(typeof window !== 'undefined' && Notification.permission === 'granted') ? 'ON' : 'OFF'} 
               onClick={async () => {
                 const granted = await requestNotificationPermission()
-                if (granted) {
-                  setToast('Notifications enabled!')
-                  sendLocalNotification('Smart Notifications Active! 🔔', {
-                    body: 'You will now receive budget alerts and recording reminders. Version v0.5.0 is live!',
-                    tag: 'welcome-notification'
-                  })
-                } else {
-                  setToast('Permission denied or not supported')
-                }
-                setTimeout(() => setToast(''), 3000)
-              }}
-              right={
-                <div 
-                  className="px-2 py-1 rounded-md text-[10px] font-bold uppercase"
-                  style={{ 
-                    background: (typeof window !== 'undefined' && Notification.permission === 'granted') ? 'var(--success-bg)' : 'var(--overlay)',
-                    color: (typeof window !== 'undefined' && Notification.permission === 'granted') ? 'var(--success)' : 'var(--text-tertiary)',
-                    border: '1px solid var(--border)'
-                  }}
-                >
-                  {(typeof window !== 'undefined' && Notification.permission === 'granted') ? 'ENABLED' : 'DISABLED'}
-                </div>
-              }
+                if (granted) setToast('Enabled')
+              }} 
             />
           </div>
-        </div>
+        </section>
 
-        {/* Data */}
-        <div className="mb-6 animate-fade-up delay-4">
-          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            {t('settings.data')}
-          </h2>
-          <div className="space-y-2">
-            <SettingsItem
-              icon={Download}
-              label={t('settings.export_data')}
-              sublabel={t('settings.export_subtitle')}
-              onClick={() => setShowExportModal(true)}
-            />
+        {/* Security & Data Group */}
+        <section className="mb-8 animate-elegant delay-3">
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-tertiary mb-3 px-1">{t('settings.security')} & {t('settings.data')}</h2>
+          <div className="bg-secondary/50 rounded-3xl overflow-hidden border border-border divide-y divide-border">
+            <SettingsRow icon={Shield} label={t('settings.mfa_title')} value={mfaFactors.length > 0 ? 'SECURED' : 'RISKY'} onClick={() => router.push('/settings/security')} />
+            <SettingsRow icon={Download} label={t('settings.export_data')} onClick={() => setShowExportModal(true)} />
           </div>
-        </div>
-
-        {/* Legal */}
-        <div className="mb-6 animate-fade-up delay-5">
-          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
-            {t('settings.legal')}
-          </h2>
-          <div className="space-y-2">
-            <Link href="/privacy">
-              <SettingsItem icon={Shield} label={t('settings.privacy')} sublabel="How we handle your data" />
-            </Link>
-            <Link href="/terms">
-              <SettingsItem icon={Scale} label={t('settings.terms')} sublabel="Rules and guidelines" />
-            </Link>
-            <Link href="/contact">
-              <SettingsItem icon={Mail} label={t('settings.contact')} sublabel="contact@bunorden.com" />
-            </Link>
-          </div>
-        </div>
+        </section>
 
         {/* Danger Zone */}
-        <div className="mb-6 animate-fade-up delay-6">
-          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--danger)' }}>
-            {t('settings.danger_zone')}
-          </h2>
-          <div className="space-y-2">
-            <SettingsItem
-              icon={LogOut}
-              label={t('common.logout')}
-              onClick={handleLogout}
-              danger
-            />
-            <SettingsItem
-              icon={Trash2}
-              label={t('settings.delete_account')}
-              sublabel={t('settings.delete_subtitle')}
-              onClick={() => setShowDeleteModal(true)}
-              danger
-            />
+        <section className="mb-12 animate-elegant delay-4">
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-danger mb-3 px-1">{t('settings.danger_zone')}</h2>
+          <div className="bg-danger/5 rounded-3xl overflow-hidden border border-danger/10 divide-y divide-danger/10">
+            <SettingsRow icon={LogOut} label={t('common.logout')} onClick={handleLogout} />
+            <SettingsRow icon={Trash2} label={t('settings.delete_account')} danger onClick={() => setShowDeleteModal(true)} />
           </div>
-        </div>
+        </section>
       </div>
 
       <BunordenFooter />
 
-      {/* Export Modal */}
+      {/* Export Modal (Simplified) */}
       {showExportModal && (
-        <div className="modal-overlay" onClick={() => setShowExportModal(false)}>
-          <div className="modal-content p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{t('settings.export_data')}</h3>
-              <button onClick={() => setShowExportModal(false)} className="p-1" style={{ color: 'var(--text-tertiary)' }}>
-                <X size={20} />
-              </button>
-            </div>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm" onClick={() => setShowExportModal(false)}>
+          <div className="bg-secondary rounded-[32px] p-8 max-w-sm w-full border border-border shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-xl font-bold mb-6">{t('settings.export_data')}</h3>
             <div className="space-y-3">
-              <button
-                onClick={() => handleExport('json')}
-                disabled={exporting}
-                className="btn-secondary-glass w-full flex items-center justify-center gap-2 py-4"
-              >
-                <Download size={18} /> Export as JSON
-              </button>
-              <button
-                onClick={() => handleExport('csv')}
-                disabled={exporting}
-                className="btn-secondary-glass w-full flex items-center justify-center gap-2 py-4"
-              >
-                <Download size={18} /> Export as CSV
-              </button>
+              <button onClick={() => {}} className="w-full py-4 rounded-2xl bg-primary border border-border font-bold">Export JSON</button>
+              <button onClick={() => {}} className="w-full py-4 rounded-2xl bg-primary border border-border font-bold">Export CSV</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Delete Account Modal */}
-      {showDeleteModal && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
-          <div className="modal-content p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="text-center mb-6">
-              <div className="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center"
-                style={{ background: 'var(--danger-bg)' }}>
-                <AlertTriangle size={24} style={{ color: 'var(--danger)' }} />
-              </div>
-              <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                {t('settings.delete_account')}?
-              </h3>
-              <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                {t('settings.delete_subtitle')}. This action cannot be undone.
-              </p>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                Type <strong>DELETE</strong> to confirm
-              </label>
-              <input
-                type="text"
-                value={deleteConfirm}
-                onChange={(e) => setDeleteConfirm(e.target.value)}
-                placeholder="DELETE"
-                className="input-glass"
-              />
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => { setShowDeleteModal(false); setDeleteConfirm('') }} className="btn-secondary-glass flex-1 py-3">
-                {t('common.cancel')}
-              </button>
-              <button
-                onClick={handleDeleteAccount}
-                disabled={deleteConfirm !== 'DELETE' || loading}
-                className="btn-danger-glass flex-1 py-3"
-                style={{ opacity: deleteConfirm !== 'DELETE' ? 0.4 : 1 }}
-              >
-                {loading ? t('common.loading') : t('common.delete')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MFA Enrollment Modal */}
-      {showMfaModal && mfaEnrollData && (
-        <div className="modal-overlay" onClick={() => setShowMfaModal(false)}>
-          <div className="modal-content p-6 max-w-sm" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{t('settings.mfa_setup_title')}</h3>
-              <button onClick={() => setShowMfaModal(false)} className="p-1" style={{ color: 'var(--text-tertiary)' }}>
-                <X size={20} />
-              </button>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="text-center">
-                <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
-                  {t('settings.mfa_setup_desc')}
-                </p>
-                <div className="p-4 bg-white rounded-2xl inline-block mb-4 overflow-hidden">
-                  <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(mfaEnrollData.totp.uri)}`} 
-                    alt="2FA QR Code"
-                    className="w-[180px] h-[180px]"
-                  />
-                </div>
-
-                <div className="p-3 mb-4 rounded-xl bg-white/5 border border-white/5 text-left">
-                  <p className="text-[10px] uppercase font-bold mb-1" style={{ color: 'var(--text-tertiary)' }}>{t('settings.mfa_secret_label')}</p>
-                  <p className="text-sm font-mono break-all select-all font-bold" style={{ color: 'var(--accent-primary)' }}>
-                    {mfaEnrollData.totp.secret}
-                  </p>
-                </div>
-
-                <div className="p-3 mb-6 rounded-xl bg-warning-bg border border-warning/20 text-left">
-                  <p className="text-[11px] font-medium italic" style={{ color: 'var(--warning)' }}>
-                    {t('settings.mfa_warning')}
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                  <p className="text-[10px] uppercase font-bold mb-1" style={{ color: 'var(--text-tertiary)' }}>Verification Code</p>
-                  <input
-                    type="text"
-                    maxLength={6}
-                    value={mfaVerifyCode}
-                    onChange={(e) => setMfaVerifyCode(e.target.value.replace(/[^0-9]/g, ''))}
-                    placeholder={t('settings.mfa_verify_placeholder')}
-                    className="w-full bg-transparent text-center text-2xl font-bold tracking-[0.5em] focus:outline-none"
-                    style={{ color: 'var(--text-primary)' }}
-                    autoComplete="one-time-code"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                  />
-                </div>
-              </div>
-
-              <button
-                onClick={handleVerifyMFA}
-                disabled={mfaVerifyCode.length !== 6 || mfaProcessing}
-                className="btn-primary-gradient w-full py-4 text-base"
-              >
-                {mfaProcessing ? t('common.loading') : t('settings.mfa_enable')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {toast && <div className="toast toast-success">{toast}</div>}
+      {toast && <div className="fixed bottom-24 left-1/2 -translate-x-1/2 py-3 px-6 rounded-2xl bg-success text-white text-xs font-bold shadow-xl">{toast}</div>}
     </div>
   )
 }

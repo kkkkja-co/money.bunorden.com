@@ -3,9 +3,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
-import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { Trash2, X, TrendingUp, TrendingDown, ArrowLeftRight, Plus, Search, Edit2 } from 'lucide-react'
+import { Trash2, TrendingUp, TrendingDown, ArrowLeftRight, Plus, Search, Edit2, ArrowLeft } from 'lucide-react'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
@@ -51,7 +50,6 @@ export default function TransactionsPage() {
     const { data } = await query
     const mapped = (data || []).map((t: any) => ({
       ...t,
-      tags: Array.isArray(t.tags) ? t.tags : [],
       category: Array.isArray(t.category) ? t.category[0] || null : t.category,
     }))
     setTransactions(mapped)
@@ -70,8 +68,6 @@ export default function TransactionsPage() {
       setDeleteId(null)
       setToast(t('transactions.toast_deleted'))
       setTimeout(() => setToast(''), 3000)
-    } catch (err) {
-      console.error('Delete error:', err)
     } finally {
       setDeleting(false)
     }
@@ -88,10 +84,9 @@ export default function TransactionsPage() {
     )
   })
 
-  // Group by month
   const grouped: Record<string, Transaction[]> = {}
   filtered.forEach(t => {
-    const key = t.date.slice(0, 7) // YYYY-MM
+    const key = t.date.slice(0, 7)
     if (!grouped[key]) grouped[key] = []
     grouped[key].push(t)
   })
@@ -102,199 +97,116 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto w-full">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6 animate-fade-up">
-          <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-            {t('transactions.title')}
-          </h1>
-          <button
-            onClick={() => router.push('/add')}
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-              boxShadow: '0 4px 12px rgba(59,130,246,0.3)',
-              transition: 'all 0.3s',
-            }}
-          >
-            <Plus size={20} color="#fff" strokeWidth={2.5} />
+    <div className="flex flex-col min-h-screen bg-primary">
+      <div className="flex-1 px-4 lg:px-8 py-6 lg:py-10 max-w-2xl mx-auto w-full">
+        {/* Compact Header */}
+        <header className="flex items-center gap-4 mb-8 animate-elegant">
+          <button onClick={() => router.back()} className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+            <ArrowLeft size={18} />
           </button>
-        </div>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold tracking-tight text-primary">
+              {t('transactions.title')}
+            </h1>
+          </div>
+          <button onClick={() => router.push('/add')} className="w-10 h-10 rounded-full bg-accent-primary text-white flex items-center justify-center">
+            <Plus size={20} strokeWidth={3} />
+          </button>
+        </header>
 
-        {/* Search */}
-        <div className="relative mb-4 animate-fade-up delay-1">
-          <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-tertiary)' }} />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('transactions.search_placeholder')}
-            className="input-glass pl-10"
-          />
-        </div>
-
-        {/* Filter */}
-        <div className="glass-card p-1.5 flex gap-1 mb-6 animate-fade-up delay-2">
-          {(['all', 'income', 'expense'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className="flex-1 py-2.5 rounded-xl text-sm font-semibold capitalize"
-              style={{
-                background: filter === f ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-                color: filter === f ? 'var(--accent-primary)' : 'var(--text-tertiary)',
-                transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-            >
-              {t(`transactions.filter_${f}`)}
-            </button>
-          ))}
+        {/* Compact Search & Filter Combined */}
+        <div className="space-y-3 mb-8 animate-elegant delay-1">
+          <div className="relative group">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-tertiary" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('transactions.search_placeholder')}
+              className="w-full bg-secondary/50 border border-border rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:border-accent-primary transition-all"
+            />
+          </div>
+          <div className="flex gap-2">
+            {(['all', 'income', 'expense'] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`flex-1 py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  filter === f ? 'bg-accent-primary border-accent-primary text-white shadow-lg shadow-accent-primary/20' : 'bg-secondary border-border text-tertiary'
+                }`}
+              >
+                {t(`transactions.filter_${f}`)}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* List */}
         {loading ? (
           <PageSkeleton />
         ) : filtered.length === 0 ? (
-          <div className="glass-card text-center py-16 animate-fade-up">
-            <div className="text-5xl mb-4">{search ? '🔍' : '📝'}</div>
-            <p className="font-semibold text-lg mb-1" style={{ color: 'var(--text-secondary)' }}>
-              {search ? t('transactions.no_matches') : t('common.no_transactions')}
-            </p>
-            <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-              {search ? t('transactions.try_different_search') : t('transactions.tap_plus')}
-            </p>
+          <div className="text-center py-20 opacity-40 animate-elegant">
+            <p className="text-sm font-bold uppercase tracking-widest">{t('transactions.no_matches')}</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-8">
             {Object.entries(grouped).map(([month, txs]) => (
-              <motion.div 
-                key={month} 
-                layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="animate-fade-up"
-              >
-                <h3 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
+              <div key={month} className="animate-elegant">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-tertiary mb-4 px-1">
                   {monthLabel(month)}
                 </h3>
-                <div className="space-y-2">
-                  <AnimatePresence mode="popLayout">
-                    {txs.map((tx) => (
-                      <motion.div
-                        key={tx.id}
-                        layout
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className={`glass-card flex items-center gap-3 py-3 px-4 group transition-opacity ${tx.exclude_from_budget ? 'opacity-60' : 'opacity-100'}`}
-                      >
-                      <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
-                        style={{ background: 'var(--overlay)' }}
-                      >
-                        {tx.category?.icon || (tx.type === 'income' ? '💰' : tx.type === 'transfer' ? '🔄' : '💸')}
+                <div className="space-y-1">
+                  {txs.map((tx) => (
+                    <div
+                      key={tx.id}
+                      className={`flex items-center gap-4 py-3 px-4 rounded-2xl transition-all hover:bg-secondary/50 group ${tx.exclude_from_budget ? 'opacity-40 grayscale' : ''}`}
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-lg">
+                        {tx.category?.icon || (tx.type === 'income' ? '💰' : '💸')}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate" style={{ color: 'var(--text-primary)' }}>
-                          {tx.category?.name || tx.note || tx.type}
-                        </p>
-                        <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                        <p className="font-bold text-sm truncate">{tx.category?.name || tx.note || tx.type}</p>
+                        <p className="text-[10px] font-bold text-tertiary uppercase tracking-widest opacity-60">
                           {formatDate(tx.date)}
-                          {tx.note && tx.category?.name ? ` · ${tx.note}` : ''}
-                          {tx.exclude_from_budget && (
-                            <span className="ml-2 py-0.5 px-1.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-white/5 border border-white/10 text-tertiary">
-                              {language === 'zh-TW' ? '已排除' : 'Excluded'}
-                            </span>
-                          )}
                         </p>
-                        {(tx.tags?.length ?? 0) > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-1.5">
-                            {tx.tags!.map((tag) => (
-                              <span
-                                key={tag}
-                                className="text-[10px] font-medium px-1.5 py-0.5 rounded-md"
-                                style={{
-                                  background: 'rgba(59, 130, 246, 0.12)',
-                                  color: 'var(--accent-primary)',
-                                }}
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </div>
-                      <span
-                        className="font-semibold text-sm flex-shrink-0"
-                        style={{ color: tx.type === 'income' ? 'var(--success)' : 'var(--danger)' }}
-                      >
-                        {tx.type === 'income' ? '+' : '-'}{formatCurrency(Number(tx.amount), tx.currency)}
-                      </span>
-                      <button
-                        onClick={() => router.push(`/add?id=${tx.id}`)}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100"
-                        style={{
-                          background: 'rgba(59, 130, 246, 0.1)',
-                          color: 'var(--accent-primary)',
-                          transition: 'all 0.2s',
-                          flexShrink: 0,
-                        }}
-                      >
-                        <Edit2 size={14} />
-                      </button>
-                      <button
-                        onClick={() => setDeleteId(tx.id)}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100"
-                        style={{
-                          background: 'var(--danger-bg)',
-                          color: 'var(--danger)',
-                          transition: 'all 0.2s',
-                          flexShrink: 0,
-                        }}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
+                      <div className="text-right">
+                        <p className={`font-bold text-sm ${tx.type === 'income' ? 'text-success' : 'text-danger'}`}>
+                          {tx.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(tx.amount), tx.currency)}
+                        </p>
+                        <div className="flex justify-end gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => router.push(`/add?id=${tx.id}`)} className="text-tertiary hover:text-accent-primary">
+                            <Edit2 size={12} />
+                          </button>
+                          <button onClick={() => setDeleteId(tx.id)} className="text-tertiary hover:text-danger">
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}
       </div>
 
-      <BunordenFooter />
-
-      {/* Delete confirmation modal */}
       {deleteId && (
-        <div className="modal-overlay" onClick={() => setDeleteId(null)}>
-          <div className="modal-content p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setDeleteId(null)}>
+          <div className="bg-secondary rounded-[32px] p-8 max-w-sm w-full border border-white/10 shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="text-center">
-              <div className="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center"
-                style={{ background: 'var(--danger-bg)' }}>
-                <Trash2 size={24} style={{ color: 'var(--danger)' }} />
+              <div className="w-16 h-16 rounded-2xl bg-danger/10 flex items-center justify-center text-danger mx-auto mb-6">
+                <Trash2 size={24} />
               </div>
-              <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                {t('transactions.delete_title')}
-              </h3>
-              <p className="text-sm mb-6" style={{ color: 'var(--text-tertiary)' }}>
-                {t('transactions.delete_subtitle')}
-              </p>
+              <h3 className="text-xl font-bold mb-2">{t('transactions.delete_title')}</h3>
+              <p className="text-sm text-tertiary mb-8 leading-relaxed">{t('transactions.delete_subtitle')}</p>
               <div className="flex gap-3">
-                <button
-                  onClick={() => setDeleteId(null)}
-                  className="btn-secondary-glass flex-1 py-3"
-                >
+                <button onClick={() => setDeleteId(null)} className="flex-1 py-4 rounded-2xl font-bold text-sm bg-primary border border-border">
                   {t('common.cancel')}
                 </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="btn-danger-glass flex-1 py-3"
-                >
-                  {deleting ? t('common.loading') : t('common.delete')}
+                <button onClick={handleDelete} disabled={deleting} className="flex-1 py-4 rounded-2xl font-bold text-sm bg-danger text-white">
+                  {deleting ? '...' : t('common.delete')}
                 </button>
               </div>
             </div>
@@ -302,10 +214,7 @@ export default function TransactionsPage() {
         </div>
       )}
 
-      {/* Toast */}
-      {toast && (
-        <div className="toast toast-success">{toast}</div>
-      )}
+      {toast && <div className="fixed bottom-24 left-1/2 -translate-x-1/2 py-3 px-6 rounded-2xl bg-success text-white text-xs font-bold shadow-xl animate-elegant">{toast}</div>}
     </div>
   )
 }
