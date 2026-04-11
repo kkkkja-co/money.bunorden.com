@@ -39,6 +39,7 @@ function AddTransactionForm() {
   const [categories, setCategories] = useState<Category[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
   const [recurring, setRecurring] = useState(false)
+  const [includeInBudget, setIncludeInBudget] = useState(true)
   
   // Category management states
   const [showCatModal, setShowCatModal] = useState(false)
@@ -89,6 +90,7 @@ function AddTransactionForm() {
         setCategoryId(tx.category_id || '')
         setAccountId(tx.account_id)
         setRecurring(tx.recurring)
+        setIncludeInBudget(!tx.exclude_from_budget)
       }
     } else if (accs && accs.length > 0) {
       setAccountId(accs[0].id)
@@ -175,6 +177,7 @@ function AddTransactionForm() {
             note: note.trim() || null,
             tags,
             recurring,
+            exclude_from_budget: !includeInBudget,
           })
           .eq('id', editId)
           .eq('user_id', userId)
@@ -192,17 +195,23 @@ function AddTransactionForm() {
           note: note.trim() || null,
           tags,
           recurring,
+          exclude_from_budget: !includeInBudget,
         })
 
         if (insertError) throw insertError
 
-        // Check for budget overage
-        if (type === 'expense') {
+        // Check for budget overage (only if included in budget)
+        if (type === 'expense' && includeInBudget) {
           const now = new Date()
           const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
           
           const [{ data: monthTxs }, { data: budgetData }] = await Promise.all([
-            supabase.from('transactions').select('amount').eq('user_id', userId).eq('type', 'expense').gte('date', monthStart),
+            supabase.from('transactions')
+              .select('amount')
+              .eq('user_id', userId)
+              .eq('type', 'expense')
+              .eq('exclude_from_budget', false)
+              .gte('date', monthStart),
             supabase.from('budgets').select('amount').eq('user_id', userId).eq('month_year', monthStart).is('category_id', null).maybeSingle()
           ])
 
@@ -540,7 +549,7 @@ function AddTransactionForm() {
             <button
               type="button"
               onClick={() => setRecurring(!recurring)}
-              className="w-12 h-7 rounded-full p-1 flex items-center transition-all bg-overlay"
+              className="w-12 h-7 rounded-full p-1 flex items-center transition-all"
               style={{
                 background: recurring ? 'var(--accent-primary)' : 'var(--overlay)',
                 border: '1px solid var(--border)',
@@ -550,6 +559,32 @@ function AddTransactionForm() {
                 className="w-5 h-5 rounded-full bg-white shadow-sm transition-transform"
                 style={{
                   transform: recurring ? 'translateX(20px)' : 'translateX(0)',
+                }}
+              />
+            </button>
+          </div>
+
+          {/* Include in Budget */}
+          <div className="animate-fade-up delay-5 flex items-center justify-between p-1">
+            <div>
+              <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                {t('transactions.include_in_budget')}
+              </label>
+              <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{t('transactions.include_in_budget_subtitle')}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIncludeInBudget(!includeInBudget)}
+              className="w-12 h-7 rounded-full p-1 flex items-center transition-all"
+              style={{
+                background: includeInBudget ? 'var(--accent-primary)' : 'var(--overlay)',
+                border: '1px solid var(--border)',
+              }}
+            >
+              <div
+                className="w-5 h-5 rounded-full bg-white shadow-sm transition-transform"
+                style={{
+                  transform: includeInBudget ? 'translateX(20px)' : 'translateX(0)',
                 }}
               />
             </button>

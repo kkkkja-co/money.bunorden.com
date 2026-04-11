@@ -121,6 +121,7 @@ export type Database = {
           note: string | null
           tags: string[]
           recurring: boolean
+          exclude_from_budget: boolean
           created_at: string
         }
         Insert: {
@@ -136,6 +137,7 @@ export type Database = {
           note?: string | null
           tags?: string[]
           recurring?: boolean
+          exclude_from_budget?: boolean
           created_at?: string
         }
         Update: {

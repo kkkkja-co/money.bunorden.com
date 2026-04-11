@@ -132,6 +132,8 @@ export const translations = {
       delete_title: 'Delete Transaction?',
       delete_subtitle: 'This action cannot be undone.',
       toast_deleted: 'Transaction deleted',
+      include_in_budget: 'Include in Budget',
+      include_in_budget_subtitle: 'Show this transaction in budget reports',
     },
     onboarding: {
       step1_title: 'Welcome to Clavi',
@@ -506,10 +508,12 @@ export const translations = {
       redirecting: '正在跳轉...',
       category: '類別',
       account: '帳戶',
-      no_cats_for_type: '尚無{type}類別。點擊「新增」來創建一個。',
+      no_cats_for_type: '查無 {type} 的類別。點擊「新增」來建立一個。',
       delete_title: '刪除交易？',
-      delete_subtitle: '刪除後將無法還原。',
+      delete_subtitle: '此動作無法復原。',
       toast_deleted: '交易已刪除',
+      include_in_budget: '計入預算',
+      include_in_budget_subtitle: '將此筆交易顯示於預算報表中',
     },
     onboarding: {
       step1_title: '歡迎使用 Clavi',
