@@ -131,21 +131,23 @@ export default function TransactionsPage() {
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 max-w-2xl mx-auto w-full px-5 py-8 md:py-12">
         <header className="flex items-center gap-4 mb-10 animate-slide-up">
-          <button onClick={() => router.back()} className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center border border-border">
+          <button onClick={() => router.back()} className="w-10 h-10 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center border border-[var(--border)]" aria-label={t('common.back')}>
             <ArrowLeft size={18} />
           </button>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold tracking-tight">{t('transactions.title')}</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">{t('transactions.title')}</h1>
           </div>
-          <button onClick={() => router.push('/add')} className="w-10 h-10 rounded-full btn-apple-primary p-0 flex items-center justify-center">
+          <button onClick={() => router.push('/add')} className="w-10 h-10 rounded-full btn-apple-primary p-0 flex items-center justify-center" aria-label={t('common.add_transaction')}>
             <Plus size={22} strokeWidth={3} />
           </button>
         </header>
 
         <div className="space-y-4 mb-8 animate-slide-up delay-1">
           <div className="relative">
-            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary" />
+            <label htmlFor="tx-search-input" className="sr-only">{t('transactions.search_placeholder')}</label>
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
             <input
+              id="tx-search-input"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -158,10 +160,11 @@ export default function TransactionsPage() {
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-[9px] font-black uppercase tracking-widest text-secondary mb-1.5">From</label>
+                <label htmlFor="start-date" className="block text-[9px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1.5">From</label>
                 <div className="relative">
-                  <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10" />
+                  <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none z-10" />
                   <input
+                    id="start-date"
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
@@ -170,10 +173,11 @@ export default function TransactionsPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-[9px] font-black uppercase tracking-widest text-secondary mb-1.5">To</label>
+                <label htmlFor="end-date" className="block text-[9px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1.5">To</label>
                 <div className="relative">
-                  <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10" />
+                  <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none z-10" />
                   <input
+                    id="end-date"
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
@@ -185,9 +189,10 @@ export default function TransactionsPage() {
             {(startDate || endDate) && (
               <button
                 onClick={() => { setStartDate(''); setEndDate('') }}
-                className="w-full py-2.5 rounded-xl bg-secondary border border-border text-danger font-bold text-xs uppercase tracking-widest hover:bg-secondary/80 transition-colors"
+                className="w-full py-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--danger)] font-bold text-xs uppercase tracking-widest hover:bg-white/5 transition-colors"
+                aria-label="Clear date range"
               >
-                Clear
+                {t('common.cancel')}
               </button>
             )}
           </div>
@@ -199,11 +204,11 @@ export default function TransactionsPage() {
                 onClick={() => setSelectedCategories([])}
                 className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
                   selectedCategories.length === 0
-                    ? 'bg-accent-primary border-accent-primary text-white'
-                    : 'bg-secondary border-border text-primary hover:bg-secondary/80'
+                    ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)] text-white'
+                    : 'bg-[var(--bg-secondary)] border-[var(--border)] text-[var(--text-primary)] hover:bg-white/5'
                 }`}
               >
-                All Categories
+                {t('transactions.filter_all')} Categories
               </button>
               {uniqueCategories.map((cat) => (
                 <button
@@ -281,10 +286,10 @@ export default function TransactionsPage() {
                             {tx.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(tx.amount), tx.currency)}
                           </p>
                           <div className="flex justify-end gap-3 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => router.push(`/add?id=${tx.id}`)} className="text-secondary hover:text-accent-primary">
+                            <button onClick={() => router.push(`/add?id=${tx.id}`)} className="text-[var(--text-tertiary)] hover:text-[var(--accent-primary)]" aria-label={t('common.settings')}>
                               <Edit2 size={12} />
                             </button>
-                            <button onClick={() => setDeleteId(tx.id)} className="text-secondary hover:text-danger">
+                            <button onClick={() => setDeleteId(tx.id)} className="text-[var(--text-tertiary)] hover:text-[var(--danger)]" aria-label={t('common.delete')}>
                               <Trash2 size={12} />
                             </button>
                           </div>

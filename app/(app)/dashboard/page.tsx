@@ -109,9 +109,10 @@ export default function DashboardPage() {
                 alert('Vault Integrity: All security protocols (MFA, Encryption) are currently active and stable.')
               }}
               className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative transition-all active:scale-90 hover:bg-white/10"
+              aria-label={t('common.notifications_title') || 'Notifications'}
             >
-              <Bell size={20} className="text-secondary opacity-80" />
-              <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-accent-primary ring-2 ring-bg-primary" />
+              <Bell size={20} className="text-[var(--text-secondary)] opacity-80" />
+              <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[var(--accent-primary)] ring-2 ring-[var(--bg-primary)]" />
             </button>
           </div>
           
@@ -122,7 +123,7 @@ export default function DashboardPage() {
           <div className="text-center py-10">
             <div className="flex items-center justify-center gap-2 mb-2">
               <span className="text-[11px] font-black uppercase tracking-[0.25em] text-secondary">{t('dashboard.balance_title')}</span>
-              <button onClick={() => setIsVisible(!isVisible)} className="opacity-30 hover:opacity-100 transition-opacity">
+              <button onClick={() => setIsVisible(!isVisible)} className="opacity-30 hover:opacity-100 transition-opacity" aria-label={isVisible ? 'Hide balance' : 'Show balance'}>
                 {isVisible ? <Eye size={12} /> : <EyeOff size={12} />}
               </button>
             </div>
@@ -162,13 +163,13 @@ export default function DashboardPage() {
             </div>
             <div className="h-1.5 w-full flex rounded-full overflow-hidden bg-white/5 mb-2">
               {chartData.slice(0, 5).map((item, i) => (
-                <div key={item.name} className="h-full" style={{ width: `${(item.value / totals.expense) * 100}%`, background: COLORS[i % COLORS.length] }} />
+                <div key={item.name} className="h-full" style={{ width: `${(item.value / totals.expense) * 100}%`, backgroundColor: COLORS[i % COLORS.length] }} />
               ))}
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3">
               {chartData.slice(0, 4).map((item, i) => (
                 <div key={item.name} className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                   <span className="text-[9px] font-black text-secondary uppercase tracking-tighter">{item.name} {Math.round((item.value/totals.expense)*100)}%</span>
                 </div>
               ))}
@@ -188,7 +189,7 @@ export default function DashboardPage() {
             </div>
             <div className="w-full h-3 bg-secondary rounded-full overflow-hidden mb-2 relative">
               <div
-                className="absolute top-0 left-0 h-full bg-accent-primary transition-all duration-1000 shadow-[0_0_12px_rgba(175,82,222,0.3)]"
+                className="absolute top-0 left-0 h-full bg-[var(--accent-primary)] transition-all duration-1000 shadow-[0_0_12px_rgba(175,82,222,0.3)]"
                 style={{ width: `${Math.min((budgetSpent / overallBudget) * 100, 100)}%` }}
               />
             </div>

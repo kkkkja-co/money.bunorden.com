@@ -166,10 +166,10 @@ export default function ReportsPage() {
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto w-full">
         <header className="mb-8 animate-slide-up">
-          <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="text-3xl font-bold tracking-tight mb-2 text-[var(--text-primary)]">
             {t('reports.title')}
           </h1>
-          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
+          <p className="text-sm text-[var(--text-tertiary)]">
             {viewType === 'categories' ? t('reports.by_category') : t('reports.monthly')}
           </p>
         </header>
@@ -179,10 +179,10 @@ export default function ReportsPage() {
         ) : categoryTotals.length === 0 ? (
           <div className="surface-elevated text-center py-20 animate-slide-up">
             <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
-              <BarChart3 size={32} style={{ color: 'var(--text-tertiary)' }} />
+              <BarChart3 size={32} className="text-[var(--text-tertiary)]" />
             </div>
-            <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('reports.no_data')}</h2>
-            <p className="text-sm max-w-xs mx-auto mb-8" style={{ color: 'var(--text-tertiary)' }}>
+            <h2 className="text-xl font-bold mb-2 text-[var(--text-primary)]">{t('reports.no_data')}</h2>
+            <p className="text-sm max-w-xs mx-auto mb-8 text-[var(--text-tertiary)]">
               {t('reports.no_data_subtitle')}
             </p>
             <button 
@@ -197,11 +197,11 @@ export default function ReportsPage() {
             {/* Assets Overview Pie Chart */}
             <div className="surface-elevated animate-slide-up delay-1 overflow-hidden">
               <div className="flex items-center justify-between mb-6 px-1">
-                <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{t('reports.assets_overview')}</h3>
+                <h3 className="text-sm font-bold text-[var(--text-primary)]">{t('reports.assets_overview')}</h3>
                 <button
                   onClick={toggleVisibility}
-                  className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
-                  style={{ color: 'var(--text-tertiary)' }}
+                  className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-[var(--text-tertiary)]"
+                  aria-label={isVisible ? 'Hide values' : 'Show values'}
                 >
                   {isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>
@@ -227,8 +227,8 @@ export default function ReportsPage() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none" style={{ marginTop: '-18px' }}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>{t('dashboard.balance_title')}</p>
-                  <p className="text-2xl font-black" style={{ color: totalIncome - totalExpense >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">{t('dashboard.balance_title')}</p>
+                  <p className={`text-2xl font-black ${totalIncome - totalExpense >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
                     {isVisible ? formatCurrency(totalIncome - totalExpense, currency) : '••••••'}
                   </p>
                 </div>
@@ -238,20 +238,20 @@ export default function ReportsPage() {
             {/* Quick Summary Cards */}
             <div className="grid grid-cols-2 gap-4 animate-slide-up delay-2">
               <div className="surface-elevated flex flex-col items-center text-center">
-                <div className="w-10 h-10 rounded-full bg-success-bg flex items-center justify-center mb-3">
-                  <TrendingUp size={20} style={{ color: 'var(--success)' }} />
+                <div className="w-10 h-10 rounded-full bg-[var(--success-bg)] flex items-center justify-center mb-3">
+                  <TrendingUp size={20} className="text-[var(--success)]" />
                 </div>
-                <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-tertiary)' }}>{t('reports.total_income')}</p>
-                <p className="text-xl font-bold" style={{ color: 'var(--success)' }}>
+                <p className="text-xs font-semibold mb-1 text-[var(--text-tertiary)]">{t('reports.total_income')}</p>
+                <p className="text-xl font-bold text-[var(--success)]">
                   {isVisible ? formatCurrency(totalIncome, currency) : '••••'}
                 </p>
               </div>
               <div className="surface-elevated flex flex-col items-center text-center">
-                <div className="w-10 h-10 rounded-full bg-danger-bg flex items-center justify-center mb-3">
-                  <TrendingDown size={20} style={{ color: 'var(--danger)' }} />
+                <div className="w-10 h-10 rounded-full bg-[var(--danger-bg)] flex items-center justify-center mb-3">
+                  <TrendingDown size={20} className="text-[var(--danger)]" />
                 </div>
-                <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-tertiary)' }}>{t('reports.total_expenses')}</p>
-                <p className="text-xl font-bold" style={{ color: 'var(--danger)' }}>
+                <p className="text-xs font-semibold mb-1 text-[var(--text-tertiary)]">{t('reports.total_expenses')}</p>
+                <p className="text-xl font-bold text-[var(--danger)]">
                   {isVisible ? formatCurrency(totalExpense, currency) : '••••'}
                 </p>
               </div>
@@ -267,6 +267,8 @@ export default function ReportsPage() {
                   color: viewType === 'categories' ? 'white' : 'var(--text-tertiary)',
                   boxShadow: viewType === 'categories' ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none',
                 }}
+                aria-label={t('reports.by_category')}
+                aria-pressed={viewType === 'categories'}
               >
                 <PieChartIcon size={18} /> {t('reports.by_category')}
               </button>
@@ -278,6 +280,8 @@ export default function ReportsPage() {
                   color: viewType === 'monthly' ? 'white' : 'var(--text-tertiary)',
                   boxShadow: viewType === 'monthly' ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none',
                 }}
+                aria-label={t('reports.monthly')}
+                aria-pressed={viewType === 'monthly'}
               >
                 <BarChart3 size={18} /> {t('reports.monthly')}
               </button>
@@ -312,15 +316,16 @@ export default function ReportsPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase" style={{ color: 'var(--text-tertiary)' }}>{t('reports.sort_by')}:</span>
+                      <label htmlFor="sort-by-select" className="text-[10px] font-bold uppercase text-[var(--text-tertiary)]">{t('reports.sort_by')}:</label>
                       <select 
+                        id="sort-by-select"
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value as any)}
-                        className="bg-transparent text-xs font-bold focus:outline-none"
-                        style={{ color: 'var(--accent-primary)' }}
+                        className="bg-transparent text-xs font-bold focus:outline-none text-[var(--accent-primary)]"
+                        aria-label={t('reports.sort_by')}
                       >
-                        <option value="amount">{t('reports.amount')}</option>
-                        <option value="name">{t('reports.name')}</option>
+                        <option value="amount" className="bg-zinc-900">{t('reports.amount')}</option>
+                        <option value="name" className="bg-zinc-900">{t('reports.name')}</option>
                       </select>
                     </div>
                   </div>
@@ -347,8 +352,8 @@ export default function ReportsPage() {
                       </PieChart>
                     </ResponsiveContainer>
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-                      <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>{t('common.total')}</p>
-                      <p className="text-xl font-black" style={{ color: 'var(--text-primary)' }}>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">{t('common.total')}</p>
+                      <p className="text-xl font-black text-[var(--text-primary)]">
                         {isVisible ? formatCurrency(filterType === 'income' ? totalIncome : totalExpense, currency) : '••••'}
                       </p>
                     </div>
@@ -358,8 +363,8 @@ export default function ReportsPage() {
                 {/* List Section */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between px-2 mb-2">
-                    <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{filterType === 'income' ? t('reports.income_by_category') : t('reports.expenses_by_category')}</h3>
-                    <div className="flex items-center gap-1.5 opacity-50">
+                    <h3 className="text-sm font-bold text-[var(--text-primary)]">{filterType === 'income' ? t('reports.income_by_category') : t('reports.expenses_by_category')}</h3>
+                    <div className="flex items-center gap-1.5 opacity-50 text-[var(--text-primary)]">
                        <LayoutGrid size={14} />
                     </div>
                   </div>
@@ -367,19 +372,18 @@ export default function ReportsPage() {
                   {filteredSortedCategories.map((cat, i) => (
                     <div key={cat.name + cat.type} className="surface-elevated-interactive flex flex-col gap-3 group">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm"
-                          style={{ background: 'var(--overlay)', color: 'var(--text-primary)' }}>
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm bg-[var(--overlay)] text-[var(--text-primary)]">
                           {cat.icon}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{cat.name}</span>
-                            <span className="font-bold text-sm" style={{ color: cat.type === 'income' ? 'var(--success)' : 'var(--danger)' }}>
+                            <span className="font-bold text-sm text-[var(--text-primary)]">{cat.name}</span>
+                            <span className={`font-bold text-sm ${cat.type === 'income' ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
                               {formatCurrency(cat.total, currency)}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--overlay)' }}>
+                            <div className="flex-1 h-1.5 rounded-full overflow-hidden bg-[var(--overlay)]">
                               <div
                                 className="h-full rounded-full transition-all duration-1000 ease-out"
                                 style={{
@@ -388,7 +392,7 @@ export default function ReportsPage() {
                                 }}
                               />
                             </div>
-                            <span className="text-[10px] font-bold w-8 text-right" style={{ color: 'var(--text-tertiary)' }}>
+                            <span className="text-[10px] font-bold w-8 text-right text-[var(--text-tertiary)]">
                               {Math.round((cat.total / (filterType === 'income' ? totalIncome : totalExpense)) * 100)}%
                             </span>
                           </div>
@@ -403,7 +407,7 @@ export default function ReportsPage() {
             {viewType === 'monthly' && (
               <div className="space-y-6 animate-slide-up delay-3">
                 <div className="surface-elevated">
-                  <h3 className="text-sm font-bold mb-8 px-2" style={{ color: 'var(--text-primary)' }}>{t('reports.trend')}</h3>
+                  <h3 className="text-sm font-bold mb-8 px-2 text-[var(--text-primary)]">{t('reports.trend')}</h3>
                   <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={monthSummaries}>
@@ -422,13 +426,13 @@ export default function ReportsPage() {
                             if (active && payload && payload.length) {
                               return (
                                 <div className="surface-elevated p-3 shadow-2xl border-none">
-                                  <p className="text-xs font-bold mb-2 uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>{monthLabel(label)}</p>
+                                  <p className="text-xs font-bold mb-2 uppercase tracking-wider text-[var(--text-tertiary)]">{monthLabel(label)}</p>
                                   <div className="space-y-1">
-                                    <p className="text-sm font-bold flex items-center gap-2" style={{ color: 'var(--success)' }}>
-                                      <div className="w-2 h-2 rounded-full bg-success" /> {formatCurrency(Number(payload[0].value), currency)}
+                                    <p className="text-sm font-bold flex items-center gap-2 text-[var(--success)]">
+                                      <div className="w-2 h-2 rounded-full bg-[var(--success)]" /> {formatCurrency(Number(payload[0].value), currency)}
                                     </p>
-                                    <p className="text-sm font-bold flex items-center gap-2" style={{ color: 'var(--danger)' }}>
-                                      <div className="w-2 h-2 rounded-full bg-danger" /> {formatCurrency(Number(payload[1].value), currency)}
+                                    <p className="text-sm font-bold flex items-center gap-2 text-[var(--danger)]">
+                                      <div className="w-2 h-2 rounded-full bg-[var(--danger)]" /> {formatCurrency(Number(payload[1].value), currency)}
                                     </p>
                                   </div>
                                 </div>
@@ -450,19 +454,19 @@ export default function ReportsPage() {
                     return (
                       <div key={ms.month} className="surface-elevated flex items-center justify-between group">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center font-black text-xs" style={{ color: 'var(--text-secondary)' }}>
+                          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center font-black text-xs text-[var(--text-secondary)]">
                             {monthLabel(ms.month).toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-xs font-bold uppercase tracking-widest mb-0.5" style={{ color: 'var(--text-tertiary)' }}>{ms.month.split('-')[0]}</p>
-                            <p className="text-sm font-black" style={{ color: 'var(--text-primary)' }}>
+                            <p className="text-xs font-bold uppercase tracking-widest mb-0.5 text-[var(--text-tertiary)]">{ms.month.split('-')[0]}</p>
+                            <p className="text-sm font-black text-[var(--text-primary)]">
                               {net >= 0 ? '+' : ''}{formatCurrency(net, currency)}
                             </p>
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-1">
-                          <span className="text-[10px] font-bold" style={{ color: 'var(--success)' }}>+{formatCurrency(ms.income, currency)}</span>
-                          <span className="text-[10px] font-bold" style={{ color: 'var(--danger)' }}>-{formatCurrency(ms.expense, currency)}</span>
+                          <span className="text-[10px] font-bold text-[var(--success)]">+{formatCurrency(ms.income, currency)}</span>
+                          <span className="text-[10px] font-bold text-[var(--danger)]">-{formatCurrency(ms.expense, currency)}</span>
                         </div>
                       </div>
                     )

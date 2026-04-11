@@ -244,14 +244,11 @@ function AddTransactionForm() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center animate-scale-in">
-          <div
-            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ background: 'var(--success-bg)' }}
-          >
-            <Check size={40} style={{ color: 'var(--success)' }} />
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-[var(--success-bg)]">
+            <Check size={40} className="text-[var(--success)]" />
           </div>
-          <p className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{t('transactions.save_success')}</p>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>{t('transactions.redirecting')}</p>
+          <p className="text-xl font-bold text-[var(--text-primary)]">{t('transactions.save_success')}</p>
+          <p className="text-sm mt-1 text-[var(--text-tertiary)]">{t('transactions.redirecting')}</p>
         </div>
       </div>
     )
@@ -264,55 +261,52 @@ function AddTransactionForm() {
         <div className="flex items-center gap-3 mb-8 animate-slide-up">
           <button
             onClick={() => router.back()}
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{
-              background: 'var(--overlay)',
-              border: '1px solid var(--border)',
-              color: 'var(--text-primary)',
-              transition: 'all 0.2s',
-            }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--overlay)] border border-[var(--border)] text-[var(--text-primary)] transition-all hover:scale-105 active:scale-95"
+            aria-label={t('common.back')}
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
             {editId ? t('transactions.edit_title') : t('transactions.add_title')}
           </h1>
         </div>
 
         {/* Type Selector */}
         <div className="surface-elevated p-1.5 flex gap-1 mb-6 animate-slide-up delay-1">
-          {(['expense', 'income', 'transfer'] as TxType[]).map((t_index) => (
-            <button
-              key={t_index}
-              onClick={() => { setType(t_index); setCategoryId('') }}
-              className="flex-1 py-2.5 rounded-xl text-sm font-semibold capitalize"
-              style={{
-                background: type === t_index
-                  ? (t_index === 'expense' ? 'var(--danger-bg)' : t_index === 'income' ? 'var(--success-bg)' : 'rgba(59,130,246,0.1)')
-                  : 'transparent',
-                color: type === t_index
-                  ? (t_index === 'expense' ? 'var(--danger)' : t_index === 'income' ? 'var(--success)' : 'var(--accent-primary)')
-                  : 'var(--text-tertiary)',
-                transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-            >
-              {t(`transactions.filter_${t_index === 'transfer' ? 'all' : t_index}`)}
-            </button>
-          ))}
+          {(['expense', 'income', 'transfer'] as TxType[]).map((t_index) => {
+            const isActive = type === t_index
+            const activeBg = t_index === 'expense' ? 'var(--danger-bg)' : t_index === 'income' ? 'var(--success-bg)' : 'rgba(59,130,246,0.1)'
+            const activeText = t_index === 'expense' ? 'var(--danger)' : t_index === 'income' ? 'var(--success)' : 'var(--accent-primary)'
+            
+            return (
+              <button
+                key={t_index}
+                onClick={() => { setType(t_index); setCategoryId('') }}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold capitalize transition-all duration-300"
+                style={{
+                  background: isActive ? activeBg : 'transparent',
+                  color: isActive ? activeText : 'var(--text-tertiary)',
+                }}
+              >
+                {t(`transactions.filter_${t_index === 'transfer' ? 'all' : t_index}`)}
+              </button>
+            )
+          })}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Amount */}
           <div className="animate-slide-up delay-2">
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+              <label htmlFor="amount-input" className="block text-sm font-medium text-[var(--text-secondary)]">
                 {t('transactions.amount')}
               </label>
               <select
+                id="currency-selector"
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="bg-transparent text-xs font-bold uppercase tracking-wider outline-none p-1 rounded-lg border border-white/5 hover:border-white/10 transition-all"
-                style={{ color: 'var(--accent-primary)' }}
+                className="bg-transparent text-xs font-bold uppercase tracking-wider outline-none p-1 rounded-lg border border-white/5 hover:border-white/10 transition-all text-[var(--accent-primary)]"
+                aria-label={t('transactions.currency')}
               >
                 {['HKD', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'MYR', 'SGD', 'TWD', 'KRW', 'AUD', 'CAD'].map(c => (
                   <option key={c} value={c} className="bg-zinc-900">{c}</option>
@@ -320,6 +314,7 @@ function AddTransactionForm() {
               </select>
             </div>
             <input
+              id="amount-input"
               type="text"
               inputMode="decimal"
               pattern="[0-9]*[.,]?[0-9]*"
@@ -339,7 +334,7 @@ function AddTransactionForm() {
           {type !== 'transfer' && (
             <div className="animate-slide-up delay-3">
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                <label className="block text-sm font-medium text-[var(--text-secondary)]">
                   {t('transactions.category')}
                 </label>
                 <div className="flex gap-2">
@@ -351,8 +346,8 @@ function AddTransactionForm() {
                       setCatIcon(type === 'income' ? '💰' : '☕')
                       setShowCatModal(true)
                     }}
-                    className="p-1 px-2 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1"
-                    style={{ background: 'var(--overlay)', border: '1px solid var(--border)', color: 'var(--accent-primary)' }}
+                    className="p-1 px-2 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 bg-[var(--overlay)] border border-[var(--border)] text-[var(--accent-primary)]"
+                    aria-label={t('settings.categories_new')}
                   >
                     <Plus size={10} strokeWidth={3} /> {t('common.add_transaction').split(' ')[0]}
                   </button>
@@ -381,7 +376,7 @@ function AddTransactionForm() {
                     }}
                   >
                     <span className="text-xl">{cat.icon}</span>
-                    <span className="text-[11px] font-medium truncate w-full" style={{ color: 'var(--text-secondary)' }}>
+                    <span className="text-[11px] font-medium truncate w-full text-[var(--text-secondary)]">
                       {cat.name}
                     </span>
                     
@@ -395,8 +390,8 @@ function AddTransactionForm() {
                         setCatIcon(cat.icon)
                         setShowCatModal(true)
                       }}
-                      className="absolute top-1 right-1 p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      style={{ background: 'var(--overlay)', border: '1px solid var(--border)', color: 'var(--text-tertiary)' }}
+                      className="absolute top-1 right-1 p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-[var(--overlay)] border border-[var(--border)] text-[var(--text-tertiary)]"
+                      aria-label={t('settings.categories_edit')}
                     >
                       <Settings size={10} />
                     </button>
@@ -417,10 +412,10 @@ function AddTransactionForm() {
             <div className="modal-overlay z-[100]" onClick={() => setShowCatModal(false)}>
               <div className="modal-content p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">
                     {editingCat ? t('settings.categories_edit') : t('settings.categories_new')}
                   </h3>
-                  <button onClick={() => setShowCatModal(false)} style={{ color: 'var(--text-tertiary)' }}>
+                  <button onClick={() => setShowCatModal(false)} className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]" aria-label={t('common.close')}>
                     <X size={20} />
                   </button>
                 </div>
@@ -429,14 +424,14 @@ function AddTransactionForm() {
                   <div className="flex gap-4">
                     <button
                       type="button"
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group relative overflow-hidden"
-                      style={{ background: 'var(--overlay)', border: '1px solid var(--border)' }}
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group relative overflow-hidden bg-[var(--overlay)] border border-[var(--border)]"
+                      aria-label={t('settings.categories_icon')}
                     >
                       <span className="relative z-10">{catIcon}</span>
                       <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </button>
                     <div className="flex-1">
-                      <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                      <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-[var(--text-tertiary)]">
                         {t('settings.categories_icon')}
                       </label>
                       <div className="flex flex-wrap gap-1.5">
@@ -460,10 +455,11 @@ function AddTransactionForm() {
                   </div>
                   
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                    <label htmlFor="cat-name-input" className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-[var(--text-tertiary)]">
                       {t('settings.categories_name')}
                     </label>
                     <input
+                      id="cat-name-input"
                       type="text"
                       value={catName}
                       onChange={(e) => setCatName(e.target.value)}
@@ -478,9 +474,9 @@ function AddTransactionForm() {
                       <button
                         type="button"
                         onClick={() => handleArchiveCategory(editingCat.id)}
-                        className="p-3 px-4 rounded-xl text-danger border border-transparent hover:border-danger/[0.2] transition-all flex items-center justify-center"
-                        style={{ background: 'var(--danger-bg)' }}
+                        className="p-3 px-4 rounded-xl text-danger border border-transparent hover:border-danger/[0.2] transition-all flex items-center justify-center bg-[var(--danger-bg)]"
                         title="Archive category"
+                        aria-label="Archive category"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -502,7 +498,7 @@ function AddTransactionForm() {
           {/* Account */}
           {accounts.length > 0 && (
             <div className="animate-slide-up delay-3">
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+              <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">
                 {t('transactions.account')}
               </label>
               <div className="flex gap-2 flex-wrap">
@@ -529,15 +525,16 @@ function AddTransactionForm() {
 
           {/* Date */}
           <div className="animate-slide-up delay-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+            <label htmlFor="date-input" className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">
               {t('transactions.date')}
             </label>
             <div className="relative w-full">
               <input
+                id="date-input"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="input-minimal w-full pl-10 pr-4 py-3"
+                className="input-minimal w-full pl-4 pr-4 py-3"
                 required
               />
             </div>
@@ -546,19 +543,20 @@ function AddTransactionForm() {
           {/* Recurring */}
           <div className="animate-slide-up delay-5 flex items-center justify-between p-1">
             <div>
-              <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+              <label className="block text-sm font-medium text-[var(--text-secondary)]">
                 {t('transactions.recurring')}
               </label>
-              <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{t('transactions.recurring_subtitle')}</p>
+              <p className="text-[10px] text-[var(--text-tertiary)]">{t('transactions.recurring_subtitle')}</p>
             </div>
             <button
               type="button"
               onClick={() => setRecurring(!recurring)}
-              className="w-12 h-7 rounded-full p-1 flex items-center transition-all"
+              className="w-12 h-7 rounded-full p-1 flex items-center transition-all bg-[var(--overlay)] border border-[var(--border)]"
               style={{
-                background: recurring ? 'var(--accent-primary)' : 'var(--overlay)',
-                border: '1px solid var(--border)',
+                background: recurring ? 'var(--accent-primary)' : '',
               }}
+              aria-label={t('transactions.recurring')}
+              aria-pressed={recurring}
             >
               <div
                 className="w-5 h-5 rounded-full bg-white shadow-sm transition-transform"
@@ -572,19 +570,20 @@ function AddTransactionForm() {
           {/* Include in Budget */}
           <div className="animate-slide-up delay-5 flex items-center justify-between p-1">
             <div>
-              <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+              <label className="block text-sm font-medium text-[var(--text-secondary)]">
                 {t('transactions.include_in_budget')}
               </label>
-              <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{t('transactions.include_in_budget_subtitle')}</p>
+              <p className="text-[10px] text-[var(--text-tertiary)]">{t('transactions.include_in_budget_subtitle')}</p>
             </div>
             <button
               type="button"
               onClick={() => setIncludeInBudget(!includeInBudget)}
-              className="w-12 h-7 rounded-full p-1 flex items-center transition-all"
+              className="w-12 h-7 rounded-full p-1 flex items-center transition-all bg-[var(--overlay)] border border-[var(--border)]"
               style={{
-                background: includeInBudget ? 'var(--accent-primary)' : 'var(--overlay)',
-                border: '1px solid var(--border)',
+                background: includeInBudget ? 'var(--accent-primary)' : '',
               }}
+              aria-label={t('transactions.include_in_budget')}
+              aria-pressed={includeInBudget}
             >
               <div
                 className="w-5 h-5 rounded-full bg-white shadow-sm transition-transform"
@@ -597,10 +596,11 @@ function AddTransactionForm() {
 
           {/* Note */}
           <div className="animate-slide-up delay-6">
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              {t('transactions.note')} <span className="font-normal" style={{ color: 'var(--text-tertiary)' }}>({t('common.optional')})</span>
+            <label htmlFor="note-input" className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">
+              {t('transactions.note')} <span className="font-normal text-[var(--text-tertiary)]">({t('common.optional')})</span>
             </label>
             <input
+              id="note-input"
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -612,17 +612,18 @@ function AddTransactionForm() {
 
           {/* Tags */}
           <div className="animate-slide-up delay-6">
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              {t('transactions.tags')} <span className="font-normal" style={{ color: 'var(--text-tertiary)' }}>({t('common.optional')})</span>
+            <label htmlFor="tags-input" className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">
+              {t('transactions.tags')} <span className="font-normal text-[var(--text-tertiary)]">({t('common.optional')})</span>
             </label>
             <input
+              id="tags-input"
               type="text"
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder={t('transactions.tags_placeholder')}
               className="input-minimal w-full box-border max-w-full"
             />
-            <p className="text-[10px] mt-1.5" style={{ color: 'var(--text-tertiary)' }}>{t('transactions.tags_hint')}</p>
+            <p className="text-[10px] mt-1.5 text-[var(--text-tertiary)]">{t('transactions.tags_hint')}</p>
           </div>
 
           {/* Error */}

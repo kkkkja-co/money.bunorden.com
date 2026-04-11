@@ -177,17 +177,17 @@ export default function BudgetsPage() {
         <div className="flex items-center gap-3 mb-6 animate-slide-up">
           <Link
             href="/dashboard"
-            className="w-10 h-10 rounded-xl flex items-center justify-center lg:hidden"
-            style={{ background: 'var(--overlay)', border: '1px solid var(--border)' }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center lg:hidden bg-[var(--overlay)] border border-[var(--border)]"
+            aria-label={t('common.back')}
           >
-            <ArrowLeft size={18} style={{ color: 'var(--text-secondary)' }} />
+            <ArrowLeft size={18} className="text-[var(--text-secondary)]" />
           </Link>
-          <h1 className="text-3xl font-bold tracking-tight flex-1" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="text-3xl font-bold tracking-tight flex-1 text-[var(--text-primary)]">
             {t('budgets.title')}
           </h1>
         </div>
 
-        <p className="text-sm mb-6 animate-slide-up delay-1" style={{ color: 'var(--text-tertiary)' }}>
+        <p className="text-sm mb-6 animate-slide-up delay-1 text-[var(--text-tertiary)]">
           {t('budgets.subtitle')}
         </p>
 
@@ -198,18 +198,16 @@ export default function BudgetsPage() {
           <button
             type="button"
             onClick={() => setOffset((o) => o - 1)}
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'var(--overlay)', color: 'var(--text-secondary)' }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--overlay)] text-[var(--text-secondary)]"
             aria-label={t('budgets.prev_month')}
           >
             <ChevronLeft size={20} />
           </button>
-          <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{monthLabel}</span>
+          <span className="font-semibold text-sm text-[var(--text-primary)]">{monthLabel}</span>
           <button
             type="button"
             onClick={() => setOffset((o) => o + 1)}
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'var(--overlay)', color: 'var(--text-secondary)' }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--overlay)] text-[var(--text-secondary)]"
             aria-label={t('budgets.next_month')}
           >
             <ChevronRight size={20} />
@@ -222,15 +220,16 @@ export default function BudgetsPage() {
           <>
             {/* Overall */}
             <div className="surface-elevated p-4 mb-6 animate-slide-up delay-2">
-              <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
+              <h2 className="text-sm font-bold mb-3 text-[var(--text-primary)]">
                 {t('budgets.overall')}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
                 <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                  <label htmlFor="overall-budget" className="block text-xs font-medium mb-1.5 text-[var(--text-tertiary)]">
                     {t('budgets.budget_cap')}
                   </label>
                   <input
+                    id="overall-budget"
                     type="number"
                     min={0}
                     step="0.01"
@@ -244,17 +243,17 @@ export default function BudgetsPage() {
                   />
                 </div>
                 <div>
-                  <p className="text-xs font-medium mb-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                  <p className="text-xs font-medium mb-1.5 text-[var(--text-tertiary)]">
                     {t('budgets.spent')}
                   </p>
-                  <p className="text-lg font-bold" style={{ color: 'var(--danger)' }}>
+                  <p className="text-lg font-bold text-[var(--danger)]">
                     {formatCurrency(spentTotal, currency)}
                   </p>
                 </div>
               </div>
               {overallCap > 0 && (
                 <>
-                  <div className="h-3 rounded-full overflow-hidden mb-2 relative" style={{ background: 'var(--overlay)' }}>
+                  <div className="h-3 rounded-full overflow-hidden mb-2 relative bg-[var(--overlay)]">
                     <div
                       className="absolute top-0 left-0 h-full rounded-full transition-all shadow-[0_0_12px_rgba(175,82,222,0.2)]"
                       style={{
@@ -266,7 +265,7 @@ export default function BudgetsPage() {
                       }}
                     />
                   </div>
-                  <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                  <p className="text-xs text-[var(--text-tertiary)]">
                     {spentTotal <= overallCap
                       ? t('budgets.remaining', {
                           amount: formatCurrency(overallCap - spentTotal, currency),
@@ -280,12 +279,12 @@ export default function BudgetsPage() {
             </div>
 
             {/* By category */}
-            <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
+            <h2 className="text-sm font-semibold mb-3 px-1 text-[var(--text-tertiary)]">
               {t('budgets.by_category')}
             </h2>
             <div className="space-y-3 mb-8">
               {categories.length === 0 ? (
-                <div className="surface-elevated text-center py-12 text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                <div className="surface-elevated text-center py-12 text-sm text-[var(--text-tertiary)]">
                   {t('budgets.no_expense_categories')}
                 </div>
               ) : (
@@ -296,16 +295,17 @@ export default function BudgetsPage() {
                     <div key={cat.id} className="surface-elevated p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-lg">{cat.icon}</span>
-                        <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
+                        <span className="font-medium text-sm text-[var(--text-primary)]">
                           {cat.name}
                         </span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
                         <div>
-                          <label className="block text-[10px] font-medium mb-1" style={{ color: 'var(--text-tertiary)' }}>
+                          <label htmlFor={`budget-${cat.id}`} className="block text-[10px] font-medium mb-1 text-[var(--text-tertiary)]">
                             {t('budgets.budget_cap')}
                           </label>
                           <input
+                            id={`budget-${cat.id}`}
                             type="number"
                             min={0}
                             step="0.01"
@@ -321,16 +321,16 @@ export default function BudgetsPage() {
                           />
                         </div>
                         <div>
-                          <p className="text-[10px] font-medium mb-1" style={{ color: 'var(--text-tertiary)' }}>
+                          <p className="text-[10px] font-medium mb-1 text-[var(--text-tertiary)]">
                             {t('budgets.spent')}
                           </p>
-                          <p className="text-sm font-bold" style={{ color: 'var(--danger)' }}>
+                          <p className="text-sm font-bold text-[var(--danger)]">
                             {formatCurrency(spent, currency)}
                           </p>
                         </div>
                       </div>
                       {cap > 0 && (
-                        <div className="h-3 rounded-full overflow-hidden relative" style={{ background: 'var(--overlay)' }}>
+                        <div className="h-3 rounded-full overflow-hidden relative bg-[var(--overlay)]">
                           <div
                             className="absolute top-0 left-0 h-full rounded-full transition-all"
                             style={{

@@ -17,11 +17,15 @@
     --accent-gradient: linear-gradient(135deg, #af52de 0%, #5856d6 100%);
     
     --success: #34c759;
+    --success-bg: rgba(52, 199, 89, 0.1);
     --danger: #ff3b30; 
+    --danger-bg: rgba(255, 59, 48, 0.1);
     
     --text-primary: #ffffff;
     --text-secondary: #8e8e93;
     --text-tertiary: #48484a;
+    
+    --overlay: rgba(255, 255, 255, 0.05);
     
     --radius-3xl: 32px;
     --radius-2xl: 24px;
@@ -41,6 +45,9 @@
     --text-primary: #000000;
     --text-secondary: #8e8e93;
     --text-tertiary: #c7c7cc;
+    --overlay: rgba(0, 0, 0, 0.03);
+    --success-bg: rgba(52, 199, 89, 0.15);
+    --danger-bg: rgba(255, 59, 48, 0.15);
   }
 
   body {

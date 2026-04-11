@@ -101,31 +101,31 @@ export default function SettingsPage() {
 
         <section className="animate-slide-up delay-1 mb-10">
           <div className="flex items-center justify-between mb-3 px-1">
-            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary">{t('settings.profile')}</h2>
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-secondary)]">{t('settings.profile')}</h2>
             {showSaved && (
-              <div className="flex items-center gap-1.5 text-success animate-fade-in">
+              <div className="flex items-center gap-1.5 text-[var(--success)] animate-fade-in">
                 <Check size={12} strokeWidth={3} />
-                <span className="text-[10px] font-black uppercase tracking-wider">Saved</span>
+                <span className="text-[10px] font-black uppercase tracking-wider">{t('budgets.saved')}</span>
               </div>
             )}
           </div>
           <div className="list-wrapper px-5 py-6 space-y-6">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-1">{t('settings.display_name')}</label>
-              <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} className="w-full input-minimal pr-2" placeholder="Enter your name" />
+              <label htmlFor="display-name" className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] ml-1">{t('settings.display_name')}</label>
+              <input id="display-name" type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} className="w-full input-minimal pr-2" placeholder="Enter your name" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-1">{t('settings.currency')}</label>
-                <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full input-minimal pr-2">
-                  {['HKD', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'TWD', 'SGD'].map(c => <option key={c} value={c}>{c}</option>)}
+                <label htmlFor="currency-select" className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] ml-1">{t('settings.currency')}</label>
+                <select id="currency-select" value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full input-minimal pr-2">
+                  {['HKD', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'TWD', 'SGD'].map(c => <option key={c} value={c} className="bg-zinc-900">{c}</option>)}
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-1">{t('settings.language')}</label>
-                <select value={localLanguage} onChange={(e) => setLocalLanguage(e.target.value as Language)} className="w-full input-minimal pr-2">
-                  <option value="en">English</option>
-                  <option value="zh-TW">繁體中文</option>
+                <label htmlFor="language-select" className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] ml-1">{t('settings.language')}</label>
+                <select id="language-select" value={localLanguage} onChange={(e) => setLocalLanguage(e.target.value as Language)} className="w-full input-minimal pr-2">
+                  <option value="en" className="bg-zinc-900">English</option>
+                  <option value="zh-TW" className="bg-zinc-900">繁體中文</option>
                 </select>
               </div>
             </div>
@@ -133,10 +133,10 @@ export default function SettingsPage() {
             <button 
               onClick={handleUpdateProfile} 
               disabled={saving}
-              className="w-full py-4 rounded-2xl bg-accent-primary text-white text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-accent-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-2xl bg-[var(--accent-primary)] text-white text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-accent-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {saving ? <Loader2 size={16} className="animate-spin" /> : null}
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? t('common.loading') : t('common.save')}
             </button>
           </div>
         </section>
@@ -145,11 +145,11 @@ export default function SettingsPage() {
           <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-3 px-1">{t('settings.appearance')} & {t('settings.manage')}</h2>
           <div className="list-wrapper">
             <SettingsRow icon={theme === 'dark' ? Moon : Sun} label={t('settings.theme')} value={theme === 'dark' ? 'DARK' : 'LIGHT'} onClick={toggleTheme} />
-            <Link href="/settings/accounts"><SettingsRow icon={ArrowLeftRight} label={t('settings.accounts')} /></Link>
-            <Link href="/settings/categories"><SettingsRow icon={LayoutGrid} label={t('settings.categories')} /></Link>
+            <Link href="/settings/accounts" aria-label={t('settings.accounts')}><SettingsRow icon={ArrowLeftRight} label={t('settings.accounts')} /></Link>
+            <Link href="/settings/categories" aria-label={t('settings.categories')}><SettingsRow icon={LayoutGrid} label={t('settings.categories')} /></Link>
             <SettingsRow 
               icon={Bell} 
-              label="Notifications" 
+              label={t('tour.notifications_title')} 
               value={notifPermission === 'granted' ? 'ON' : 'OFF'} 
               onClick={async () => {
                 const granted = await requestNotificationPermission()
