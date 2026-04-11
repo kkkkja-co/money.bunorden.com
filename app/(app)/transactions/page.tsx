@@ -16,6 +16,7 @@ interface Transaction {
   currency: string
   date: string
   note: string | null
+  tags: string[] | null
   category: { name: string; icon: string } | null
 }
 
@@ -37,7 +38,7 @@ export default function TransactionsPage() {
 
     let query = supabase
       .from('transactions')
-      .select('id, type, amount, currency, date, note, category:categories(name, icon)')
+      .select('id, type, amount, currency, date, note, tags, category:categories(name, icon)')
       .eq('user_id', user.id)
       .order('date', { ascending: false })
 
@@ -48,6 +49,7 @@ export default function TransactionsPage() {
     const { data } = await query
     const mapped = (data || []).map((t: any) => ({
       ...t,
+      tags: Array.isArray(t.tags) ? t.tags : [],
       category: Array.isArray(t.category) ? t.category[0] || null : t.category,
     }))
     setTransactions(mapped)
@@ -79,7 +81,8 @@ export default function TransactionsPage() {
     return (
       t.note?.toLowerCase().includes(s) ||
       t.category?.name.toLowerCase().includes(s) ||
-      t.amount.toString().includes(s)
+      t.amount.toString().includes(s) ||
+      (t.tags || []).some((tag) => tag.toLowerCase().includes(s))
     )
   })
 
@@ -202,6 +205,22 @@ export default function TransactionsPage() {
                           {formatDate(tx.date)}
                           {tx.note && tx.category?.name ? ` · ${tx.note}` : ''}
                         </p>
+                        {(tx.tags?.length ?? 0) > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {tx.tags!.map((tag) => (
+                              <span
+                                key={tag}
+                                className="text-[10px] font-medium px-1.5 py-0.5 rounded-md"
+                                style={{
+                                  background: 'rgba(59, 130, 246, 0.12)',
+                                  color: 'var(--accent-primary)',
+                                }}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <span
                         className="font-semibold text-sm flex-shrink-0"

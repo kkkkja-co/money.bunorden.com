@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
+import { parseTagsInput, tagsToInputString } from '@/lib/tags'
 import { ArrowLeft, Check, Settings, Plus, X, Trash2 } from 'lucide-react'
 import { useTranslation } from '@/app/providers'
 
@@ -30,6 +31,7 @@ function AddTransactionForm() {
   const [type, setType] = useState<TxType>('expense')
   const [amount, setAmount] = useState('')
   const [note, setNote] = useState('')
+  const [tagsInput, setTagsInput] = useState('')
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0])
   const [categoryId, setCategoryId] = useState('')
   const [accountId, setAccountId] = useState('')
@@ -81,6 +83,7 @@ function AddTransactionForm() {
         setType(tx.type as TxType)
         setAmount(tx.amount.toString())
         setNote(tx.note || '')
+        setTagsInput(tagsToInputString(tx.tags))
         setDate(tx.date)
         setCategoryId(tx.category_id || '')
         setAccountId(tx.account_id)
@@ -155,6 +158,8 @@ function AddTransactionForm() {
     setLoading(true)
     setError('')
 
+    const tags = parseTagsInput(tagsInput)
+
     try {
       if (editId) {
         const { error: updateError } = await supabase
@@ -167,6 +172,7 @@ function AddTransactionForm() {
             currency,
             date,
             note: note.trim() || null,
+            tags,
             recurring,
           })
           .eq('id', editId)
@@ -183,6 +189,7 @@ function AddTransactionForm() {
           currency,
           date,
           note: note.trim() || null,
+          tags,
           recurring,
         })
 
@@ -528,7 +535,7 @@ function AddTransactionForm() {
           {/* Note */}
           <div className="animate-fade-up delay-6">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-              {t('transactions.note')} ({t('common.continue').toLowerCase()}) 
+              {t('transactions.note')} <span className="font-normal" style={{ color: 'var(--text-tertiary)' }}>({t('common.optional')})</span>
             </label>
             <input
               type="text"
@@ -538,6 +545,21 @@ function AddTransactionForm() {
               className="input-glass"
               maxLength={280}
             />
+          </div>
+
+          {/* Tags */}
+          <div className="animate-fade-up delay-6">
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+              {t('transactions.tags')} <span className="font-normal" style={{ color: 'var(--text-tertiary)' }}>({t('common.optional')})</span>
+            </label>
+            <input
+              type="text"
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              placeholder={t('transactions.tags_placeholder')}
+              className="input-glass"
+            />
+            <p className="text-[10px] mt-1.5" style={{ color: 'var(--text-tertiary)' }}>{t('transactions.tags_hint')}</p>
           </div>
 
           {/* Error */}

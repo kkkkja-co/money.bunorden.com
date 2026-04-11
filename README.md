@@ -148,8 +148,8 @@ ledger/
 - [x] Mobile optimisations (swipe, drag-to-dismiss)
 
 ### Phase 4+
-- [ ] Budget tracking
-- [ ] Tags / notes
+- [x] Budget tracking
+- [x] Tags / notes
 - [ ] Receipt uploads
 - [ ] Bank sync (Plaid integration)
 - [ ] Collaborative budgeting

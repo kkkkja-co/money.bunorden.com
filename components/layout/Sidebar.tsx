@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme, useTranslation } from '@/app/providers'
-import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Key } from 'lucide-react'
+import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Target } from 'lucide-react'
 
 export function Sidebar() {
   const { t } = useTranslation()
@@ -15,6 +15,7 @@ export function Sidebar() {
     { href: '/transactions', icon: ArrowLeftRight, label: t('nav.transactions') },
     { href: '/add', icon: PlusCircle, label: t('nav.add') },
     { href: '/reports', icon: BarChart3, label: t('nav.reports') },
+    { href: '/budgets', icon: Target, label: t('nav.budgets') },
     { href: '/settings', icon: Settings, label: t('nav.settings') },
   ]
 

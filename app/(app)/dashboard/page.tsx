@@ -7,8 +7,8 @@ import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { 
-  Plus, TrendingUp, TrendingDown, ArrowLeftRight, 
-  ChevronRight, Shield, X, Eye, EyeOff 
+  Plus, TrendingUp, TrendingDown,
+  ChevronRight, Shield, X, Eye, EyeOff, Target
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import { useTranslation, useLanguage } from '@/app/providers'
@@ -34,6 +34,7 @@ interface Transaction {
   currency: string
   date: string
   note: string | null
+  tags: string[] | null
   category?: { name: string; icon: string } | null
 }
 
@@ -91,7 +92,7 @@ export default function DashboardPage() {
       // Fetch recent transactions with categories
       const { data: txData } = await supabase
         .from('transactions')
-        .select('id, type, amount, currency, date, note, category:categories(name, icon)')
+        .select('id, type, amount, currency, date, note, tags, category:categories(name, icon)')
         .eq('user_id', user.id)
         .order('date', { ascending: false })
         .limit(5)
@@ -99,6 +100,7 @@ export default function DashboardPage() {
       // Supabase returns joined relations as arrays; flatten to single object
       const mapped = (txData || []).map((t: any) => ({
         ...t,
+        tags: Array.isArray(t.tags) ? t.tags : [],
         category: Array.isArray(t.category) ? t.category[0] || null : t.category,
       }))
       setTransactions(mapped)
@@ -305,11 +307,21 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="glass-card animate-fade-up delay-3">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--danger-bg)' }}>
-                <TrendingDown size={14} style={{ color: 'var(--danger)' }} />
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--danger-bg)' }}>
+                  <TrendingDown size={14} style={{ color: 'var(--danger)' }} />
+                </div>
+                <span className="text-xs font-medium truncate" style={{ color: 'var(--text-tertiary)' }}>{t('dashboard.expenses')}</span>
               </div>
-              <span className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>{t('dashboard.expenses')}</span>
+              <Link
+                href="/budgets"
+                className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-0.5 flex-shrink-0"
+                style={{ color: 'var(--accent-primary)' }}
+              >
+                <Target size={12} strokeWidth={2.5} />
+                {t('budgets.short_link')}
+              </Link>
             </div>
             <p className="text-xl lg:text-2xl font-bold" style={{ color: 'var(--danger)' }}>
               {isVisible ? formatCurrency(totals.expense, currency) : '••••••'}
@@ -380,6 +392,7 @@ export default function DashboardPage() {
                     </p>
                     <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
                       {formatDate(tx.date)}
+                      {(tx.tags?.length ?? 0) > 0 ? ` · ${tx.tags!.join(' · ')}` : ''}
                     </p>
                   </div>
                   <span

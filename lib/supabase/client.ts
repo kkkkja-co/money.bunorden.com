@@ -119,6 +119,7 @@ export type Database = {
           currency: string
           date: string
           note: string | null
+          tags: string[]
           recurring: boolean
           created_at: string
         }
@@ -133,6 +134,7 @@ export type Database = {
           currency?: string
           date: string
           note?: string | null
+          tags?: string[]
           recurring?: boolean
           created_at?: string
         }
@@ -147,7 +149,37 @@ export type Database = {
           currency?: string
           date?: string
           note?: string | null
+          tags?: string[]
           recurring?: boolean
+          created_at?: string
+        }
+      }
+      budgets: {
+        Row: {
+          id: string
+          user_id: string
+          category_id: string | null
+          month_year: string
+          amount: number
+          currency: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          category_id?: string | null
+          month_year: string
+          amount: number
+          currency?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          category_id?: string | null
+          month_year?: string
+          amount?: number
+          currency?: string
           created_at?: string
         }
       }

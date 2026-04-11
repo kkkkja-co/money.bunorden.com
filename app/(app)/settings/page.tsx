@@ -8,7 +8,7 @@ import { useTheme, useTranslation, useLanguage } from '@/app/providers'
 import {
   Sun, Moon, LogOut, Trash2, Download, Shield, Mail,
   Scale, ChevronRight, User, AlertTriangle, X, Globe,
-  ArrowLeftRight, LayoutGrid
+  ArrowLeftRight, LayoutGrid, Target
 } from 'lucide-react'
 import Link from 'next/link'
 import { Language } from '@/lib/i18n/translations'
@@ -198,7 +198,7 @@ export default function SettingsPage() {
 
       const { data } = await supabase
         .from('transactions')
-        .select('type, amount, currency, date, note, category:categories(name)')
+        .select('type, amount, currency, date, note, tags, category:categories(name)')
         .eq('user_id', user.id)
         .order('date', { ascending: false })
 
@@ -217,10 +217,11 @@ export default function SettingsPage() {
         filename = `clavi-export-${new Date().toISOString().split('T')[0]}.json`
         mimeType = 'application/json'
       } else {
-        const header = 'Date,Type,Amount,Currency,Category,Note\n'
+        const header = 'Date,Type,Amount,Currency,Category,Note,Tags\n'
         const rows = data.map((t: any) => {
           const category = Array.isArray(t.category) ? t.category[0] : t.category
-          return `${t.date},${t.type},${t.amount},${t.currency},"${category?.name || ''}","${t.note || ''}"`
+          const tagStr = Array.isArray(t.tags) ? t.tags.join('; ') : ''
+          return `${t.date},${t.type},${t.amount},${t.currency},"${category?.name || ''}","${t.note || ''}","${tagStr}"`
         }).join('\n')
         content = header + rows
         filename = `clavi-export-${new Date().toISOString().split('T')[0]}.csv`
@@ -499,6 +500,13 @@ export default function SettingsPage() {
                 icon={LayoutGrid} 
                 label={t('settings.categories')} 
                 sublabel={t('settings.categories_subtitle')} 
+              />
+            </Link>
+            <Link href="/budgets">
+              <SettingsItem 
+                icon={Target} 
+                label={t('settings.budgets')} 
+                sublabel={t('settings.budgets_subtitle')} 
               />
             </Link>
           </div>
