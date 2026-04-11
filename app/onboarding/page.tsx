@@ -132,7 +132,7 @@ export default function OnboardingPage() {
           }}
         />
         
-        <div className="w-full max-w-md relative z-10 glass-card p-10 rounded-[2.5rem] border border-white/5 space-y-8 shadow-2xl">
+        <div className="w-full max-w-md relative z-10 surface-elevated p-10 rounded-[2.5rem] border border-white/5 space-y-8 shadow-2xl">
           <div
             className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center overflow-hidden"
             style={{
@@ -158,7 +158,7 @@ export default function OnboardingPage() {
           <div className="pt-4 space-y-4">
             <button
               onClick={() => window.location.reload()}
-              className="btn-primary-gradient w-full py-4 text-base flex items-center justify-center gap-2"
+              className="btn-apple-primary w-full py-4 text-base flex items-center justify-center gap-2"
             >
               <RefreshCw size={18} /> {t('auth.verify_email_button')}
             </button>
@@ -240,14 +240,14 @@ export default function OnboardingPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto mb-8">
               <button
                 onClick={() => { setLanguage('en'); setStep(1); }}
-                className="p-6 rounded-2xl glass-card border border-white/5 hover:border-accent-primary transition-all group"
+                className="p-6 rounded-2xl surface-elevated border border-white/5 hover:border-accent-primary transition-all group"
               >
                 <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">🇺🇸</span>
                 <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>English</span>
               </button>
               <button
                 onClick={() => { setLanguage('zh-TW'); setStep(1); }}
-                className="p-6 rounded-2xl glass-card border border-white/5 hover:border-accent-primary transition-all group"
+                className="p-6 rounded-2xl surface-elevated border border-white/5 hover:border-accent-primary transition-all group"
               >
                 <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">🇭🇰</span>
                 <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>繁體中文</span>
@@ -290,12 +290,12 @@ export default function OnboardingPage() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder={t('onboarding.step1_placeholder')}
-              className="input-glass text-center text-lg py-4 mb-6 max-w-sm mx-auto"
+              className="input-minimal w-full text-center text-lg py-4 mb-6 max-w-sm mx-auto"
             />
 
             <button
               onClick={() => setStep(2)}
-              className="btn-primary-gradient w-full max-w-sm mx-auto py-4 text-base block"
+              className="btn-apple-primary w-full max-w-sm mx-auto py-4 text-base block"
             >
               {t('common.continue')}
             </button>
@@ -337,7 +337,7 @@ export default function OnboardingPage() {
                   value={accountName}
                   onChange={(e) => setAccountName(e.target.value)}
                   placeholder="e.g. Daily Account"
-                  className="input-glass"
+                  className="input-minimal w-full"
                 />
               </div>
 
@@ -348,7 +348,7 @@ export default function OnboardingPage() {
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className="input-glass"
+                  className="input-minimal w-full"
                 >
                   {['HKD', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'MYR', 'SGD', 'TWD', 'KRW', 'AUD', 'CAD'].map(c => (
                     <option key={c} value={c}>{c}</option>
@@ -359,7 +359,7 @@ export default function OnboardingPage() {
 
             <button
               onClick={() => setStep(3)}
-              className="btn-primary-gradient w-full max-w-sm mx-auto py-4 text-base block"
+              className="btn-apple-primary w-full max-w-sm mx-auto py-4 text-base block"
             >
               {t('common.continue')}
             </button>
@@ -439,7 +439,7 @@ export default function OnboardingPage() {
             <button
               onClick={handleComplete}
               disabled={loading}
-              className="btn-primary-gradient w-full max-w-sm mx-auto py-4 text-base flex items-center justify-center gap-2"
+              className="btn-apple-primary w-full max-w-sm mx-auto py-4 text-base flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />

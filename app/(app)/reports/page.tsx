@@ -149,7 +149,7 @@ export default function ReportsPage() {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="glass-card p-3 shadow-xl border-none">
+        <div className="surface-elevated p-3 shadow-xl border-none">
           <p className="text-sm font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
             {payload[0].name}
           </p>
@@ -177,7 +177,7 @@ export default function ReportsPage() {
         {loading ? (
           <PageSkeleton />
         ) : categoryTotals.length === 0 ? (
-          <div className="glass-card text-center py-20 animate-fade-up">
+          <div className="surface-elevated text-center py-20 animate-fade-up">
             <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
               <BarChart3 size={32} style={{ color: 'var(--text-tertiary)' }} />
             </div>
@@ -187,7 +187,7 @@ export default function ReportsPage() {
             </p>
             <button 
               onClick={() => router.push('/add')}
-              className="btn-primary-gradient px-8 py-3 rounded-full"
+              className="btn-apple-primary px-8 py-3 rounded-full"
             >
               {t('common.add_transaction')}
             </button>
@@ -195,7 +195,7 @@ export default function ReportsPage() {
         ) : (
           <div className="space-y-8 pb-10">
             {/* Assets Overview Pie Chart */}
-            <div className="glass-card animate-fade-up delay-1 overflow-hidden">
+            <div className="surface-elevated animate-fade-up delay-1 overflow-hidden">
               <div className="flex items-center justify-between mb-6 px-1">
                 <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{t('reports.assets_overview')}</h3>
                 <button
@@ -237,7 +237,7 @@ export default function ReportsPage() {
 
             {/* Quick Summary Cards */}
             <div className="grid grid-cols-2 gap-4 animate-fade-up delay-2">
-              <div className="glass-card flex flex-col items-center text-center">
+              <div className="surface-elevated flex flex-col items-center text-center">
                 <div className="w-10 h-10 rounded-full bg-success-bg flex items-center justify-center mb-3">
                   <TrendingUp size={20} style={{ color: 'var(--success)' }} />
                 </div>
@@ -246,7 +246,7 @@ export default function ReportsPage() {
                   {isVisible ? formatCurrency(totalIncome, currency) : '••••'}
                 </p>
               </div>
-              <div className="glass-card flex flex-col items-center text-center">
+              <div className="surface-elevated flex flex-col items-center text-center">
                 <div className="w-10 h-10 rounded-full bg-danger-bg flex items-center justify-center mb-3">
                   <TrendingDown size={20} style={{ color: 'var(--danger)' }} />
                 </div>
@@ -258,7 +258,7 @@ export default function ReportsPage() {
             </div>
 
             {/* Main Tabs */}
-            <div className="glass-card p-1.5 flex gap-1 animate-fade-up delay-2">
+            <div className="surface-elevated p-1.5 flex gap-1 animate-fade-up delay-2">
               <button
                 onClick={() => setViewType('categories')}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold transition-all"
@@ -286,7 +286,7 @@ export default function ReportsPage() {
             {viewType === 'categories' && (
               <div className="space-y-6 animate-fade-up delay-3">
                 {/* Visual Section */}
-                <div className="glass-card pb-8 overflow-hidden">
+                <div className="surface-elevated pb-8 overflow-hidden">
                   <div className="flex items-center justify-between mb-8 px-2">
                     <div className="flex gap-2">
                       <button 
@@ -365,7 +365,7 @@ export default function ReportsPage() {
                   </div>
                   
                   {filteredSortedCategories.map((cat, i) => (
-                    <div key={cat.name + cat.type} className="glass-card-interactive flex flex-col gap-3 group">
+                    <div key={cat.name + cat.type} className="surface-elevated-interactive flex flex-col gap-3 group">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm"
                           style={{ background: 'var(--overlay)', color: 'var(--text-primary)' }}>
@@ -402,7 +402,7 @@ export default function ReportsPage() {
 
             {viewType === 'monthly' && (
               <div className="space-y-6 animate-fade-up delay-3">
-                <div className="glass-card">
+                <div className="surface-elevated">
                   <h3 className="text-sm font-bold mb-8 px-2" style={{ color: 'var(--text-primary)' }}>{t('reports.trend')}</h3>
                   <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -421,7 +421,7 @@ export default function ReportsPage() {
                           content={({ active, payload, label }) => {
                             if (active && payload && payload.length) {
                               return (
-                                <div className="glass-card p-3 shadow-2xl border-none">
+                                <div className="surface-elevated p-3 shadow-2xl border-none">
                                   <p className="text-xs font-bold mb-2 uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>{monthLabel(label)}</p>
                                   <div className="space-y-1">
                                     <p className="text-sm font-bold flex items-center gap-2" style={{ color: 'var(--success)' }}>
@@ -448,7 +448,7 @@ export default function ReportsPage() {
                   {monthSummaries.slice().reverse().map((ms) => {
                     const net = ms.income - ms.expense
                     return (
-                      <div key={ms.month} className="glass-card flex items-center justify-between group">
+                      <div key={ms.month} className="surface-elevated flex items-center justify-between group">
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center font-black text-xs" style={{ color: 'var(--text-secondary)' }}>
                             {monthLabel(ms.month).toUpperCase()}

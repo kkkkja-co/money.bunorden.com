@@ -165,7 +165,7 @@ export default function AccountsPage() {
             {accounts.map((account) => (
               <div
                 key={account.id}
-                className="glass-card flex items-center gap-4 p-5 group relative overflow-hidden"
+                className="surface-elevated flex items-center gap-4 p-5 group relative overflow-hidden"
               >
                 <div 
                   className="absolute left-0 top-0 w-1 h-full" 
@@ -245,7 +245,7 @@ export default function AccountsPage() {
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder={t('settings.accounts_name_placeholder')}
-                  className="input-glass text-lg"
+                  className="input-minimal w-full text-lg"
                   autoFocus
                   required
                 />
@@ -290,14 +290,14 @@ export default function AccountsPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="btn-secondary-glass flex-1 py-3 font-bold"
+                  className="list-item justify-center bg-primary/5 text-primary border border-border rounded-xl flex-1 py-3 font-bold"
                 >
                   {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={processing || !name.trim()}
-                  className="btn-primary-gradient flex-1 py-3 font-bold"
+                  className="btn-apple-primary flex-1 py-3 font-bold"
                 >
                   {processing ? t('common.loading') : t('common.save')}
                 </button>
@@ -320,7 +320,7 @@ export default function AccountsPage() {
                 {t('settings.accounts_delete_warning')}
               </p>
               <div className="flex gap-3">
-                <button onClick={() => setShowDeleteModal(null)} className="btn-secondary-glass flex-1 py-3 font-bold">{t('common.cancel')}</button>
+                <button onClick={() => setShowDeleteModal(null)} className="list-item justify-center bg-primary/5 text-primary border border-border rounded-xl flex-1 py-3 font-bold">{t('common.cancel')}</button>
                 <button 
                   onClick={() => handleDelete(showDeleteModal)} 
                   disabled={processing}

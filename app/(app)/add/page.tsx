@@ -277,7 +277,7 @@ function AddTransactionForm() {
         </div>
 
         {/* Type Selector */}
-        <div className="glass-card p-1.5 flex gap-1 mb-6 animate-fade-up delay-1">
+        <div className="surface-elevated p-1.5 flex gap-1 mb-6 animate-fade-up delay-1">
           {(['expense', 'income', 'transfer'] as TxType[]).map((t_index) => (
             <button
               key={t_index}
@@ -323,7 +323,7 @@ function AddTransactionForm() {
               value={amount}
               onChange={(e) => setAmount(e.target.value.replace(/[^0-9.,]/g, ''))}
               placeholder="0.00"
-              className="input-glass text-3xl font-bold text-center py-6"
+              className="input-minimal w-full text-3xl font-bold text-center py-6"
               style={{
                 color: type === 'income' ? 'var(--success)' : type === 'expense' ? 'var(--danger)' : 'var(--accent-primary)',
               }}
@@ -464,7 +464,7 @@ function AddTransactionForm() {
                       type="text"
                       value={catName}
                       onChange={(e) => setCatName(e.target.value)}
-                      className="input-glass"
+                      className="input-minimal w-full"
                       placeholder={t('settings.categories_name_placeholder')}
                       autoFocus
                     />
@@ -486,7 +486,7 @@ function AddTransactionForm() {
                       type="button"
                       disabled={catLoading || !catName.trim()}
                       onClick={handleSaveCategory}
-                      className="btn-primary-gradient flex-1 py-3"
+                      className="btn-apple-primary flex-1 py-3"
                     >
                       {catLoading ? t('common.loading') : t('common.save')}
                     </button>
@@ -533,7 +533,7 @@ function AddTransactionForm() {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="input-glass"
+              className="input-minimal w-full"
               required
             />
           </div>
@@ -600,7 +600,7 @@ function AddTransactionForm() {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={t('transactions.note_placeholder')}
-              className="input-glass"
+              className="input-minimal w-full"
               maxLength={280}
             />
           </div>
@@ -615,7 +615,7 @@ function AddTransactionForm() {
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder={t('transactions.tags_placeholder')}
-              className="input-glass"
+              className="input-minimal w-full"
             />
             <p className="text-[10px] mt-1.5" style={{ color: 'var(--text-tertiary)' }}>{t('transactions.tags_hint')}</p>
           </div>
@@ -634,7 +634,7 @@ function AddTransactionForm() {
           <button
             type="submit"
             disabled={loading || !amount}
-            className="btn-primary-gradient w-full py-4 text-base animate-fade-up delay-6"
+            className="btn-apple-primary w-full py-4 text-base animate-fade-up delay-6"
           >
             {loading ? t('common.loading') : t('common.save')}
           </button>

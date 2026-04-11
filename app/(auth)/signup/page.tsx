@@ -146,7 +146,7 @@ export default function SignupPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  className="input-glass"
+                  className="input-minimal w-full"
                   required
                   autoFocus
                 />
@@ -162,7 +162,7 @@ export default function SignupPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="input-glass pr-12"
+                    className="input-minimal w-full pr-12"
                     required
                   />
                   <button
@@ -205,7 +205,7 @@ export default function SignupPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="input-glass"
+                  className="input-minimal w-full"
                   required
                 />
               </div>
@@ -227,7 +227,7 @@ export default function SignupPage() {
           {error && (
             <div
               className="p-3 rounded-xl text-sm font-medium animate-scale-in"
-              style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
+              style={{ background: 'rgba(255, 59, 48, 0.1)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
             >
               {error}
             </div>
@@ -259,7 +259,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-5"
+              className="btn-apple-primary w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-5"
             >
               {loading ? (
                 <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />

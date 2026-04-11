@@ -120,7 +120,7 @@ export default function ContactPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t('contact.form_placeholder_name')}
-                  className="input-glass"
+                  className="input-minimal w-full"
                   required
                 />
               </div>
@@ -135,7 +135,7 @@ export default function ContactPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t('contact.form_placeholder_email')}
-                  className="input-glass"
+                  className="input-minimal w-full"
                   required
                 />
               </div>
@@ -157,7 +157,7 @@ export default function ContactPage() {
                     ? t('contact.data_subject')
                     : t('contact.subject_placeholder')
                 }
-                className="input-glass"
+                className="input-minimal w-full"
                 required
               />
             </div>
@@ -175,7 +175,7 @@ export default function ContactPage() {
                     ? t('contact.deletion_message')
                     : t('contact.message_placeholder')
                 }
-                className="input-glass"
+                className="input-minimal w-full"
                 style={{ minHeight: '140px', resize: 'vertical' }}
                 required
               />
@@ -185,7 +185,7 @@ export default function ContactPage() {
             <button
               type="submit"
               disabled={submitted}
-              className="btn-primary-gradient w-full py-4 text-base flex items-center justify-center gap-3"
+              className="btn-apple-primary w-full py-4 text-base flex items-center justify-center gap-3"
               style={{
                 background: submitted ? 'var(--success)' : undefined,
                 boxShadow: submitted ? '0 10px 30px rgba(52, 199, 89, 0.3)' : undefined,

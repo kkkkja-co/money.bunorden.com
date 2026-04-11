@@ -246,8 +246,8 @@ export default function LoginPage() {
         </div>
 
         {resetSent || magicLinkSent ? (
-          <div className="glass-card p-6 text-center animate-scale-in">
-            <div className="w-12 h-12 rounded-full bg-success-bg flex items-center justify-center mx-auto mb-4 text-success">
+          <div className="surface-elevated p-6 text-center animate-scale-in">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-success" style={{ background: 'rgba(52, 199, 89, 0.1)' }}>
               <Mail size={20} />
             </div>
             <h3 className="font-bold mb-2">{t('auth.check_email')}</h3>
@@ -277,7 +277,7 @@ export default function LoginPage() {
                   value={mfaCode}
                   onChange={(e) => setMfaCode(e.target.value.replace(/[^0-9]/g, ''))}
                   placeholder={t('auth.mfa_code_placeholder')}
-                  className="input-glass text-center text-3xl font-bold tracking-[0.5em] py-6"
+                  className="input-minimal text-center text-3xl font-bold tracking-[0.5em] py-6"
                   required
                   autoFocus
                   autoComplete="one-time-code"
@@ -290,7 +290,7 @@ export default function LoginPage() {
             {error && (
               <div
                 className="p-3 rounded-xl text-sm font-medium animate-scale-in"
-                style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
+                style={{ background: 'rgba(255, 59, 48, 0.1)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
               >
                 {error}
               </div>
@@ -300,7 +300,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || mfaCode.length !== 6}
-                className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base"
+                className="btn-apple-primary w-full py-4 flex items-center justify-center gap-2 text-base"
               >
                 {loading ? (
                   <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
@@ -331,7 +331,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  className="input-glass"
+                  className="input-minimal w-full"
                   required
                   autoFocus
                 />
@@ -358,7 +358,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="input-glass pr-12"
+                      className="input-minimal w-full pr-12"
                       required
                     />
                     <button
@@ -390,7 +390,7 @@ export default function LoginPage() {
               {error && (
                 <div
                   className="p-3 rounded-xl text-sm font-medium animate-scale-in"
-                  style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
+                  style={{ background: 'rgba(255, 59, 48, 0.1)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
                 >
                   {error}
                 </div>
@@ -399,7 +399,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-4"
+                className="btn-apple-primary w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-4"
               >
                 {loading ? (
                   <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />

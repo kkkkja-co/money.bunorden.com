@@ -115,7 +115,7 @@ export function ProductTour() {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="relative w-full max-w-sm glass-card p-8 text-center shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] border-white/10"
+          className="relative w-full max-w-sm surface-elevated p-8 text-center shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] border-white/10"
         >
           <button 
             onClick={skipTour}
@@ -136,7 +136,7 @@ export function ProductTour() {
               </p>
               <button 
                 onClick={() => setCurrentStep(0)}
-                className="btn-primary-gradient w-full py-4 text-sm font-bold rounded-2xl flex items-center justify-center gap-2"
+                className="btn-apple-primary w-full py-4 text-sm font-bold rounded-2xl flex items-center justify-center gap-2"
               >
                 {t('tour.start')} <ChevronRight size={18} />
               </button>
@@ -164,7 +164,7 @@ export function ProductTour() {
                 </button>
                 <button 
                   onClick={handleNext}
-                  className="flex-[2] btn-primary-gradient py-3 text-sm font-bold rounded-xl flex items-center justify-center gap-2"
+                  className="flex-[2] btn-apple-primary py-3 text-sm font-bold rounded-xl flex items-center justify-center gap-2"
                 >
                   {currentStep === steps.length - 1 ? t('tour.finish') : t('tour.next')} <ChevronRight size={16} />
                 </button>

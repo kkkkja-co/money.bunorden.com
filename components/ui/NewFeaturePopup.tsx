@@ -53,7 +53,7 @@ export function NewFeaturePopup() {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="relative w-full max-w-sm glass-card p-8 shadow-[0_32px_96px_-12px_rgba(0,0,0,0.8)] border-white/10"
+          className="relative w-full max-w-sm surface-elevated p-8 shadow-[0_32px_96px_-12px_rgba(0,0,0,0.8)] border-white/10"
         >
           <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full bg-accent-primary flex items-center justify-center shadow-2xl">
             <Sparkles size={40} color="white" />
@@ -98,7 +98,7 @@ export function NewFeaturePopup() {
 
             <button 
               onClick={explore}
-              className="btn-primary-gradient w-full py-4 text-sm font-bold flex items-center justify-center gap-2 group"
+              className="btn-apple-primary w-full py-4 text-sm font-bold flex items-center justify-center gap-2 group"
             >
               {t('tour.update_action')} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </button>

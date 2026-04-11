@@ -62,7 +62,7 @@ function SortableItem({ category, onEdit, onDelete }: { category: Category, onEd
     <div
       ref={setNodeRef}
       style={style}
-      className={`glass-card flex items-center gap-3 p-4 group transition-shadow ${isDragging ? 'shadow-2xl' : ''}`}
+      className={`surface-elevated flex items-center gap-3 p-4 group transition-shadow ${isDragging ? 'shadow-2xl' : ''}`}
     >
       <button
         {...attributes}
@@ -247,7 +247,7 @@ export default function CategoriesPage() {
         </header>
 
         {/* Type Toggle */}
-        <div className="glass-card p-1.5 flex gap-1 mb-6 animate-fade-up delay-1">
+        <div className="surface-elevated p-1.5 flex gap-1 mb-6 animate-fade-up delay-1">
           <button
             onClick={() => setType('expense')}
             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold transition-all ${type === 'expense' ? 'bg-danger/10 text-danger shadow-sm' : 'text-tertiary'}`}
@@ -329,7 +329,7 @@ export default function CategoriesPage() {
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder={t('settings.categories_name_placeholder')}
-                  className="input-glass"
+                  className="input-minimal w-full"
                   autoFocus
                   required
                 />
@@ -379,14 +379,14 @@ export default function CategoriesPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="btn-secondary-glass flex-1 py-3 font-bold"
+                  className="list-item justify-center bg-primary/5 text-primary border border-border rounded-xl flex-1 py-3 font-bold"
                 >
                   {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={processing || !name.trim()}
-                  className="btn-primary-gradient flex-1 py-3 font-bold"
+                  className="btn-apple-primary flex-1 py-3 font-bold"
                 >
                   {processing ? t('common.loading') : t('common.save')}
                 </button>
@@ -409,7 +409,7 @@ export default function CategoriesPage() {
                 {t('settings.categories_delete_warning')}
               </p>
               <div className="flex gap-3">
-                <button onClick={() => setShowDeleteModal(null)} className="btn-secondary-glass flex-1 py-3 font-bold">{t('common.cancel')}</button>
+                <button onClick={() => setShowDeleteModal(null)} className="list-item justify-center bg-primary/5 text-primary border border-border rounded-xl flex-1 py-3 font-bold">{t('common.cancel')}</button>
                 <button 
                   onClick={() => handleDelete(showDeleteModal)} 
                   disabled={processing}

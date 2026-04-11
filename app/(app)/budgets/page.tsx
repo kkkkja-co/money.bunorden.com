@@ -193,7 +193,7 @@ export default function BudgetsPage() {
 
         {/* Month switcher */}
         <div
-          className="glass-card flex items-center justify-between py-3 px-4 mb-6 animate-fade-up delay-1"
+          className="surface-elevated flex items-center justify-between py-3 px-4 mb-6 animate-fade-up delay-1"
         >
           <button
             type="button"
@@ -221,7 +221,7 @@ export default function BudgetsPage() {
         ) : (
           <>
             {/* Overall */}
-            <div className="glass-card p-4 mb-6 animate-fade-up delay-2">
+            <div className="surface-elevated p-4 mb-6 animate-fade-up delay-2">
               <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
                 {t('budgets.overall')}
               </h2>
@@ -239,7 +239,7 @@ export default function BudgetsPage() {
                     onBlur={(e) => {
                       void persistBudget(null, e.target.value).then(showSaved)
                     }}
-                    className="input-glass"
+                    className="input-minimal w-full"
                     placeholder="0"
                   />
                 </div>
@@ -285,7 +285,7 @@ export default function BudgetsPage() {
             </h2>
             <div className="space-y-3 mb-8">
               {categories.length === 0 ? (
-                <div className="glass-card text-center py-12 text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                <div className="surface-elevated text-center py-12 text-sm" style={{ color: 'var(--text-tertiary)' }}>
                   {t('budgets.no_expense_categories')}
                 </div>
               ) : (
@@ -293,7 +293,7 @@ export default function BudgetsPage() {
                   const cap = parseFloat(catInputs[cat.id] || '') || 0
                   const spent = spentByCat[cat.id] || 0
                   return (
-                    <div key={cat.id} className="glass-card p-4">
+                    <div key={cat.id} className="surface-elevated p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-lg">{cat.icon}</span>
                         <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
@@ -316,7 +316,7 @@ export default function BudgetsPage() {
                             onBlur={(e) => {
                               void persistBudget(cat.id, e.target.value).then(showSaved)
                             }}
-                            className="input-glass text-sm"
+                            className="input-minimal w-full text-sm"
                             placeholder="0"
                           />
                         </div>
