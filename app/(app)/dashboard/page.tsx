@@ -97,20 +97,21 @@ export default function DashboardPage() {
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 max-w-2xl mx-auto w-full px-5 py-8 md:py-12">
         
-        {/* Unified Header Group (Fixed Overlap Bub) */}
+        {/* Unified Header Group (Fixed Spacing & Overlap) */}
         <section className="animate-slide-up mb-12">
-          <div className="flex items-center justify-between gap-4 mb-10">
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-1 truncate">
+          <div className="flex items-start justify-between gap-8 mb-10">
+            <div className="min-w-0 pr-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-1.5 truncate">
                 {new Date().toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
               </p>
-              <h1 className="text-2xl font-bold tracking-tight truncate">
-                {t('common.welcome')}, {profile?.display_name?.split(' ')[0]}
+              <h1 className="text-3xl font-bold tracking-tight leading-tight">
+                {t('common.welcome')}, <br/>
+                <span className="text-primary">{profile?.display_name?.split(' ')[0]}</span>
               </h1>
             </div>
-            <Link href="/settings" className="flex-shrink-0 w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center relative active:scale-95 transition-transform">
-              <Bell size={18} className="text-secondary" />
-              <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-accent-primary ring-2 ring-black" />
+            <Link href="/settings" className="flex-shrink-0 mt-2 w-12 h-12 rounded-full bg-secondary border border-border flex items-center justify-center relative active:scale-95 transition-transform">
+              <Bell size={20} className="text-secondary" />
+              <div className="absolute top-3.5 right-3.5 w-2 h-2 rounded-full bg-accent-primary ring-2 ring-black" />
             </Link>
           </div>
 

@@ -7,7 +7,7 @@ import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { useTheme, useTranslation, useLanguage } from '@/app/providers'
 import {
   Sun, Moon, LogOut, Trash2, Download, Shield, Bell,
-  ChevronRight, ArrowLeftRight, LayoutGrid, Target
+  ChevronRight, ArrowLeftRight, LayoutGrid
 } from 'lucide-react'
 import Link from 'next/link'
 import { Language } from '@/lib/i18n/translations'
@@ -64,7 +64,7 @@ export default function SettingsPage() {
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 max-w-xl mx-auto w-full px-5 py-8 md:py-12">
         <header className="mb-10 animate-slide-up">
-          <h1 className="text-2xl font-bold tracking-tight">{t('common.settings')}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-primary">{t('common.settings')}</h1>
           <p className="text-[9px] font-black uppercase tracking-[0.25em] text-secondary mt-1">v0.5.0 • Vault Secured</p>
         </header>
 
@@ -73,7 +73,7 @@ export default function SettingsPage() {
           <div className="list-wrapper px-5 py-6 space-y-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-1">{t('settings.display_name')}</label>
-              <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} onBlur={handleUpdateProfile} className="w-full input-minimal" />
+              <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} onBlur={handleUpdateProfile} className="w-full input-minimal pr-2" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -97,8 +97,8 @@ export default function SettingsPage() {
           <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-3 px-1">{t('settings.appearance')} & {t('settings.manage')}</h2>
           <div className="list-wrapper">
             <SettingsRow icon={theme === 'dark' ? Moon : Sun} label={t('settings.theme')} value={theme === 'dark' ? 'DARK' : 'LIGHT'} onClick={toggleTheme} />
-            <Link href="/settings/accounts"><SettingsRow icon={ArrowLeftRight} label={t('nav.accounts')} /></Link>
-            <Link href="/settings/categories"><SettingsRow icon={LayoutGrid} label={t('nav.categories')} /></Link>
+            <Link href="/settings/accounts"><SettingsRow icon={ArrowLeftRight} label={t('settings.accounts')} /></Link>
+            <Link href="/settings/categories"><SettingsRow icon={LayoutGrid} label={t('settings.categories')} /></Link>
             <SettingsRow icon={Bell} label="Notifications" value={(typeof window !== 'undefined' && Notification.permission === 'granted') ? 'ON' : 'OFF'} onClick={async () => await requestNotificationPermission()} />
           </div>
         </section>
