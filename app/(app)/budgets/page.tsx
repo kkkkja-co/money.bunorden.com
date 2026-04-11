@@ -254,9 +254,9 @@ export default function BudgetsPage() {
               </div>
               {overallCap > 0 && (
                 <>
-                  <div className="h-2 rounded-full overflow-hidden mb-2" style={{ background: 'var(--overlay)' }}>
+                  <div className="h-3 rounded-full overflow-hidden mb-2 relative" style={{ background: 'var(--overlay)' }}>
                     <div
-                      className="h-full rounded-full transition-all"
+                      className="absolute top-0 left-0 h-full rounded-full transition-all shadow-[0_0_12px_rgba(175,82,222,0.2)]"
                       style={{
                         width: `${barPct(spentTotal, overallCap)}%`,
                         background:
@@ -330,15 +330,15 @@ export default function BudgetsPage() {
                         </div>
                       </div>
                       {cap > 0 && (
-                        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--overlay)' }}>
+                        <div className="h-3 rounded-full overflow-hidden relative" style={{ background: 'var(--overlay)' }}>
                           <div
-                            className="h-full rounded-full transition-all"
+                            className="absolute top-0 left-0 h-full rounded-full transition-all"
                             style={{
                               width: `${barPct(spent, cap)}%`,
                               background:
                                 spent > cap
                                   ? 'var(--danger)'
-                                  : 'linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))',
+                                  : 'var(--accent-primary)',
                             }}
                           />
                         </div>

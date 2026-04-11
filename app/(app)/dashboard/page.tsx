@@ -180,10 +180,10 @@ export default function DashboardPage() {
               </div>
               <span className="text-[10px] font-bold text-primary">{Math.round((budgetSpent / overallBudget) * 100)}%</span>
             </div>
-            <div className="h-2 w-full rounded-full bg-secondary border border-border overflow-hidden p-[2px]">
-              <div 
-                className={`h-full rounded-full transition-all duration-1000 ${budgetSpent > overallBudget ? 'bg-danger' : 'bg-accent-primary'}`} 
-                style={{ width: `${Math.min(100, (budgetSpent / overallBudget) * 100)}%` }} 
+            <div className="w-full h-3 bg-secondary rounded-full overflow-hidden mb-2 relative">
+              <div
+                className="absolute top-0 left-0 h-full bg-accent-primary transition-all duration-1000 shadow-[0_0_12px_rgba(175,82,222,0.3)]"
+                style={{ width: `${Math.min((budgetSpent / overallBudget) * 100, 100)}%` }}
               />
             </div>
             <p className="text-[10px] items-center font-bold text-secondary mt-2 px-1 text-center">
