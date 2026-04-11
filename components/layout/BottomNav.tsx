@@ -55,11 +55,13 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden pb-safe"
+      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden overflow-visible"
       style={{
-        background: 'rgba(12, 12, 14, 0.8)',
+        background: 'var(--bg-secondary)',
         backdropFilter: 'blur(32px)',
         borderTop: '1px solid var(--border)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 12px) + 20px)', /* Lifted higher */
+        WebkitBackdropFilter: 'blur(32px)',
       }}
     >
       <AnimatePresence>
@@ -70,10 +72,10 @@ export function BottomNav() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className="absolute bottom-full left-4 right-4 mb-4 p-3 rounded-[32px] shadow-2xl overflow-hidden border border-white/10"
-            style={{ background: 'rgba(12, 12, 14, 0.9)', backdropFilter: 'blur(32px)' }}
+            style={{ background: 'var(--bg-elevated)', backdropFilter: 'blur(32px)' }}
           >
             <div className="flex flex-col gap-2">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 opacity-40">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 opacity-40 text-secondary">
                 Insights
               </p>
               {analysisItems.map((item) => (
@@ -86,7 +88,7 @@ export function BottomNav() {
                     <item.icon size={20} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm tracking-tight">{item.label}</p>
+                    <p className="font-bold text-sm tracking-tight text-primary">{item.label}</p>
                     <p className="text-[10px] font-bold text-secondary uppercase tracking-widest truncate">{item.desc}</p>
                   </div>
                 </Link>
@@ -105,10 +107,10 @@ export function BottomNav() {
             return (
               <Link key={tab.href} href={tab.href!} className="relative w-12 h-12 flex items-center justify-center">
                 <div 
-                  className="absolute inset-0 rounded-2xl shadow-xl flex items-center justify-center"
+                  className="absolute inset-0 rounded-2xl shadow-xl flex items-center justify-center -top-4"
                   style={{ 
                     background: 'var(--accent-gradient)',
-                    boxShadow: '0 8px 16px rgba(175, 82, 222, 0.4)'
+                    boxShadow: '0 8px 24px rgba(175, 82, 222, 0.4)'
                   }}
                 >
                   <Icon size={22} color="#fff" strokeWidth={3} />
@@ -143,7 +145,7 @@ export function BottomNav() {
                   </span>
                 )}
               </div>
-              <span className={`text-[9px] font-black uppercase tracking-widest transition-colors ${isActive ? 'text-accent-primary' : 'text-secondary/50'}`}>
+              <span className={`text-[9px] font-black uppercase tracking-widest transition-colors opacity-70 ${isActive ? 'text-accent-primary' : 'text-secondary'}`}>
                 {tab.label}
               </span>
             </div>
