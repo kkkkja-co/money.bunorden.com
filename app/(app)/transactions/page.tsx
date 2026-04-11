@@ -8,6 +8,7 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 import { Trash2, X, TrendingUp, TrendingDown, ArrowLeftRight, Plus, Search, Edit2 } from 'lucide-react'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { motion, AnimatePresence } from 'framer-motion'
+import { PageSkeleton } from '@/components/ui/PageSkeleton'
 
 interface Transaction {
   id: string
@@ -152,11 +153,7 @@ export default function TransactionsPage() {
 
         {/* List */}
         {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="skeleton h-16 rounded-2xl" />
-            ))}
-          </div>
+          <PageSkeleton />
         ) : filtered.length === 0 ? (
           <div className="glass-card text-center py-16 animate-fade-up">
             <div className="text-5xl mb-4">{search ? '🔍' : '📝'}</div>

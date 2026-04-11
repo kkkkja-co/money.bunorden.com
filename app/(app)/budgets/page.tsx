@@ -8,6 +8,7 @@ import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency } from '@/lib/utils'
 import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react'
 import { useTranslation, useLanguage } from '@/app/providers'
+import { PageSkeleton } from '@/components/ui/PageSkeleton'
 
 interface Category {
   id: string
@@ -215,11 +216,7 @@ export default function BudgetsPage() {
         </div>
 
         {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="skeleton h-24 rounded-2xl" />
-            ))}
-          </div>
+          <PageSkeleton />
         ) : (
           <>
             {/* Overall */}

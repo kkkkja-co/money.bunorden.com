@@ -14,6 +14,7 @@ import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip,
   BarChart, Bar, XAxis, YAxis, Legend, CartesianGrid 
 } from 'recharts'
+import { PageSkeleton } from '@/components/ui/PageSkeleton'
 
 interface CategoryTotal {
   name: string
@@ -173,11 +174,7 @@ export default function ReportsPage() {
         </header>
 
         {loading ? (
-          <div className="space-y-4">
-            <div className="skeleton h-32 rounded-3xl" />
-            <div className="skeleton h-64 rounded-3xl" />
-            <div className="skeleton h-96 rounded-3xl" />
-          </div>
+          <PageSkeleton />
         ) : categoryTotals.length === 0 ? (
           <div className="glass-card text-center py-20 animate-fade-up">
             <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">

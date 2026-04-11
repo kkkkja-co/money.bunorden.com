@@ -16,6 +16,7 @@ import { useTranslation, useLanguage } from '@/app/providers'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import { ProductTour } from '@/components/ui/ProductTour'
 import { NewFeaturePopup } from '@/components/ui/NewFeaturePopup'
+import { PageSkeleton } from '@/components/ui/PageSkeleton'
 
 const COLORS = [
   '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444', 
@@ -147,12 +148,8 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin"
-            style={{ borderColor: 'var(--accent-primary)', borderTopColor: 'transparent' }} />
-          <span className="text-sm" style={{ color: 'var(--text-tertiary)' }}>{t('common.loading')}</span>
-        </div>
+      <div className="flex flex-col min-h-screen">
+        <PageSkeleton />
       </div>
     )
   }
