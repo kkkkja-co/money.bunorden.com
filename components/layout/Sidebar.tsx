@@ -30,9 +30,7 @@ export function Sidebar() {
       }}
     >
       <Link href="/dashboard" className="flex items-center gap-3 px-6 py-10 transition-transform active:scale-95">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-accent-primary shadow-lg shadow-accent-primary/20">
-           <img src={logoSrc} alt="Clavi" className="w-5 h-5 object-contain" />
-        </div>
+        <img src={logoSrc} alt="Clavi" className="w-8 h-8 object-contain" />
         <span className="font-bold text-xl tracking-tight text-primary">Clavi</span>
       </Link>
 

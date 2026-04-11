@@ -103,10 +103,10 @@ export default function DashboardPage() {
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary opacity-60">
               {new Date().toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
             </p>
-            <Link href="/settings" className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative active:scale-95 transition-all hover:bg-white/10">
+            <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative transition-all">
               <Bell size={20} className="text-primary" />
               <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-accent-primary ring-2 ring-bg-primary" />
-            </Link>
+            </div>
           </div>
           
           <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-primary mb-2">
