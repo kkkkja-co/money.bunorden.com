@@ -533,7 +533,7 @@ function AddTransactionForm() {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="input-minimal w-full"
+              className="input-minimal w-full box-border max-w-full"
               required
             />
           </div>
@@ -600,7 +600,7 @@ function AddTransactionForm() {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={t('transactions.note_placeholder')}
-              className="input-minimal w-full"
+              className="input-minimal w-full box-border max-w-full"
               maxLength={280}
             />
           </div>
@@ -615,7 +615,7 @@ function AddTransactionForm() {
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder={t('transactions.tags_placeholder')}
-              className="input-minimal w-full"
+              className="input-minimal w-full box-border max-w-full"
             />
             <p className="text-[10px] mt-1.5" style={{ color: 'var(--text-tertiary)' }}>{t('transactions.tags_hint')}</p>
           </div>
