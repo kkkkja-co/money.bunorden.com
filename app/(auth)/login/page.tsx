@@ -41,9 +41,28 @@ export default function LoginPage() {
     }
     checkSession()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session) {
-        router.push('/dashboard')
+        // Check if MFA is required
+        const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+        
+        if (mfaData) {
+          const { currentLevel, nextLevel } = mfaData
+          if (currentLevel === nextLevel) {
+            router.push('/dashboard')
+          } else if (nextLevel === 'aal2') {
+            // If MFA is required (nextLevel is aal2 but current is aal1)
+            const { data: factors } = await supabase.auth.mfa.listFactors()
+            if (factors && factors.all.length > 0) {
+              setMfaFactors(factors.all)
+              setShowMfa(true)
+            } else {
+              router.push('/dashboard')
+            }
+          }
+        } else {
+          router.push('/dashboard')
+        }
       }
     })
 
