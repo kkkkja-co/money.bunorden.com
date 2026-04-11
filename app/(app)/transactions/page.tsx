@@ -320,4 +320,6 @@ export default function TransactionsPage() {
       )}
     </div>
   )
+    </div>
+  )
 }
