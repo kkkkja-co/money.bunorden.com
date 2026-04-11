@@ -191,7 +191,6 @@ export default function TransactionsPage() {
               </button>
             )}
           </div>
-          </div>
 
           {/* Category Filter */}
           {uniqueCategories.length > 0 && (
