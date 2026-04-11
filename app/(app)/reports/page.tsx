@@ -7,7 +7,7 @@ import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency } from '@/lib/utils'
 import { 
   BarChart3, PieChart as PieChartIcon, TrendingUp, TrendingDown, 
-  ChevronRight, Filter, SortAsc, LayoutGrid, List
+  ChevronRight, Filter, SortAsc, LayoutGrid, List, Eye, EyeOff
 } from 'lucide-react'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { 
@@ -47,6 +47,20 @@ export default function ReportsPage() {
   const [viewType, setViewType] = useState<'categories' | 'monthly'>('categories')
   const [sortBy, setSortBy] = useState<'amount' | 'name'>('amount')
   const [filterType, setFilterType] = useState<'income' | 'expense'>('expense')
+  const [isVisible, setIsVisible] = useState(true)
+
+  useEffect(() => {
+    const saved = localStorage.getItem('clavi-balance-visible')
+    if (saved !== null) setIsVisible(saved === 'true')
+  }, [])
+
+  const toggleVisibility = () => {
+    setIsVisible(prev => {
+      const next = !prev
+      localStorage.setItem('clavi-balance-visible', String(next))
+      return next
+    })
+  }
 
   const fetchData = useCallback(async () => {
     try {
@@ -184,8 +198,17 @@ export default function ReportsPage() {
           <div className="space-y-8 pb-10">
             {/* Assets Overview Pie Chart */}
             <div className="glass-card animate-fade-up delay-1 overflow-hidden">
-              <h3 className="text-sm font-bold mb-6 px-1" style={{ color: 'var(--text-primary)' }}>{t('reports.assets_overview')}</h3>
-              <div className="h-[240px] w-full relative">
+              <div className="flex items-center justify-between mb-6 px-1">
+                <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{t('reports.assets_overview')}</h3>
+                <button
+                  onClick={toggleVisibility}
+                  className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
+                  {isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+                </button>
+              </div>
+              <div className="h-[280px] w-full relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -193,23 +216,23 @@ export default function ReportsPage() {
                         { name: t('reports.total_earned'), value: totalIncome },
                         { name: t('reports.total_spent'), value: totalExpense }
                       ]}
-                      innerRadius={70}
-                      outerRadius={90}
+                      innerRadius={85}
+                      outerRadius={110}
                       paddingAngle={8}
                       dataKey="value"
-                      cornerRadius={8}
+                      cornerRadius={12}
                     >
                       <Cell fill="var(--success)" />
                       <Cell fill="var(--danger)" />
                     </Pie>
                     <RechartsTooltip content={<CustomTooltip />} />
-                    <Legend verticalAlign="bottom" height={36}/>
+                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none" style={{ marginTop: '-18px' }}>
                   <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>{t('dashboard.balance_title')}</p>
                   <p className="text-2xl font-black" style={{ color: totalIncome - totalExpense >= 0 ? 'var(--success)' : 'var(--danger)' }}>
-                    {formatCurrency(totalIncome - totalExpense, currency)}
+                    {isVisible ? formatCurrency(totalIncome - totalExpense, currency) : '••••••'}
                   </p>
                 </div>
               </div>
@@ -223,7 +246,7 @@ export default function ReportsPage() {
                 </div>
                 <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-tertiary)' }}>{t('reports.total_income')}</p>
                 <p className="text-xl font-bold" style={{ color: 'var(--success)' }}>
-                  {formatCurrency(totalIncome, currency)}
+                  {isVisible ? formatCurrency(totalIncome, currency) : '••••'}
                 </p>
               </div>
               <div className="glass-card flex flex-col items-center text-center">
@@ -232,7 +255,7 @@ export default function ReportsPage() {
                 </div>
                 <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-tertiary)' }}>{t('reports.total_expenses')}</p>
                 <p className="text-xl font-bold" style={{ color: 'var(--danger)' }}>
-                  {formatCurrency(totalExpense, currency)}
+                  {isVisible ? formatCurrency(totalExpense, currency) : '••••'}
                 </p>
               </div>
             </div>
@@ -305,16 +328,18 @@ export default function ReportsPage() {
                     </div>
                   </div>
 
-                  <div className="h-[280px] w-full relative">
+                  <div className="h-[320px] w-full relative">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={chartData}
                           innerRadius={80}
-                          outerRadius={100}
+                          outerRadius={105}
                           paddingAngle={5}
                           dataKey="value"
                           cornerRadius={10}
+                          cx="50%"
+                          cy="45%"
                         >
                           {chartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -322,22 +347,22 @@ export default function ReportsPage() {
                         </Pie>
                         <RechartsTooltip content={<CustomTooltip />} />
                         <Legend 
-                          layout="vertical" 
-                          verticalAlign="middle" 
-                          align="right"
+                          verticalAlign="bottom" 
+                          align="center"
                           iconType="circle"
-                          formatter={(value, entry: any) => (
-                            <span className="text-xs font-medium ml-1" style={{ color: 'var(--text-tertiary)' }}>
+                          wrapperStyle={{ paddingTop: '20px' }}
+                          formatter={(value) => (
+                            <span className="text-[10px] font-medium ml-1" style={{ color: 'var(--text-tertiary)' }}>
                               {value}
                             </span>
                           )}
                         />
                       </PieChart>
                     </ResponsiveContainer>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none" style={{ left: '42%' }}>
+                    <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
                       <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>{t('common.total')}</p>
                       <p className="text-xl font-black" style={{ color: 'var(--text-primary)' }}>
-                        {formatCurrency(filterType === 'income' ? totalIncome : totalExpense, currency)}
+                        {isVisible ? formatCurrency(filterType === 'income' ? totalIncome : totalExpense, currency) : '••••'}
                       </p>
                     </div>
                   </div>
