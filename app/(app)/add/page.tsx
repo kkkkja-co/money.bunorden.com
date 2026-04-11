@@ -528,16 +528,22 @@ function AddTransactionForm() {
             <label htmlFor="date-input" className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">
               {t('transactions.date')}
             </label>
-            <div className="relative w-full group">
-              <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none z-10 group-focus-within:text-[var(--accent-primary)] transition-colors" />
+            <div className="relative w-full h-[56px] group">
               <input
                 id="date-input"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="input-minimal w-full pl-12 pr-4 py-4 text-center font-bold"
+                className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-20"
+                style={{ colorScheme: 'dark' }}
                 required
               />
+              <div className="absolute inset-0 surface-elevated-interactive py-4 px-4 flex items-center justify-center z-10 pointer-events-none">
+                <Calendar size={18} className="absolute left-4 text-[var(--text-secondary)] group-hover:text-[var(--accent-primary)] transition-colors" />
+                <span className="font-bold text-[var(--text-primary)]">
+                  {date ? new Date(date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : t('common.default')}
+                </span>
+              </div>
             </div>
           </div>
 

@@ -124,21 +124,24 @@
     border-color: var(--accent-primary);
   }
 
-  /* ── Custom Date Picker Styling ── */
   input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.5); /* Make it visible but subtle */
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
     cursor: pointer;
   }
 
-  input[type="date"]::-webkit-datetime-edit {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-  }
-
   input[type="date"] {
-    position: relative;
+    -webkit-appearance: none;
+    appearance: none;
     text-align: center;
+    min-height: 48px; /* Better tap target for mobile */
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 

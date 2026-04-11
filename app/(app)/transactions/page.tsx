@@ -161,28 +161,40 @@ export default function TransactionsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label htmlFor="start-date" className="block text-[9px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 ml-1">From</label>
-                <div className="relative group">
-                  <Calendar size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none z-10 group-focus-within:text-[var(--accent-primary)] transition-colors" />
+                <div className="relative group w-full h-[48px]">
                   <input
                     id="start-date"
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="input-minimal pl-11 py-3 text-sm w-full transition-all hover:bg-white/5"
+                    className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-20"
+                    style={{ colorScheme: 'dark' }}
                   />
+                  <div className="absolute inset-0 surface-elevated-interactive py-3 px-4 flex items-center justify-center z-10 pointer-events-none">
+                    <Calendar size={14} className="absolute left-4 text-[var(--text-secondary)] group-hover:text-[var(--accent-primary)] transition-colors" />
+                    <span className="text-sm font-bold text-[var(--text-primary)]">
+                      {startDate ? new Date(startDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : 'Any'}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div>
                 <label htmlFor="end-date" className="block text-[9px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 ml-1">To</label>
-                <div className="relative group">
-                  <Calendar size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none z-10 group-focus-within:text-[var(--accent-primary)] transition-colors" />
+                <div className="relative group w-full h-[48px]">
                   <input
                     id="end-date"
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="input-minimal pl-11 py-3 text-sm w-full transition-all hover:bg-white/5"
+                    className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-20"
+                    style={{ colorScheme: 'dark' }}
                   />
+                  <div className="absolute inset-0 surface-elevated-interactive py-3 px-4 flex items-center justify-center z-10 pointer-events-none">
+                    <Calendar size={14} className="absolute left-4 text-[var(--text-secondary)] group-hover:text-[var(--accent-primary)] transition-colors" />
+                    <span className="text-sm font-bold text-[var(--text-primary)]">
+                      {endDate ? new Date(endDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : 'Any'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
