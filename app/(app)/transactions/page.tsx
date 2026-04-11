@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { Trash2, Plus, Search, Edit2, ArrowLeft } from 'lucide-react'
+import { Trash2, Plus, Search, Edit2, ArrowLeft, Calendar, X } from 'lucide-react'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
 
@@ -31,6 +31,9 @@ export default function TransactionsPage() {
   const [deleting, setDeleting] = useState(false)
   const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all')
   const [search, setSearch] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
 
   const fetchTransactions = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -67,10 +70,32 @@ export default function TransactionsPage() {
   }
 
   const filtered = transactions.filter(t => {
-    if (!search) return true
-    const s = search.toLowerCase()
-    return t.note?.toLowerCase().includes(s) || t.category?.name.toLowerCase().includes(s) || (t.tags || []).some(tag => tag.toLowerCase().includes(s))
+    // Search filter
+    if (search) {
+      const s = search.toLowerCase()
+      if (!t.note?.toLowerCase().includes(s) && !t.category?.name.toLowerCase().includes(s) && !(t.tags || []).some(tag => tag.toLowerCase().includes(s))) {
+        return false
+      }
+    }
+
+    // Date range filter
+    if (startDate && t.date < startDate) return false
+    if (endDate && t.date > endDate) return false
+
+    // Category filter
+    if (selectedCategories.length > 0) {
+      if (!t.category || !selectedCategories.includes(t.category.name)) return false
+    }
+
+    return true
   })
+
+  // Get unique categories from filtered transactions
+  const uniqueCategories = Array.from(new Set(
+    transactions
+      .filter(t => t.category)
+      .map(t => t.category!.name)
+  )).sort()
 
   const grouped: Record<string, Transaction[]> = {}
   filtered.forEach(t => {
@@ -105,6 +130,72 @@ export default function TransactionsPage() {
               className="w-full input-minimal pl-11 py-4"
             />
           </div>
+
+          {/* Date Range Picker */}
+          <div className="flex gap-2 items-center">
+            <div className="flex-1 relative">
+              <Calendar size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none" />
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="input-minimal pl-11 py-3 text-[13px] w-full"
+              />
+            </div>
+            <span className="text-secondary text-xs font-medium">to</span>
+            <div className="flex-1 relative">
+              <Calendar size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none" />
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="input-minimal pl-11 py-3 text-[13px] w-full"
+              />
+            </div>
+            {(startDate || endDate) && (
+              <button
+                onClick={() => { setStartDate(''); setEndDate('') }}
+                className="w-9 h-9 rounded-xl bg-secondary border border-border flex items-center justify-center hover:bg-secondary/80 transition-colors"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Category Filter */}
+          {uniqueCategories.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedCategories([])}
+                className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  selectedCategories.length === 0
+                    ? 'bg-accent-primary border-accent-primary text-white'
+                    : 'bg-secondary border-border text-secondary hover:bg-secondary/80'
+                }`}
+              >
+                All Categories
+              </button>
+              {uniqueCategories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    setSelectedCategories(prev =>
+                      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+                    )
+                  }}
+                  className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                    selectedCategories.includes(cat)
+                      ? 'bg-accent-primary border-accent-primary text-white'
+                      : 'bg-secondary border-border text-secondary hover:bg-secondary/80'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Type Filter */}
           <div className="flex gap-2">
             {(['all', 'income', 'expense'] as const).map((f) => (
               <button
