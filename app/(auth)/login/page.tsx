@@ -181,7 +181,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
+    <div className="min-h-screen flex flex-col items-center px-4 py-8 overflow-y-auto">
       {/* Background gradient orbs */}
       <div
         className="fixed inset-0 pointer-events-none"
@@ -215,7 +215,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="w-full max-w-sm relative z-10">
+      <div className="w-full max-w-sm relative z-10 flex flex-col my-auto">
         {/* Logo */}
         <div className="text-center mb-10 animate-slide-up">
           <div
