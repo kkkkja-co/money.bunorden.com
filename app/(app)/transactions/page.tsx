@@ -155,29 +155,31 @@ export default function TransactionsPage() {
           </div>
 
           {/* Date Range Picker */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 items-end auto-cols-fr overflow-x-auto">
-            <div className="min-w-0">
-              <label className="block text-[9px] font-black uppercase tracking-widest text-secondary mb-1.5">From</label>
-              <div className="relative">
-                <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10" />
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="input-minimal pl-10 py-2.5 text-[12px] w-full"
-                />
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[9px] font-black uppercase tracking-widest text-secondary mb-1.5">From</label>
+                <div className="relative">
+                  <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10" />
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="input-minimal pl-10 py-2.5 text-[12px] w-full"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="min-w-0">
-              <label className="block text-[9px] font-black uppercase tracking-widest text-secondary mb-1.5">To</label>
-              <div className="relative">
-                <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10" />
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="input-minimal pl-10 py-2.5 text-[12px] w-full"
-                />
+              <div>
+                <label className="block text-[9px] font-black uppercase tracking-widest text-secondary mb-1.5">To</label>
+                <div className="relative">
+                  <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10" />
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="input-minimal pl-10 py-2.5 text-[12px] w-full"
+                  />
+                </div>
               </div>
             </div>
             {(startDate || endDate) && (
@@ -188,6 +190,7 @@ export default function TransactionsPage() {
                 Clear
               </button>
             )}
+          </div>
           </div>
 
           {/* Category Filter */}

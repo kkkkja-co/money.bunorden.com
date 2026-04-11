@@ -528,11 +528,11 @@ function AddTransactionForm() {
           )}
 
           {/* Date */}
-          <div className="animate-slide-up delay-4 min-w-0 overflow-hidden">
+          <div className="animate-slide-up delay-4">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
               {t('transactions.date')}
             </label>
-            <div className="relative">
+            <div className="relative w-full">
               <input
                 type="date"
                 value={date}
