@@ -155,8 +155,8 @@ export default function TransactionsPage() {
           </div>
 
           {/* Date Range Picker */}
-          <div className="grid grid-cols-3 gap-2 items-end">
-            <div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 items-end auto-cols-fr overflow-x-auto">
+            <div className="min-w-0">
               <label className="block text-[9px] font-black uppercase tracking-widest text-secondary mb-1.5">From</label>
               <div className="relative">
                 <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10" />
@@ -168,7 +168,7 @@ export default function TransactionsPage() {
                 />
               </div>
             </div>
-            <div>
+            <div className="min-w-0">
               <label className="block text-[9px] font-black uppercase tracking-widest text-secondary mb-1.5">To</label>
               <div className="relative">
                 <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10" />
@@ -198,7 +198,7 @@ export default function TransactionsPage() {
                 className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
                   selectedCategories.length === 0
                     ? 'bg-accent-primary border-accent-primary text-white'
-                    : 'bg-secondary border-border text-secondary hover:bg-secondary/80'
+                    : 'bg-secondary border-border text-primary hover:bg-secondary/80'
                 }`}
               >
                 All Categories
@@ -230,7 +230,7 @@ export default function TransactionsPage() {
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`flex-1 py-3 px-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  filter === f ? 'bg-accent-primary border-accent-primary text-white shadow-lg shadow-accent-primary/20' : 'bg-secondary border-border text-secondary'
+                  filter === f ? 'bg-accent-primary border-accent-primary text-white shadow-lg shadow-accent-primary/20' : 'bg-secondary border-border text-primary'
                 }`}
               >
                 {t(`transactions.filter_${f}`)}

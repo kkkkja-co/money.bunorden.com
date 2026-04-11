@@ -528,17 +528,19 @@ function AddTransactionForm() {
           )}
 
           {/* Date */}
-          <div className="animate-slide-up delay-4">
+          <div className="animate-slide-up delay-4 min-w-0 overflow-hidden">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
               {t('transactions.date')}
             </label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="input-minimal w-full box-border max-w-full"
-              required
-            />
+            <div className="relative">
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="input-minimal w-full pl-10 pr-4 py-3"
+                required
+              />
+            </div>
           </div>
 
           {/* Recurring */}
