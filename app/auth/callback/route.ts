@@ -33,6 +33,9 @@ export async function GET(request: Request) {
     }
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/login?error=auth-failure`)
+  // If we reach here, either there was no code, or the code exchange failed.
+  // We redirect to dashboard anyway because if it was an implicit flow (hash-based),
+  // the client-side Supabase instance will pick up the session from the URL hash.
+  // If there's truly no session, the dashboard's own auth check will redirect to login.
+  return NextResponse.redirect(`${origin}/dashboard`)
 }
