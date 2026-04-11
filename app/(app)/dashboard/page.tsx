@@ -126,15 +126,17 @@ export default function DashboardPage() {
       ;(monthTx || []).forEach(t => {
         const amt = Number(t.amount)
         if (t.type === 'income') {
-          inc += amt
+          if (!t.exclude_from_budget) inc += amt
         } else if (t.type === 'expense') {
-          exp += amt // Actual total
-          if (!t.exclude_from_budget) bSpent += amt // Only what counts for budget
-          
-          const cat = Array.isArray(t.category) ? t.category[0] : t.category
-          const catName = cat?.name || 'Other'
-          if (!chartMap[catName]) chartMap[catName] = { name: catName, value: 0 }
-          chartMap[catName].value += amt
+          if (!t.exclude_from_budget) {
+            exp += amt
+            bSpent += amt
+            
+            const cat = Array.isArray(t.category) ? t.category[0] : t.category
+            const catName = cat?.name || 'Other'
+            if (!chartMap[catName]) chartMap[catName] = { name: catName, value: 0 }
+            chartMap[catName].value += amt
+          }
         }
       })
 
@@ -341,16 +343,7 @@ export default function DashboardPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={Object.values(
-                        transactions
-                          .filter(t => t.type === 'expense')
-                          .reduce((acc: any, t) => {
-                            const name = t.category?.name || 'Other'
-                            if (!acc[name]) acc[name] = { name, value: 0 }
-                            acc[name].value += Number(t.amount)
-                            return acc
-                          }, {})
-                      ).sort((a: any, b: any) => b.value - a.value).slice(0, 5)}
+                      data={chartData.slice(0, 5)}
                       innerRadius={60}
                       outerRadius={80}
                       paddingAngle={4}

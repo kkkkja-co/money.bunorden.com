@@ -19,6 +19,7 @@ interface Transaction {
   note: string | null
   tags: string[] | null
   category: { name: string; icon: string } | null
+  exclude_from_budget: boolean
 }
 
 export default function TransactionsPage() {
@@ -39,7 +40,7 @@ export default function TransactionsPage() {
 
     let query = supabase
       .from('transactions')
-      .select('id, type, amount, currency, date, note, tags, category:categories(name, icon)')
+      .select('id, type, amount, currency, date, note, tags, exclude_from_budget, category:categories(name, icon)')
       .eq('user_id', user.id)
       .order('date', { ascending: false })
 
@@ -186,7 +187,7 @@ export default function TransactionsPage() {
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, x: -20 }}
-                        className="glass-card flex items-center gap-3 py-3 px-4 group"
+                        className={`glass-card flex items-center gap-3 py-3 px-4 group transition-opacity ${tx.exclude_from_budget ? 'opacity-60' : 'opacity-100'}`}
                       >
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
@@ -201,6 +202,11 @@ export default function TransactionsPage() {
                         <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
                           {formatDate(tx.date)}
                           {tx.note && tx.category?.name ? ` · ${tx.note}` : ''}
+                          {tx.exclude_from_budget && (
+                            <span className="ml-2 py-0.5 px-1.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-white/5 border border-white/10 text-tertiary">
+                              {language === 'zh-TW' ? '已排除' : 'Excluded'}
+                            </span>
+                          )}
                         </p>
                         {(tx.tags?.length ?? 0) > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1.5">
