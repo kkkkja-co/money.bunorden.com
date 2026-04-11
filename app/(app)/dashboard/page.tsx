@@ -313,16 +313,17 @@ export default function DashboardPage() {
         </div>
 
         {/* Dashboard Chart Preview */}
-        {transactions.length > 0 && (
+        {transactions.length > 0 && totals.expense > 0 && (
           <div id="tour-analytics" className="glass-card mb-6 animate-fade-up delay-2 overflow-hidden">
-            <div className="flex items-center justify-between mb-4 px-1">
+            <div className="flex items-center justify-between mb-6 px-1">
               <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{t('reports.expenses_by_category')}</h3>
               <Link href="/reports" className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--accent-primary)' }}>
                 {t('common.view_all')}
               </Link>
             </div>
-            <div className="h-[140px] w-full flex items-center gap-4">
-              <div className="w-1/2 h-full">
+            
+            <div className="flex flex-col items-center">
+              <div className="h-[180px] w-full relative mb-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -335,12 +336,15 @@ export default function DashboardPage() {
                             acc[name].value += Number(t.amount)
                             return acc
                           }, {})
-                      ).slice(0, 5)}
-                      innerRadius={45}
-                      outerRadius={60}
+                      ).sort((a: any, b: any) => b.value - a.value).slice(0, 5)}
+                      innerRadius={60}
+                      outerRadius={80}
                       paddingAngle={4}
                       dataKey="value"
-                      cornerRadius={4}
+                      cornerRadius={6}
+                      cx="50%"
+                      cy="50%"
+                      stroke="none"
                     >
                       {COLORS.map((color, index) => (
                         <Cell key={`cell-${index}`} fill={color} />
@@ -348,8 +352,15 @@ export default function DashboardPage() {
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>{t('common.total')}</p>
+                  <p className="text-lg font-black" style={{ color: 'var(--text-primary)' }}>
+                    {isVisible ? formatCurrency(totals.expense, currency) : '••••'}
+                  </p>
+                </div>
               </div>
-              <div className="w-1/2 space-y-2">
+
+              <div className="w-full grid grid-cols-2 gap-x-6 gap-y-2 px-2">
                 {Object.values(
                   transactions
                     .filter(t => t.type === 'expense')
@@ -360,19 +371,19 @@ export default function DashboardPage() {
                       return acc
                     }, {})
                 )
-                .sort((a: any, b: any) => b.value - a.value)
-                .slice(0, 3)
-                .map((item: any, i) => (
-                  <div key={item.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
-                      <span className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>{item.name}</span>
+                  .sort((a: any, b: any) => b.value - a.value)
+                  .slice(0, 4)
+                  .map((item: any, i) => (
+                    <div key={item.name} className="flex items-center justify-between overflow-hidden">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                        <span className="text-[11px] font-medium truncate" style={{ color: 'var(--text-secondary)' }}>{item.name}</span>
+                      </div>
+                      <span className="text-[10px] font-bold flex-shrink-0" style={{ color: 'var(--text-primary)' }}>
+                        {isVisible ? `${Math.round((item.value / totals.expense) * 100)}%` : '••%'}
+                      </span>
                     </div>
-                    <span className="text-[10px] font-bold" style={{ color: 'var(--text-primary)' }}>
-                      {isVisible ? `${Math.round((item.value / totals.expense) * 100)}%` : '••%'}
-                    </span>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           </div>
