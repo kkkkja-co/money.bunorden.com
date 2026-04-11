@@ -19,6 +19,9 @@ export function Sidebar() {
     { href: '/settings', icon: Settings, label: t('nav.settings') },
   ]
 
+  // Choose logo based on theme
+  const logoSrc = theme === 'light' ? '/assets/clavi-icon-light.svg' : '/assets/clavi-icon-dark.svg'
+
   return (
     <aside
       className="hidden lg:flex flex-col w-64 h-screen fixed left-0 top-0 z-40"
@@ -29,7 +32,7 @@ export function Sidebar() {
     >
       <Link href="/dashboard" className="flex items-center gap-4 px-8 py-10">
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-accent-primary transform rotate-12 shadow-xl shadow-accent-primary/20">
-           <img src="/assets/clavi-icon-dark.svg" alt="Clavi" className="w-6 h-6 -rotate-12" />
+           <img src={logoSrc} alt="Clavi" className="w-6 h-6 -rotate-12 transition-all duration-300" />
         </div>
         <span className="font-black text-2xl tracking-tighter">Clavi</span>
       </Link>

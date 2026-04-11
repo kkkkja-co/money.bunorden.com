@@ -7,7 +7,7 @@ import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { useTheme, useTranslation, useLanguage } from '@/app/providers'
 import {
   Sun, Moon, LogOut, Trash2, Download, Shield, Bell,
-  ChevronRight, ArrowLeftRight, LayoutGrid, Target, ArrowLeft
+  ChevronRight, ArrowLeftRight, LayoutGrid, Target
 } from 'lucide-react'
 import Link from 'next/link'
 import { Language } from '@/lib/i18n/translations'
@@ -46,10 +46,7 @@ export default function SettingsPage() {
   }
 
   const SettingsRow = ({ icon: Icon, label, value, onClick, danger }: any) => (
-    <button 
-      onClick={onClick}
-      className="list-item w-full text-left"
-    >
+    <button onClick={onClick} className="list-item w-full text-left">
       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${danger ? 'bg-danger/10 text-danger' : 'bg-primary/5 text-secondary'}`}>
         <Icon size={16} />
       </div>
@@ -66,13 +63,9 @@ export default function SettingsPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 max-w-xl mx-auto w-full px-5 py-8 md:py-12">
-        <header className="flex items-center gap-4 mb-10 animate-slide-up">
-          <button onClick={() => router.back()} className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center border border-border">
-            <ArrowLeft size={18} />
-          </button>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold tracking-tight">{t('common.settings')}</h1>
-          </div>
+        <header className="mb-10 animate-slide-up">
+          <h1 className="text-2xl font-bold tracking-tight">{t('common.settings')}</h1>
+          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-secondary mt-1">v0.5.0 • Vault Secured</p>
         </header>
 
         <section className="animate-slide-up delay-1 mb-10">
@@ -80,13 +73,7 @@ export default function SettingsPage() {
           <div className="list-wrapper px-5 py-6 space-y-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-1">{t('settings.display_name')}</label>
-              <input
-                type="text"
-                value={profileName}
-                onChange={(e) => setProfileName(e.target.value)}
-                onBlur={handleUpdateProfile}
-                className="w-full input-minimal"
-              />
+              <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} onBlur={handleUpdateProfile} className="w-full input-minimal" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -110,8 +97,8 @@ export default function SettingsPage() {
           <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-3 px-1">{t('settings.appearance')} & {t('settings.manage')}</h2>
           <div className="list-wrapper">
             <SettingsRow icon={theme === 'dark' ? Moon : Sun} label={t('settings.theme')} value={theme === 'dark' ? 'DARK' : 'LIGHT'} onClick={toggleTheme} />
-            <Link href="/settings/accounts"><SettingsRow icon={ArrowLeftRight} label={t('settings.accounts')} /></Link>
-            <Link href="/settings/categories"><SettingsRow icon={LayoutGrid} label={t('settings.categories')} /></Link>
+            <Link href="/settings/accounts"><SettingsRow icon={ArrowLeftRight} label={t('nav.accounts')} /></Link>
+            <Link href="/settings/categories"><SettingsRow icon={LayoutGrid} label={t('nav.categories')} /></Link>
             <SettingsRow icon={Bell} label="Notifications" value={(typeof window !== 'undefined' && Notification.permission === 'granted') ? 'ON' : 'OFF'} onClick={async () => await requestNotificationPermission()} />
           </div>
         </section>

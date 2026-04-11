@@ -97,18 +97,20 @@ export default function DashboardPage() {
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 max-w-2xl mx-auto w-full px-5 py-8 md:py-12">
         
-        {/* Unified Header Group */}
+        {/* Unified Header Group (Fixed Overlap Bub) */}
         <section className="animate-slide-up mb-12">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-1">
+          <div className="flex items-center justify-between gap-4 mb-10">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-1 truncate">
                 {new Date().toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
               </p>
-              <h1 className="text-2xl font-bold tracking-tight">{t('common.welcome')}, {profile?.display_name?.split(' ')[0]}</h1>
+              <h1 className="text-2xl font-bold tracking-tight truncate">
+                {t('common.welcome')}, {profile?.display_name?.split(' ')[0]}
+              </h1>
             </div>
-            <Link href="/settings" className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center relative">
+            <Link href="/settings" className="flex-shrink-0 w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center relative active:scale-95 transition-transform">
               <Bell size={18} className="text-secondary" />
-              <div className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-accent-primary ring-2 ring-black" />
+              <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-accent-primary ring-2 ring-black" />
             </Link>
           </div>
 
