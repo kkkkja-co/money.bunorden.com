@@ -1,6 +1,6 @@
 'use client'
 
-import { Scale, ArrowLeft, Heart, Zap, Globe } from 'lucide-react'
+import { Scale, ArrowLeft, Heart, Zap, Globe, Shield } from 'lucide-react'
 import { MarketingSection } from '@/components/layout/MarketingPageShell'
 import { useTranslation } from '@/app/providers'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
@@ -47,7 +47,7 @@ export default function TermsPage() {
                 <p className="text-xs text-secondary leading-normal">You are responsible for the accuracy of the data you enter into the vault. Clavi is a visualization tool, not a financial advisor.</p>
               </div>
               <div className="p-6 rounded-2xl bg-primary/5 border border-border">
-                <Lock size={20} className="mb-3 text-accent-primary" />
+                <Shield size={20} className="mb-3 text-accent-primary" />
                 <h4 className="font-bold text-sm mb-1 text-primary">Vault Security</h4>
                 <p className="text-xs text-secondary leading-normal">You are solely responsible for maintaining the security of your account credentials and MFA keys.</p>
               </div>
