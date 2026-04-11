@@ -8,7 +8,8 @@ import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { 
   Plus, TrendingUp, TrendingDown,
-  ChevronRight, Shield, X, Eye, EyeOff, Target
+  ChevronRight, Shield, X, Eye, EyeOff, Target,
+  AlertTriangle, Sparkles
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import { useTranslation, useLanguage } from '@/app/providers'
