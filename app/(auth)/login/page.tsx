@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
-import { Eye, EyeOff, LogIn, Shield, ArrowLeft, Languages } from 'lucide-react'
+import { Eye, EyeOff, LogIn, Shield, ArrowLeft, Languages, Mail } from 'lucide-react'
 import { useTranslation, useTheme, useLanguage } from '@/app/providers'
 import { TurnstileWidget } from '../TurnstileWidget'
 import { SocialAuth } from '@/components/auth/SocialAuth'
@@ -30,6 +30,7 @@ export default function LoginPage() {
   const [mfaCode, setMfaCode] = useState('')
   const [mfaFactors, setMfaFactors] = useState<any[]>([])
 
+  const [magicLinkSent, setMagicLinkSent] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -68,6 +69,29 @@ export default function LoginPage() {
 
     return () => subscription.unsubscribe()
   }, [router])
+
+  const handleMagicLink = async () => {
+    if (!email) {
+      setError('Please enter your email first.')
+      return
+    }
+    setError('')
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+      if (error) throw error
+      setMagicLinkSent(true)
+    } catch (err: any) {
+      setError(err.message || 'Failed to send magic link')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -217,17 +241,17 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {resetSent ? (
+        {resetSent || magicLinkSent ? (
           <div className="glass-card p-6 text-center animate-scale-in">
             <div className="w-12 h-12 rounded-full bg-success-bg flex items-center justify-center mx-auto mb-4 text-success">
-              <LogIn size={20} />
+              <Mail size={20} />
             </div>
             <h3 className="font-bold mb-2">{t('auth.check_email')}</h3>
             <p className="text-sm mb-6" style={{ color: 'var(--text-tertiary)' }}>
-              {t('auth.reset_link_sent').replace('{email}', email)}
+              {magicLinkSent ? t('auth.magic_link_sent') : t('auth.reset_link_sent').replace('{email}', email)}
             </p>
             <button
-              onClick={() => { setResetSent(false); setResetMode(false) }}
+              onClick={() => { setResetSent(false); setResetMode(false); setMagicLinkSent(false) }}
               className="text-sm font-semibold"
               style={{ color: 'var(--accent-primary)' }}
             >
@@ -379,6 +403,19 @@ export default function LoginPage() {
                   <>{resetMode ? <LogIn size={18} /> : <LogIn size={18} />} {resetMode ? t('auth.send_reset_link') : t('auth.signin')}</>
                 )}
               </button>
+
+              {!resetMode && (
+                <button
+                  type="button"
+                  onClick={handleMagicLink}
+                  disabled={loading}
+                  className="w-full py-3 text-sm font-semibold transition-all hover:opacity-80 flex items-center justify-center gap-2"
+                  style={{ color: 'var(--accent-primary)' }}
+                >
+                  <Mail size={16} />
+                  {t('auth.send_magic_link')}
+                </button>
+              )}
 
               {resetMode && (
                 <button

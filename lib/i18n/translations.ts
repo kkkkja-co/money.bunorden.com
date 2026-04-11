@@ -379,6 +379,12 @@ export const translations = {
       pass_requirements_error: 'Password does not meet the security requirements',
       use_another_email: 'Use another email',
       activation_sent: 'Please click it to activate your account.',
+      signin_with: 'Sign in with {provider}',
+      signup_with: 'Sign up with {provider}',
+      or: 'or continue with',
+      magic_link: 'Sign in with Magic Link',
+      send_magic_link: 'Send Magic Link',
+      magic_link_sent: 'Magic link sent! Check your email to sign in.',
     }
   },
   'zh-TW': {
@@ -762,6 +768,9 @@ export const translations = {
       signin_with: '使用 {provider} 登入',
       signup_with: '使用 {provider} 註冊',
       or: '或使用以下方式繼續',
+      magic_link: '使用魔術連結登入',
+      send_magic_link: '發送魔術連結',
+      magic_link_sent: '魔術連結已發送！請查收電子郵件以登入。',
     }
   }
 };
