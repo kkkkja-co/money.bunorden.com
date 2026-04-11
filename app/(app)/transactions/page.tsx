@@ -111,7 +111,7 @@ export default function TransactionsPage() {
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`flex-1 py-3 px-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  filter === f ? 'bg-primary border-primary text-black' : 'bg-secondary border-border text-secondary'
+                  filter === f ? 'bg-accent-primary border-accent-primary text-white shadow-lg shadow-accent-primary/20' : 'bg-secondary border-border text-secondary'
                 }`}
               >
                 {t(`transactions.filter_${f}`)}
@@ -145,7 +145,7 @@ export default function TransactionsPage() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className={`font-black text-sm ${tx.type === 'income' ? 'text-success' : 'text-primary'}`}>
+                          <p className={`font-black text-sm ${tx.type === 'income' ? 'text-success' : 'text-danger'}`}>
                             {tx.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(tx.amount), tx.currency)}
                           </p>
                           <div className="flex justify-end gap-3 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">

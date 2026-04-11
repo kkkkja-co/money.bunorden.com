@@ -14,7 +14,7 @@ import type { User } from '@supabase/supabase-js'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
 
-const COLORS = ['#007aff', '#34c759', '#ff9500', '#af52de', '#ff3b30']
+const COLORS = ['#af52de', '#5856d6', '#34c759', '#ff9500', '#ff3b30']
 
 export default function DashboardPage() {
   const { t } = useTranslation()
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                     <p className="text-[10px] font-black text-secondary uppercase tracking-[0.1em] opacity-60">{formatDate(tx.date)}</p>
                   </div>
                   <div className="text-right">
-                    <p className={`font-black text-sm ${tx.type === 'income' ? 'text-success' : 'text-primary'}`}>
+                    <p className={`font-black text-sm ${tx.type === 'income' ? 'text-success' : 'text-danger'}`}>
                       {isVisible ? (tx.type === 'income' ? '+' : '-') + formatCurrency(Math.abs(tx.amount), tx.currency) : '••••'}
                     </p>
                   </div>
@@ -225,14 +225,6 @@ export default function DashboardPage() {
             )}
           </div>
         </section>
-
-        {/* Smart Tip Placeholder */}
-        <div className="mt-12 text-center opacity-40 hover:opacity-100 transition-opacity">
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 italic">
-            <Sparkles size={10} className="text-accent-primary" />
-            {language === 'zh-TW' ? '資產主導權，由您金鑰開啟' : 'Your asset authority, unlocked by your key'}
-          </p>
-        </div>
       </div>
     </div>
   )

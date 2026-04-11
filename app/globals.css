@@ -6,19 +6,21 @@
 
 @layer base {
   :root {
-    /* ── Apple-Inspired Premium Palette ── */
+    /* ── Logo-Informed Premium Palette ── */
     --bg-primary: #000000;
-    --bg-secondary: #121214;
-    --bg-elevated: #1c1c1e;
+    --bg-secondary: #0c0c0e; /* Slightly darker to match logo background */
+    --bg-elevated: #161618;
     
-    --border: rgba(255, 255, 255, 0.08);
-    --border-subtle: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.06);
+    --border-subtle: rgba(255, 255, 255, 0.03);
     
-    --accent-primary: #007aff; /* Apple Blue */
-    --accent-gradient: linear-gradient(135deg, #007aff 0%, #00c6ff 100%);
+    /* Logo Accent: Neon Purple/Violet */
+    --accent-primary: #af52de; 
+    --accent-secondary: #5856d6;
+    --accent-gradient: linear-gradient(135deg, #af52de 0%, #5856d6 100%);
     
     --success: #34c759;
-    --danger: #ff3b30;
+    --danger: #ff3b30; /* Expenses will use this */
     
     --text-primary: #ffffff;
     --text-secondary: #8e8e93;
@@ -58,7 +60,6 @@
 }
 
 @layer components {
-  /* Unified Surface (Replacing weird islands) */
   .surface-elevated {
     background: var(--bg-secondary);
     border: 1px solid var(--border);
@@ -96,7 +97,7 @@
     border-radius: var(--radius-xl);
     padding: 0.8rem 1.5rem;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 10px 20px -5px rgba(0, 122, 255, 0.3);
+    box-shadow: 0 10px 20px -5px rgba(175, 82, 222, 0.3); /* Purple shadow */
   }
 
   .btn-apple-primary:active {
@@ -104,7 +105,6 @@
     opacity: 0.9;
   }
 
-  /* Compact Input */
   .input-minimal {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
@@ -120,7 +120,6 @@
   }
 }
 
-/* ── Performance & Animations ── */
 .animate-slide-up {
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
