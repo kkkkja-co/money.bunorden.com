@@ -28,9 +28,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 
 module.exports = withPWA({
   reactStrictMode: true,
-  experimental: {
-    turbopack: {},
-  },
+  turbopack: {},
   images: {
     remotePatterns: [
       {
@@ -38,16 +36,5 @@ module.exports = withPWA({
         hostname: '**.supabase.co',
       },
     ],
-  },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        path: false,
-        crypto: false,
-      };
-    }
-    return config;
   },
 });
