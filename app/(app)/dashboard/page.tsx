@@ -461,8 +461,8 @@ export default function DashboardPage() {
               <div 
                 className="h-full rounded-full transition-all duration-1000 ease-out"
                 style={{ 
-                  width: `${Math.min(100, (totals.expense / overallBudget) * 100)}%`,
-                  background: totals.expense > overallBudget 
+                  width: `${Math.min(100, (budgetSpent / overallBudget) * 100)}%`,
+                  background: budgetSpent > overallBudget 
                     ? 'var(--danger)' 
                     : 'linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))'
                 }}
