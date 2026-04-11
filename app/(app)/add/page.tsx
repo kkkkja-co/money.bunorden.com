@@ -648,7 +648,7 @@ export default function AddPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        <div className="animate-pulse font-black text-sm tracking-[0.3em] uppercase opacity-40">Loading...</div>
       </div>
     }>
       <AddTransactionForm />

@@ -32,9 +32,11 @@ export default function Page() {
           L
         </div>
         <div
-          className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin"
-          style={{ borderColor: 'var(--accent-primary)', borderTopColor: 'transparent' }}
-        />
+          className="animate-pulse font-black text-xs tracking-[0.3em] uppercase opacity-50"
+          style={{ color: 'var(--accent-primary)' }}
+        >
+          Loading...
+        </div>
       </div>
     </div>
   )

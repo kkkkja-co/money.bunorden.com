@@ -113,7 +113,7 @@ export default function OnboardingPage() {
   if (checkingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        <div className="animate-pulse font-black text-sm tracking-[0.3em] uppercase opacity-40">Loading...</div>
       </div>
     )
   }
@@ -442,7 +442,7 @@ export default function OnboardingPage() {
               className="btn-apple-primary w-full max-w-sm mx-auto py-4 text-base flex items-center justify-center gap-2"
             >
               {loading ? (
-                <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                <span className="animate-pulse font-bold tracking-[0.2em] text-[10px] uppercase opacity-60">Working...</span>
               ) : (
                 t('onboarding.step3_button')
               )}
