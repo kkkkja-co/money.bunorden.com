@@ -49,6 +49,7 @@ export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [totals, setTotals] = useState({ income: 0, expense: 0 })
+  const [budgetSpent, setBudgetSpent] = useState(0)
   const [overallBudget, setOverallBudget] = useState<number | null>(null)
   const [mfaEnabled, setMfaEnabled] = useState(true)
   const [showMfaReminder, setShowMfaReminder] = useState(false)
@@ -110,7 +111,6 @@ export default function DashboardPage() {
       }))
       setTransactions(mapped)
 
-      // Calculate totals for current month
       // Calculate totals and category breakdown for current month
       const now = new Date()
       const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
@@ -120,18 +120,17 @@ export default function DashboardPage() {
         .eq('user_id', user.id)
         .gte('date', monthStart)
 
-      // Filter to only included transactions for the summary and chart
-      const budgetTransactions = (monthTx || []).filter(t => !t.exclude_from_budget)
-
-      let inc = 0, exp = 0
+      let inc = 0, exp = 0, bSpent = 0
       const chartMap: Record<string, { name: string, value: number }> = {}
 
-      budgetTransactions.forEach(t => {
+      ;(monthTx || []).forEach(t => {
         const amt = Number(t.amount)
         if (t.type === 'income') {
           inc += amt
         } else if (t.type === 'expense') {
-          exp += amt
+          exp += amt // Actual total
+          if (!t.exclude_from_budget) bSpent += amt // Only what counts for budget
+          
           const cat = Array.isArray(t.category) ? t.category[0] : t.category
           const catName = cat?.name || 'Other'
           if (!chartMap[catName]) chartMap[catName] = { name: catName, value: 0 }
@@ -140,6 +139,7 @@ export default function DashboardPage() {
       })
 
       setTotals({ income: inc, expense: exp })
+      setBudgetSpent(bSpent)
       setChartData(Object.values(chartMap).sort((a, b) => b.value - a.value).slice(0, 10))
 
       // Fetch Budget
@@ -242,7 +242,7 @@ export default function DashboardPage() {
         )}
 
         {/* Over-budget Alert */}
-        {overallBudget !== null && totals.expense > overallBudget && (
+        {overallBudget !== null && budgetSpent > overallBudget && (
           <div className="mb-6 animate-fade-up">
             <div 
               className="p-4 rounded-2xl flex items-center gap-4 relative overflow-hidden ring-1 ring-inset ring-danger/20"
@@ -257,7 +257,7 @@ export default function DashboardPage() {
               <div className="flex-1 min-w-0 pr-6">
                 <p className="font-bold text-sm mb-0.5" style={{ color: 'var(--danger)' }}>{t('budgets.over_by').split(' {')[0]}</p>
                 <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                  {t('budgets.over_by').replace('{amount}', formatCurrency(totals.expense - overallBudget, currency))}
+                  {t('budgets.over_by').replace('{amount}', formatCurrency(budgetSpent - overallBudget, currency))}
                 </p>
               </div>
               <Link 
@@ -447,12 +447,12 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs font-bold" style={{ color: totals.expense > overallBudget ? 'var(--danger)' : 'var(--text-primary)' }}>
-                  {Math.round((totals.expense / overallBudget) * 100)}%
+                <p className="text-xs font-bold" style={{ color: budgetSpent > overallBudget ? 'var(--danger)' : 'var(--text-primary)' }}>
+                  {Math.round((budgetSpent / overallBudget) * 100)}%
                 </p>
                 <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
-                  {isVisible ? t(totals.expense <= overallBudget ? 'budgets.remaining' : 'budgets.over_by', {
-                    amount: formatCurrency(Math.abs(overallBudget - totals.expense), currency),
+                  {isVisible ? t(budgetSpent <= overallBudget ? 'budgets.remaining' : 'budgets.over_by', {
+                    amount: formatCurrency(Math.abs(overallBudget - budgetSpent), currency),
                   }) : '••••••'}
                 </p>
               </div>
