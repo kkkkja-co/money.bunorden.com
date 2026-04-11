@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { parseTagsInput, tagsToInputString } from '@/lib/tags'
-import { ArrowLeft, Check, Settings, Plus, X, Trash2 } from 'lucide-react'
+import { ArrowLeft, Check, Settings, Plus, X, Trash2, Calendar } from 'lucide-react'
 import { useTranslation } from '@/app/providers'
 import { sendLocalNotification } from '@/lib/notifications'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
@@ -528,13 +528,14 @@ function AddTransactionForm() {
             <label htmlFor="date-input" className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">
               {t('transactions.date')}
             </label>
-            <div className="relative w-full">
+            <div className="relative w-full group">
+              <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none z-10 group-focus-within:text-[var(--accent-primary)] transition-colors" />
               <input
                 id="date-input"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="input-minimal w-full pl-4 pr-4 py-3"
+                className="input-minimal w-full pl-12 pr-4 py-4 text-center font-bold"
                 required
               />
             </div>

@@ -123,6 +123,23 @@
     outline: none;
     border-color: var(--accent-primary);
   }
+
+  /* ── Custom Date Picker Styling ── */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5); /* Make it visible but subtle */
+    cursor: pointer;
+  }
+
+  input[type="date"]::-webkit-datetime-edit {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  input[type="date"] {
+    position: relative;
+    text-align: center;
+  }
 }
 
 .animate-slide-up {
