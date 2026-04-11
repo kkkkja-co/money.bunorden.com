@@ -251,17 +251,20 @@ export default function SettingsPage() {
 
   const handleLinkSocial = async (provider: 'google' | 'github') => {
     setLoading(true)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/settings`,
-      },
-    })
-    if (error) {
-      setToast(error.message)
+    try {
+      const { data, error } = await supabase.auth.linkIdentity({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/settings`,
+        },
+      })
+      if (error) throw error
+    } catch (err: any) {
+      setToast(err.message || 'Linking failed')
       setTimeout(() => setToast(''), 3000)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const handleDeleteAccount = async () => {
