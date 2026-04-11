@@ -116,6 +116,7 @@ export default function DashboardPage() {
         .from('transactions')
         .select('type, amount')
         .eq('user_id', user.id)
+        .eq('exclude_from_budget', false)
         .gte('date', monthStart)
 
       let inc = 0, exp = 0

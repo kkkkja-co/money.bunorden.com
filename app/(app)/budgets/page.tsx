@@ -118,6 +118,7 @@ export default function BudgetsPage() {
       .select('amount, category_id')
       .eq('user_id', user.id)
       .eq('type', 'expense')
+      .eq('exclude_from_budget', false)
       .gte('date', monthStart)
       .lte('date', monthEnd)
 
