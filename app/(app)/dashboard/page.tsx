@@ -126,16 +126,18 @@ export default function DashboardPage() {
       ;(monthTx || []).forEach(t => {
         const amt = Number(t.amount)
         if (t.type === 'income') {
-          if (!t.exclude_from_budget) inc += amt
+          inc += amt  // Always count all income
         } else if (t.type === 'expense') {
+          exp += amt  // Always count all expenses in totals
+          
+          const cat = Array.isArray(t.category) ? t.category[0] : t.category
+          const catName = cat?.name || 'Other'
+          if (!chartMap[catName]) chartMap[catName] = { name: catName, value: 0 }
+          chartMap[catName].value += amt
+
+          // Only count towards budget if not excluded
           if (!t.exclude_from_budget) {
-            exp += amt
             bSpent += amt
-            
-            const cat = Array.isArray(t.category) ? t.category[0] : t.category
-            const catName = cat?.name || 'Other'
-            if (!chartMap[catName]) chartMap[catName] = { name: catName, value: 0 }
-            chartMap[catName].value += amt
           }
         }
       })
