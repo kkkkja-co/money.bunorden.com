@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client'
 import { parseTagsInput, tagsToInputString } from '@/lib/tags'
 import { ArrowLeft, Check, Settings, Plus, X, Trash2 } from 'lucide-react'
 import { useTranslation } from '@/app/providers'
+import { sendLocalNotification } from '@/lib/notifications'
 
 interface Category {
   id: string
@@ -194,6 +195,28 @@ function AddTransactionForm() {
         })
 
         if (insertError) throw insertError
+
+        // Check for budget overage
+        if (type === 'expense') {
+          const now = new Date()
+          const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+          
+          const [{ data: monthTxs }, { data: budgetData }] = await Promise.all([
+            supabase.from('transactions').select('amount').eq('user_id', userId).eq('type', 'expense').gte('date', monthStart),
+            supabase.from('budgets').select('amount').eq('user_id', userId).eq('month_year', monthStart).is('category_id', null).maybeSingle()
+          ])
+
+          if (budgetData && monthTxs) {
+            const spent = monthTxs.reduce((sum, tx) => sum + Number(tx.amount), 0)
+            const cap = Number(budgetData.amount)
+            if (spent > cap) {
+              sendLocalNotification('Budget Alert! ⚠️', {
+                body: `You've exceeded your monthly budget by ${spent - cap} ${currency}.`,
+                tag: 'budget-overage'
+              })
+            }
+          }
+        }
       }
 
       setSuccess(true)

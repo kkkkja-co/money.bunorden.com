@@ -225,6 +225,61 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Over-budget Alert */}
+        {overallBudget !== null && totals.expense > overallBudget && (
+          <div className="mb-6 animate-fade-up">
+            <div 
+              className="p-4 rounded-2xl flex items-center gap-4 relative overflow-hidden ring-1 ring-inset ring-danger/20"
+              style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid var(--danger-bg)' }}
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}
+              >
+                <AlertTriangle size={20} />
+              </div>
+              <div className="flex-1 min-w-0 pr-6">
+                <p className="font-bold text-sm mb-0.5" style={{ color: 'var(--danger)' }}>{t('budgets.over_by').split(' {')[0]}</p>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                  {t('budgets.over_by').replace('{amount}', formatCurrency(totals.expense - overallBudget, currency))}
+                </p>
+              </div>
+              <Link 
+                href="/budgets"
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 text-tertiary hover:text-danger hover:bg-danger/10 transition-colors"
+              >
+                <ChevronRight size={18} />
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Record Reminder */}
+        {transactions.length > 0 && new Date(transactions[0].date).toDateString() !== new Date().toDateString() && (
+          <div className="mb-6 animate-fade-up">
+            <div 
+              className="p-4 rounded-2xl flex items-center gap-4 relative overflow-hidden"
+              style={{ background: 'var(--overlay)', border: '1px solid var(--border)' }}
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-white"
+                style={{ background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' }}
+              >
+                <Sparkles size={18} />
+              </div>
+              <div className="flex-1 min-w-0 pr-6">
+                <p className="font-bold text-sm mb-0.5" style={{ color: 'var(--text-primary)' }}>{language === 'zh-TW' ? '還沒紀錄今天的開支嗎？' : "Haven't recorded today yet?"}</p>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+                  {language === 'zh-TW' ? '保持良好的理財習慣，紀錄每一筆收支。' : 'Stay on top of your finances by tracking every transaction.'}
+                  <Link href="/add" className="ml-1 font-bold underline" style={{ color: 'var(--accent-primary)' }}>
+                    {t('common.add_transaction')}
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Balance Card */}
         <div id="tour-balance" className="glass-card mb-6 animate-fade-up delay-1 text-center relative overflow-hidden">
           <div

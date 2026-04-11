@@ -8,10 +8,11 @@ import { useTheme, useTranslation, useLanguage } from '@/app/providers'
 import {
   Sun, Moon, LogOut, Trash2, Download, Shield, Mail,
   Scale, ChevronRight, User, AlertTriangle, X, Globe,
-  ArrowLeftRight, LayoutGrid, Target
+  ArrowLeftRight, LayoutGrid, Target, Bell
 } from 'lucide-react'
 import Link from 'next/link'
 import { Language } from '@/lib/i18n/translations'
+import { requestNotificationPermission, sendLocalNotification } from '@/lib/notifications'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -540,6 +541,44 @@ export default function SettingsPage() {
                       transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                     }}
                   />
+                </div>
+              }
+            />
+          </div>
+        </div>
+
+        {/* Notifications */}
+        <div className="mb-6 animate-fade-up delay-3">
+          <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
+            NOTIFICATIONS
+          </h2>
+          <div className="space-y-2">
+            <SettingsItem
+              icon={Bell}
+              label="App Notifications"
+              sublabel="Budget alerts and recording reminders"
+              onClick={async () => {
+                const granted = await requestNotificationPermission()
+                if (granted) {
+                  setToast('Notifications enabled!')
+                  sendLocalNotification('Notifications Active 🔔', {
+                    body: 'You will now receive budget alerts and reminders.'
+                  })
+                } else {
+                  setToast('Permission denied or not supported')
+                }
+                setTimeout(() => setToast(''), 3000)
+              }}
+              right={
+                <div 
+                  className="px-2 py-1 rounded-md text-[10px] font-bold uppercase"
+                  style={{ 
+                    background: (typeof window !== 'undefined' && Notification.permission === 'granted') ? 'var(--success-bg)' : 'var(--overlay)',
+                    color: (typeof window !== 'undefined' && Notification.permission === 'granted') ? 'var(--success)' : 'var(--text-tertiary)',
+                    border: '1px solid var(--border)'
+                  }}
+                >
+                  {(typeof window !== 'undefined' && Notification.permission === 'granted') ? 'ENABLED' : 'DISABLED'}
                 </div>
               }
             />
