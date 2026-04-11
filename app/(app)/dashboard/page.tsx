@@ -95,22 +95,22 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex-1 max-w-2xl mx-auto w-full px-5 py-8 md:py-12">
+      <div className="flex-1 max-w-4xl mx-auto w-full px-5 py-8 md:py-12">
         
         {/* Unified Header Group (Fixed Spacing & Overlap) */}
         <section className="animate-slide-up mb-12">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary opacity-60">
               {new Date().toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
             </p>
-            <Link href="/settings" className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center relative active:scale-95 transition-transform">
-              <Bell size={18} className="text-secondary" />
-              <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-accent-primary ring-2 ring-black" />
+            <Link href="/settings" className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative active:scale-95 transition-all hover:bg-white/10">
+              <Bell size={20} className="text-primary" />
+              <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-accent-primary ring-2 ring-bg-primary" />
             </Link>
           </div>
           
-          <h1 className="text-3xl font-bold tracking-tight text-primary">
-            {t('common.welcome')}, <span className="opacity-50">{profile?.display_name?.split(' ')[0]}</span>
+          <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-primary mb-2">
+            {t('common.welcome')}, <span className="opacity-30 font-normal">{profile?.display_name?.split(' ')[0]}</span>
           </h1>
 
           <div className="text-center py-10">
