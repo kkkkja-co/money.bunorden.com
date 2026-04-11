@@ -49,7 +49,7 @@ export default function SecurityPage() {
         <header className="flex items-center gap-4 mb-10 animate-slide-up">
           <button 
             onClick={() => router.back()} 
-            className="w-10 h-10 rounded-xl bg-secondary border border-border flex items-center justify-center text-primary active:scale-95 transition-transform"
+            className="w-10 h-10 rounded-xl bg-primary/5 border border-border flex items-center justify-center text-primary active:scale-95 transition-transform"
           >
             <ArrowLeft size={18} />
           </button>
