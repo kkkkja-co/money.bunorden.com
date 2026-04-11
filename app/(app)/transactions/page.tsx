@@ -34,28 +34,51 @@ export default function TransactionsPage() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [error, setError] = useState('')
 
   const fetchTransactions = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
+    try {
+      setError('')
+      setLoading(true)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
 
-    let query = supabase
-      .from('transactions')
-      .select('*, category:categories(name, icon)')
-      .eq('user_id', user.id)
-      .order('date', { ascending: false })
+      let query = supabase
+        .from('transactions')
+        .select('*, category:categories(name, icon)')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false })
 
-    if (filter !== 'all') query = query.eq('type', filter)
+      if (filter !== 'all') query = query.eq('type', filter)
 
-    const { data } = await query
-    setTransactions((data || []).map((t: any) => ({
-      ...t,
-      category: Array.isArray(t.category) ? t.category[0] || null : t.category,
-    })))
-    setLoading(false)
+      const { data, error: queryError } = await query
+      if (queryError) throw queryError
+      
+      setTransactions((data || []).map((t: any) => ({
+        ...t,
+        category: Array.isArray(t.category) ? t.category[0] || null : t.category,
+      })))
+    } catch (err) {
+      console.error('Failed to fetch transactions:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load transactions')
+    } finally {
+      setLoading(false)
+    }
   }, [router, filter])
 
-  useEffect(() => { fetchTransactions() }, [fetchTransactions])
+  useEffect(() => { 
+    fetchTransactions()
+    
+    // Timeout safeguard to prevent page from getting stuck loading
+    const timeoutId = setTimeout(() => {
+      setLoading(false)
+      if (!transactions.length) {
+        setError('Page took too long to load. Please refresh.')
+      }
+    }, 15000)
+    
+    return () => clearTimeout(timeoutId)
+  }, [fetchTransactions])
 
   const handleDelete = async () => {
     if (!deleteId) return
@@ -132,32 +155,37 @@ export default function TransactionsPage() {
           </div>
 
           {/* Date Range Picker */}
-          <div className="flex gap-2 items-center">
-            <div className="flex-1 relative">
-              <Calendar size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none" />
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="input-minimal pl-11 py-3 text-[13px] w-full"
-              />
+          <div className="grid grid-cols-3 gap-2 items-end">
+            <div>
+              <label className="block text-[9px] font-black uppercase tracking-widest text-secondary mb-1.5">From</label>
+              <div className="relative">
+                <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10" />
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="input-minimal pl-10 py-2.5 text-[12px] w-full"
+                />
+              </div>
             </div>
-            <span className="text-secondary text-xs font-medium">to</span>
-            <div className="flex-1 relative">
-              <Calendar size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none" />
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="input-minimal pl-11 py-3 text-[13px] w-full"
-              />
+            <div>
+              <label className="block text-[9px] font-black uppercase tracking-widest text-secondary mb-1.5">To</label>
+              <div className="relative">
+                <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10" />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="input-minimal pl-10 py-2.5 text-[12px] w-full"
+                />
+              </div>
             </div>
             {(startDate || endDate) && (
               <button
                 onClick={() => { setStartDate(''); setEndDate('') }}
-                className="w-9 h-9 rounded-xl bg-secondary border border-border flex items-center justify-center hover:bg-secondary/80 transition-colors"
+                className="w-full py-2.5 rounded-xl bg-secondary border border-border text-danger font-bold text-xs uppercase tracking-widest hover:bg-secondary/80 transition-colors"
               >
-                <X size={14} />
+                Clear
               </button>
             )}
           </div>
@@ -186,7 +214,7 @@ export default function TransactionsPage() {
                   className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
                     selectedCategories.includes(cat)
                       ? 'bg-accent-primary border-accent-primary text-white'
-                      : 'bg-secondary border-border text-secondary hover:bg-secondary/80'
+                      : 'bg-secondary border-border text-primary hover:bg-secondary/80'
                   }`}
                 >
                   {cat}
@@ -213,6 +241,17 @@ export default function TransactionsPage() {
 
         {loading ? <PageSkeleton /> : (
           <div className="animate-slide-up delay-2">
+            {error && (
+              <div className="mb-6 p-4 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm">
+                <p className="font-semibold mb-2">⚠️ {error}</p>
+                <button 
+                  onClick={() => fetchTransactions()}
+                  className="text-xs font-bold underline hover:opacity-80"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
             {Object.keys(grouped).length === 0 ? (
               <div className="py-20 text-center opacity-30">
                 <p className="text-sm font-black uppercase tracking-[0.3em]">{t('transactions.no_matches')}</p>
