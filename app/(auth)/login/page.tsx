@@ -133,6 +133,10 @@ export default function LoginPage() {
   const handleMfaVerify = async (e: React.FormEvent) => {
     e.preventDefault()
     if (mfaCode.length !== 6) return
+    if (!mfaFactors || mfaFactors.length === 0) {
+      setError('No MFA factors found. Please try signing in again.')
+      return
+    }
     setError('')
     setLoading(true)
 
@@ -150,11 +154,11 @@ export default function LoginPage() {
       })
       if (verifyError) throw verifyError
 
-      router.push('/dashboard')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'MFA verification failed')
-    } finally {
+      // Successful verification will trigger the onAuthStateChange listener 
+      // which will handle the final redirect to /dashboard
+    } catch (err: any) {
       setLoading(false)
+      setError(err?.message || 'MFA verification failed')
     }
   }
 
