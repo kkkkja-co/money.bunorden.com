@@ -552,7 +552,7 @@ export default function SettingsPage() {
           <h2 className="text-sm font-semibold mb-3 px-1" style={{ color: 'var(--text-tertiary)' }}>
             NOTIFICATIONS
           </h2>
-          <div className="space-y-2">
+          <div className="space-y-2" id="tour-notifications">
             <SettingsItem
               icon={Bell}
               label="App Notifications"
@@ -561,8 +561,9 @@ export default function SettingsPage() {
                 const granted = await requestNotificationPermission()
                 if (granted) {
                   setToast('Notifications enabled!')
-                  sendLocalNotification('Notifications Active 🔔', {
-                    body: 'You will now receive budget alerts and reminders.'
+                  sendLocalNotification('Smart Notifications Active! 🔔', {
+                    body: 'You will now receive budget alerts and recording reminders. Version v0.5.0 is live!',
+                    tag: 'welcome-notification'
                   })
                 } else {
                   setToast('Permission denied or not supported')

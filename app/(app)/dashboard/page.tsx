@@ -15,6 +15,7 @@ import type { User } from '@supabase/supabase-js'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import { ProductTour } from '@/components/ui/ProductTour'
+import { NewFeaturePopup } from '@/components/ui/NewFeaturePopup'
 
 const COLORS = [
   '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444', 
@@ -535,6 +536,7 @@ export default function DashboardPage() {
       </div>
 
       <ProductTour />
+      <NewFeaturePopup />
       <BunordenFooter />
     </div>
   )
