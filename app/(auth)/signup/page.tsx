@@ -113,7 +113,7 @@ export default function SignupPage() {
 
       <div className="w-full max-w-sm relative z-10">
         {/* Logo */}
-        <div className="text-center mb-10 animate-fade-up">
+        <div className="text-center mb-10 animate-slide-up">
           <div
             className="w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center overflow-hidden"
             style={{
@@ -137,7 +137,7 @@ export default function SignupPage() {
         <form onSubmit={handleSignup} className="space-y-4 mb-6">
           {!success && (
             <>
-              <div className="animate-fade-up delay-1">
+              <div className="animate-slide-up delay-1">
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {t('settings.email')}
                 </label>
@@ -152,7 +152,7 @@ export default function SignupPage() {
                 />
               </div>
 
-              <div className="animate-fade-up delay-2">
+              <div className="animate-slide-up delay-2">
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {t('auth.password')}
                 </label>
@@ -196,7 +196,7 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              <div className="animate-fade-up delay-3">
+              <div className="animate-slide-up delay-3">
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {t('auth.confirm_password')}
                 </label>
@@ -210,7 +210,7 @@ export default function SignupPage() {
                 />
               </div>
 
-              <div className="animate-fade-up delay-4">
+              <div className="animate-slide-up delay-4">
                 <TurnstileWidget
                   siteKey={TURNSTILE_SITE_KEY}
                   onVerify={(token) => {
@@ -259,7 +259,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-apple-primary w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-5"
+              className="btn-apple-primary w-full py-4 flex items-center justify-center gap-2 text-base animate-slide-up delay-5"
             >
               {loading ? (
                 <span className="animate-pulse font-bold tracking-[0.2em] text-[10px] uppercase opacity-60">Working...</span>
@@ -271,11 +271,11 @@ export default function SignupPage() {
         </form>
 
         {!success && (
-          <div className="animate-fade-up delay-5 mb-8">
+          <div className="animate-slide-up delay-5 mb-8">
             <SocialAuth />
           </div>
         )}
-        <div className="text-center animate-fade-up delay-5">
+        <div className="text-center animate-slide-up delay-5">
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
             {t('auth.have_account')}{' '}
             <Link href="/login" className="font-semibold" style={{ color: 'var(--accent-primary)' }}>
@@ -285,7 +285,7 @@ export default function SignupPage() {
         </div>
 
         {/* Footer links */}
-        <div className="flex items-center justify-center gap-4 mt-8 animate-fade-up delay-6">
+        <div className="flex items-center justify-center gap-4 mt-8 animate-slide-up delay-6">
           <Link href="/privacy" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('settings.privacy')}</Link>
           <span style={{ color: 'var(--text-tertiary)' }}>·</span>
           <Link href="/terms" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('settings.terms')}</Link>

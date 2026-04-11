@@ -174,7 +174,7 @@ export default function BudgetsPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto w-full">
-        <div className="flex items-center gap-3 mb-6 animate-fade-up">
+        <div className="flex items-center gap-3 mb-6 animate-slide-up">
           <Link
             href="/dashboard"
             className="w-10 h-10 rounded-xl flex items-center justify-center lg:hidden"
@@ -187,13 +187,13 @@ export default function BudgetsPage() {
           </h1>
         </div>
 
-        <p className="text-sm mb-6 animate-fade-up delay-1" style={{ color: 'var(--text-tertiary)' }}>
+        <p className="text-sm mb-6 animate-slide-up delay-1" style={{ color: 'var(--text-tertiary)' }}>
           {t('budgets.subtitle')}
         </p>
 
         {/* Month switcher */}
         <div
-          className="surface-elevated flex items-center justify-between py-3 px-4 mb-6 animate-fade-up delay-1"
+          className="surface-elevated flex items-center justify-between py-3 px-4 mb-6 animate-slide-up delay-1"
         >
           <button
             type="button"
@@ -221,7 +221,7 @@ export default function BudgetsPage() {
         ) : (
           <>
             {/* Overall */}
-            <div className="surface-elevated p-4 mb-6 animate-fade-up delay-2">
+            <div className="surface-elevated p-4 mb-6 animate-slide-up delay-2">
               <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
                 {t('budgets.overall')}
               </h2>

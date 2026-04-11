@@ -44,7 +44,7 @@ export default function ContactPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto w-full">
-        <header className="flex items-center gap-4 mb-8 animate-fade-up">
+        <header className="flex items-center gap-4 mb-8 animate-slide-up">
           <Link href="/settings" className="p-2 -ml-2 rounded-full hover:bg-white/5 transition-colors">
             <ArrowLeft size={20} />
           </Link>

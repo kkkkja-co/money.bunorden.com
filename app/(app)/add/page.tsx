@@ -7,6 +7,7 @@ import { parseTagsInput, tagsToInputString } from '@/lib/tags'
 import { ArrowLeft, Check, Settings, Plus, X, Trash2 } from 'lucide-react'
 import { useTranslation } from '@/app/providers'
 import { sendLocalNotification } from '@/lib/notifications'
+import { PageSkeleton } from '@/components/ui/PageSkeleton'
 
 interface Category {
   id: string
@@ -98,6 +99,8 @@ function AddTransactionForm() {
   }, [router, editId])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  if (!userId) return <PageSkeleton />
 
   const filteredCategories = categories.filter(c => c.type === type)
 
@@ -258,7 +261,7 @@ function AddTransactionForm() {
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 px-4 lg:px-8 py-6 max-w-xl mx-auto w-full">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8 animate-fade-up">
+        <div className="flex items-center gap-3 mb-8 animate-slide-up">
           <button
             onClick={() => router.back()}
             className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -277,7 +280,7 @@ function AddTransactionForm() {
         </div>
 
         {/* Type Selector */}
-        <div className="surface-elevated p-1.5 flex gap-1 mb-6 animate-fade-up delay-1">
+        <div className="surface-elevated p-1.5 flex gap-1 mb-6 animate-slide-up delay-1">
           {(['expense', 'income', 'transfer'] as TxType[]).map((t_index) => (
             <button
               key={t_index}
@@ -300,7 +303,7 @@ function AddTransactionForm() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Amount */}
-          <div className="animate-fade-up delay-2">
+          <div className="animate-slide-up delay-2">
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                 {t('transactions.amount')}
@@ -334,7 +337,7 @@ function AddTransactionForm() {
 
           {/* Category Selection */}
           {type !== 'transfer' && (
-            <div className="animate-fade-up delay-3">
+            <div className="animate-slide-up delay-3">
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                   {t('transactions.category')}
@@ -498,7 +501,7 @@ function AddTransactionForm() {
 
           {/* Account */}
           {accounts.length > 0 && (
-            <div className="animate-fade-up delay-3">
+            <div className="animate-slide-up delay-3">
               <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                 {t('transactions.account')}
               </label>
@@ -525,7 +528,7 @@ function AddTransactionForm() {
           )}
 
           {/* Date */}
-          <div className="animate-fade-up delay-4">
+          <div className="animate-slide-up delay-4">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
               {t('transactions.date')}
             </label>
@@ -539,7 +542,7 @@ function AddTransactionForm() {
           </div>
 
           {/* Recurring */}
-          <div className="animate-fade-up delay-5 flex items-center justify-between p-1">
+          <div className="animate-slide-up delay-5 flex items-center justify-between p-1">
             <div>
               <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                 {t('transactions.recurring')}
@@ -565,7 +568,7 @@ function AddTransactionForm() {
           </div>
 
           {/* Include in Budget */}
-          <div className="animate-fade-up delay-5 flex items-center justify-between p-1">
+          <div className="animate-slide-up delay-5 flex items-center justify-between p-1">
             <div>
               <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                 {t('transactions.include_in_budget')}
@@ -591,7 +594,7 @@ function AddTransactionForm() {
           </div>
 
           {/* Note */}
-          <div className="animate-fade-up delay-6">
+          <div className="animate-slide-up delay-6">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
               {t('transactions.note')} <span className="font-normal" style={{ color: 'var(--text-tertiary)' }}>({t('common.optional')})</span>
             </label>
@@ -606,7 +609,7 @@ function AddTransactionForm() {
           </div>
 
           {/* Tags */}
-          <div className="animate-fade-up delay-6">
+          <div className="animate-slide-up delay-6">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
               {t('transactions.tags')} <span className="font-normal" style={{ color: 'var(--text-tertiary)' }}>({t('common.optional')})</span>
             </label>
@@ -623,7 +626,7 @@ function AddTransactionForm() {
           {/* Error */}
           {error && (
             <div
-              className="p-3 rounded-xl text-sm font-medium animate-fade-up"
+              className="p-3 rounded-xl text-sm font-medium animate-slide-up"
               style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
             >
               {error}
@@ -634,7 +637,7 @@ function AddTransactionForm() {
           <button
             type="submit"
             disabled={loading || !amount}
-            className="btn-apple-primary w-full py-4 text-base animate-fade-up delay-6"
+            className="btn-apple-primary w-full py-4 text-base animate-slide-up delay-6"
           >
             {loading ? t('common.loading') : t('common.save')}
           </button>

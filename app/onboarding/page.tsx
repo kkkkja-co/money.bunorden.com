@@ -198,7 +198,7 @@ export default function OnboardingPage() {
 
       <div className="w-full max-w-2xl relative z-10">
         {/* Step indicator */}
-        <div className="flex items-center justify-center gap-2 mb-8 animate-fade-up">
+        <div className="flex items-center justify-center gap-2 mb-8 animate-slide-up">
           {[0, 1, 2, 3, 4].map((s) => (
             <div
               key={s}
@@ -217,7 +217,7 @@ export default function OnboardingPage() {
 
         {/* Step 0: Language */}
         {step === 0 && (
-          <div className="animate-fade-up text-center">
+          <div className="animate-slide-up text-center">
             <div
               className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center overflow-hidden"
               style={{
@@ -258,7 +258,7 @@ export default function OnboardingPage() {
 
         {/* Step 1: Name */}
         {step === 1 && (
-          <div className="animate-fade-up text-center">
+          <div className="animate-slide-up text-center">
             <button
               onClick={() => setStep(0)}
               className="flex items-center gap-2 mb-6 text-sm font-medium"
@@ -304,7 +304,7 @@ export default function OnboardingPage() {
 
         {/* Step 2: Wallet & Currency */}
         {step === 2 && (
-          <div className="animate-fade-up text-center">
+          <div className="animate-slide-up text-center">
             <button
               onClick={() => setStep(1)}
               className="flex items-center gap-2 mb-6 text-sm font-medium"
@@ -368,7 +368,7 @@ export default function OnboardingPage() {
 
         {/* Step 3: Persona */}
         {step === 3 && (
-          <div className="animate-fade-up">
+          <div className="animate-slide-up">
             <button
               onClick={() => setStep(2)}
               className="flex items-center gap-2 mb-6 text-sm font-medium"
@@ -414,7 +414,7 @@ export default function OnboardingPage() {
 
         {/* Step 4: Ready */}
         {step === 4 && (
-          <div className="animate-fade-up text-center">
+          <div className="animate-slide-up text-center">
             <button
               onClick={() => setStep(3)}
               className="flex items-center gap-2 mb-6 text-sm font-medium"

@@ -129,7 +129,7 @@ export function ProductTour() {
           </div>
 
           {currentStep === -1 ? (
-            <div className="animate-fade-up">
+            <div className="animate-slide-up">
               <h2 className="text-2xl font-bold mb-3 text-primary">{t('tour.welcome_title')}</h2>
               <p className="text-sm text-tertiary mb-8 leading-relaxed">
                 {t('tour.welcome_desc')}
@@ -142,7 +142,7 @@ export function ProductTour() {
               </button>
             </div>
           ) : (
-            <div key={currentStep} className="animate-fade-up">
+            <div key={currentStep} className="animate-slide-up">
               <div className="flex justify-center gap-1 mb-6">
                 {steps.map((_, i) => (
                   <div 

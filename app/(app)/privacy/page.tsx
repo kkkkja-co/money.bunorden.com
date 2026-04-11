@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto w-full">
-        <header className="flex items-center gap-4 mb-8 animate-fade-up">
+        <header className="flex items-center gap-4 mb-8 animate-slide-up">
           <Link href="/settings" className="p-2 -ml-2 rounded-full hover:bg-white/5 transition-colors">
             <ArrowLeft size={20} />
           </Link>
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
           </div>
         </header>
 
-        <div className="space-y-12 animate-fade-up delay-1">
+        <div className="space-y-12 animate-slide-up delay-1">
           <MarketingSection title={t('privacy.commitment')}>
               <p className="text-lg" style={{ color: 'var(--text-primary)' }}>
                 <strong>Clavi</strong> — {t('common.clavi_name_meaning')}

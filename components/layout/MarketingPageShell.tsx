@@ -23,7 +23,7 @@ export function MarketingPageShell({
 
       <div className={`${maxWidthClass} mx-auto px-4 py-8 relative z-10`}>
 
-        <div className="surface-elevated !p-8 lg:!p-16 animate-fade-up shadow-[0_32px_80px_rgba(0,0,0,0.4)]" style={{ animationDelay: '0.1s', borderRadius: '32px' }}>
+        <div className="surface-elevated !p-8 lg:!p-16 animate-slide-up shadow-[0_32px_80px_rgba(0,0,0,0.4)]" style={{ animationDelay: '0.1s', borderRadius: '32px' }}>
           <div className="flex justify-center mb-6">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"

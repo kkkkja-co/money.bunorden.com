@@ -217,7 +217,7 @@ export default function LoginPage() {
 
       <div className="w-full max-w-sm relative z-10">
         {/* Logo */}
-        <div className="text-center mb-10 animate-fade-up">
+        <div className="text-center mb-10 animate-slide-up">
           <div
             className="w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center overflow-hidden"
             style={{
@@ -263,7 +263,7 @@ export default function LoginPage() {
             </button>
           </div>
         ) : showMfa ? (
-          <form onSubmit={handleMfaVerify} className="space-y-6 animate-fade-up">
+          <form onSubmit={handleMfaVerify} className="space-y-6 animate-slide-up">
             <div className="text-center">
               <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center"
                 style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-primary)' }}>
@@ -322,7 +322,7 @@ export default function LoginPage() {
         ) : (
           <>
             <form onSubmit={resetMode ? handlePasswordReset : handleLogin} className="space-y-4 mb-6">
-              <div className="animate-fade-up delay-1">
+              <div className="animate-slide-up delay-1">
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {t('settings.email')}
                 </label>
@@ -338,7 +338,7 @@ export default function LoginPage() {
               </div>
 
               {!resetMode && (
-                <div className="animate-fade-up delay-2">
+                <div className="animate-slide-up delay-2">
                   <div className="flex items-center justify-between mb-2">
                     <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                       {t('auth.password')}
@@ -374,7 +374,7 @@ export default function LoginPage() {
               )}
 
               {!resetMode && (
-                <div className="animate-fade-up delay-3">
+                <div className="animate-slide-up delay-3">
                   <TurnstileWidget
                     siteKey={TURNSTILE_SITE_KEY}
                     onVerify={(token) => {
@@ -399,7 +399,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-apple-primary w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-4"
+                className="btn-apple-primary w-full py-4 flex items-center justify-center gap-2 text-base animate-slide-up delay-4"
               >
                 {loading ? (
                   <span className="animate-pulse font-bold tracking-[0.2em] text-[10px] uppercase opacity-60">Working...</span>
@@ -433,14 +433,14 @@ export default function LoginPage() {
               )}
             </form>
 
-            <div className="animate-fade-up delay-4 mb-8">
+            <div className="animate-slide-up delay-4 mb-8">
               <SocialAuth />
             </div>
           </>
         )}
 
         {!showMfa && (
-          <div className="text-center animate-fade-up delay-4">
+          <div className="text-center animate-slide-up delay-4">
             <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
               {t('auth.no_account')}{' '}
               <Link href="/signup" className="font-semibold" style={{ color: 'var(--accent-primary)' }}>
@@ -451,7 +451,7 @@ export default function LoginPage() {
         )}
 
         {/* Footer links */}
-        <div className="flex items-center justify-center gap-4 mt-8 animate-fade-up delay-5">
+        <div className="flex items-center justify-center gap-4 mt-8 animate-slide-up delay-5">
           <Link href="/privacy" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('settings.privacy')}</Link>
           <span style={{ color: 'var(--text-tertiary)' }}>·</span>
           <Link href="/terms" className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('settings.terms')}</Link>

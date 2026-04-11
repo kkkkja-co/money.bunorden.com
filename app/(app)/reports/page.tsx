@@ -165,7 +165,7 @@ export default function ReportsPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto w-full">
-        <header className="mb-8 animate-fade-up">
+        <header className="mb-8 animate-slide-up">
           <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
             {t('reports.title')}
           </h1>
@@ -177,7 +177,7 @@ export default function ReportsPage() {
         {loading ? (
           <PageSkeleton />
         ) : categoryTotals.length === 0 ? (
-          <div className="surface-elevated text-center py-20 animate-fade-up">
+          <div className="surface-elevated text-center py-20 animate-slide-up">
             <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
               <BarChart3 size={32} style={{ color: 'var(--text-tertiary)' }} />
             </div>
@@ -195,7 +195,7 @@ export default function ReportsPage() {
         ) : (
           <div className="space-y-8 pb-10">
             {/* Assets Overview Pie Chart */}
-            <div className="surface-elevated animate-fade-up delay-1 overflow-hidden">
+            <div className="surface-elevated animate-slide-up delay-1 overflow-hidden">
               <div className="flex items-center justify-between mb-6 px-1">
                 <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{t('reports.assets_overview')}</h3>
                 <button
@@ -236,7 +236,7 @@ export default function ReportsPage() {
             </div>
 
             {/* Quick Summary Cards */}
-            <div className="grid grid-cols-2 gap-4 animate-fade-up delay-2">
+            <div className="grid grid-cols-2 gap-4 animate-slide-up delay-2">
               <div className="surface-elevated flex flex-col items-center text-center">
                 <div className="w-10 h-10 rounded-full bg-success-bg flex items-center justify-center mb-3">
                   <TrendingUp size={20} style={{ color: 'var(--success)' }} />
@@ -258,7 +258,7 @@ export default function ReportsPage() {
             </div>
 
             {/* Main Tabs */}
-            <div className="surface-elevated p-1.5 flex gap-1 animate-fade-up delay-2">
+            <div className="surface-elevated p-1.5 flex gap-1 animate-slide-up delay-2">
               <button
                 onClick={() => setViewType('categories')}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold transition-all"
@@ -284,7 +284,7 @@ export default function ReportsPage() {
             </div>
 
             {viewType === 'categories' && (
-              <div className="space-y-6 animate-fade-up delay-3">
+              <div className="space-y-6 animate-slide-up delay-3">
                 {/* Visual Section */}
                 <div className="surface-elevated pb-8 overflow-hidden">
                   <div className="flex items-center justify-between mb-8 px-2">
@@ -401,7 +401,7 @@ export default function ReportsPage() {
             )}
 
             {viewType === 'monthly' && (
-              <div className="space-y-6 animate-fade-up delay-3">
+              <div className="space-y-6 animate-slide-up delay-3">
                 <div className="surface-elevated">
                   <h3 className="text-sm font-bold mb-8 px-2" style={{ color: 'var(--text-primary)' }}>{t('reports.trend')}</h3>
                   <div className="h-[300px] w-full">
