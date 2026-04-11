@@ -46,6 +46,7 @@ export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [totals, setTotals] = useState({ income: 0, expense: 0 })
+  const [overallBudget, setOverallBudget] = useState<number | null>(null)
   const [mfaEnabled, setMfaEnabled] = useState(true)
   const [showMfaReminder, setShowMfaReminder] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
@@ -120,6 +121,18 @@ export default function DashboardPage() {
         else if (t.type === 'expense') exp += Number(t.amount)
       })
       setTotals({ income: inc, expense: exp })
+
+      // Fetch Budget
+      const { data: budgetData } = await supabase
+        .from('budgets')
+        .select('amount')
+        .eq('user_id', user.id)
+        .eq('month_year', monthStart)
+        .is('category_id', null)
+        .maybeSingle()
+      
+      if (budgetData) setOverallBudget(Number(budgetData.amount))
+      else setOverallBudget(null)
     } catch (error) {
       console.error('Dashboard error:', error)
       router.push('/login')
@@ -149,16 +162,31 @@ export default function DashboardPage() {
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 px-4 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto w-full">
         {/* Header */}
-        <div className="mb-8 animate-fade-up">
-          <h1
-            className="text-3xl lg:text-4xl font-bold tracking-tight mb-1"
-            style={{ color: 'var(--text-primary)' }}
+        <div className="mb-8 animate-fade-up flex items-start justify-between gap-4">
+          <div>
+            <h1
+              className="text-3xl lg:text-4xl font-bold tracking-tight mb-1"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              {t('common.welcome')}{profile?.display_name ? `, ${profile.display_name}` : ''}
+            </h1>
+            <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
+              {new Date().toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            </p>
+          </div>
+          
+          <Link 
+            href="/budgets"
+            className="group flex flex-col items-end gap-1 px-3 py-2 rounded-2xl transition-all"
+            style={{ background: 'var(--overlay)', border: '1px solid var(--border)' }}
           >
-            {t('common.welcome')}{profile?.display_name ? `, ${profile.display_name}` : ''}
-          </h1>
-          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-            {new Date().toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-          </p>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-accent-primary animate-pulse">Release</span>
+              <div className="w-1 h-1 rounded-full bg-accent-primary" />
+              <span className="text-[10px] font-bold text-tertiary">v0.5.0</span>
+            </div>
+            <span className="text-[11px] font-bold text-primary group-hover:text-accent-primary transition-colors">Budgeting is here! →</span>
+          </Link>
         </div>
 
         {/* 2FA Reminder */}
@@ -294,7 +322,7 @@ export default function DashboardPage() {
         )}
 
         {/* Income / Expense cards */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="glass-card animate-fade-up delay-2">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--success-bg)' }}>
@@ -332,6 +360,44 @@ export default function DashboardPage() {
             </p>
           </div>
         </div>
+
+        {/* Budget Progress Card */}
+        {overallBudget !== null && (
+          <Link href="/budgets" id="tour-budgets" className="glass-card mb-6 block animate-fade-up delay-3 transition-transform active:scale-[0.98]">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
+                  <Target size={16} style={{ color: 'var(--accent-primary)' }} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{t('budgets.title')}</h3>
+                  <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{t('budgets.overall')}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold" style={{ color: totals.expense > overallBudget ? 'var(--danger)' : 'var(--text-primary)' }}>
+                  {Math.round((totals.expense / overallBudget) * 100)}%
+                </p>
+                <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
+                  {isVisible ? t(totals.expense <= overallBudget ? 'budgets.remaining' : 'budgets.over_by', {
+                    amount: formatCurrency(Math.abs(overallBudget - totals.expense), currency),
+                  }) : '••••••'}
+                </p>
+              </div>
+            </div>
+            <div className="h-2 w-full rounded-full overflow-hidden" style={{ background: 'var(--overlay)' }}>
+              <div 
+                className="h-full rounded-full transition-all duration-1000 ease-out"
+                style={{ 
+                  width: `${Math.min(100, (totals.expense / overallBudget) * 100)}%`,
+                  background: totals.expense > overallBudget 
+                    ? 'var(--danger)' 
+                    : 'linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))'
+                }}
+              />
+            </div>
+          </Link>
+        )}
 
         {/* Quick Add Button */}
         <Link

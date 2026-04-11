@@ -46,6 +46,11 @@ export function ProductTour() {
       title: t('tour.reports_title'),
       description: t('tour.reports_desc'),
       targetId: 'tour-reports'
+    },
+    {
+      title: t('tour.budgets_title'),
+      description: t('tour.budgets_desc'),
+      targetId: 'tour-budgets'
     }
   ]
 

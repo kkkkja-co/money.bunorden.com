@@ -29,6 +29,18 @@ export function BottomNav() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const [hasSeenNewFeature, setHasSeenNewFeature] = useState(true)
+
+  useEffect(() => {
+    const seen = localStorage.getItem('clavi-feature-budgets-seen')
+    if (!seen) setHasSeenNewFeature(false)
+  }, [])
+
+  const markFeatureSeen = () => {
+    localStorage.setItem('clavi-feature-budgets-seen', 'true')
+    setHasSeenNewFeature(true)
+  }
+
   const tabs = [
     { href: '/dashboard', icon: Home, label: t('nav.home') },
     { href: '/transactions', icon: ArrowLeftRight, label: t('nav.history') },
@@ -36,8 +48,9 @@ export function BottomNav() {
     { 
       id: 'analysis', 
       icon: PieChart, 
-      label: t('nav.budgets'), // We'll change this label/logic
-      isMenu: true 
+      label: t('nav.budgets'),
+      isMenu: true,
+      hasBadge: !hasSeenNewFeature 
     },
     { href: '/settings', icon: Settings, label: t('nav.settings') },
   ]
@@ -131,7 +144,12 @@ export function BottomNav() {
             <div
               className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 relative group cursor-pointer"
               style={{ transition: 'all 0.3s ease' }}
-              onClick={() => tab.isMenu && setShowAnalysisMenu(!showAnalysisMenu)}
+              onClick={() => {
+                if (tab.isMenu) {
+                  setShowAnalysisMenu(!showAnalysisMenu)
+                  if (tab.hasBadge) markFeatureSeen()
+                }
+              }}
             >
               <div className="relative">
                 <Icon
@@ -143,9 +161,15 @@ export function BottomNav() {
                     transform: isActive ? 'scale(1.1)' : 'scale(1)',
                   }}
                 />
+                {tab.hasBadge && (
+                  <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-primary opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-primary"></span>
+                  </span>
+                )}
                 {tab.isMenu && (
                   <div className="absolute -top-1 -right-1">
-                    <ChevronUp size={10} style={{ color: showAnalysisMenu ? 'var(--accent-primary)' : 'var(--text-tertiary)' }} />
+                    {!tab.hasBadge && <ChevronUp size={10} style={{ color: showAnalysisMenu ? 'var(--accent-primary)' : 'var(--text-tertiary)' }} />}
                   </div>
                 )}
               </div>
