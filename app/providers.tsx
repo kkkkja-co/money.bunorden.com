@@ -54,6 +54,26 @@ export function Providers({ children }: { children: React.ReactNode }) {
     const storedLang = localStorage.getItem('clavi-lang') as Language | null
     if (storedLang) {
       setLanguageState(storedLang)
+    } else {
+      // Auto-detect based on location (Timezone) and browser settings
+      try {
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+        const browserLang = navigator.language
+        
+        const isChineseRegion = 
+          timeZone.includes('Shanghai') || 
+          timeZone.includes('Taipei') || 
+          timeZone.includes('Hong_Kong') ||
+          timeZone.includes('Macau') ||
+          timeZone.includes('Urumqi') ||
+          browserLang.toLowerCase().includes('zh')
+
+        const detectedLang: Language = isChineseRegion ? 'zh-TW' : 'en'
+        setLanguageState(detectedLang)
+        // We don't save to localStorage yet to allow user to override easily
+      } catch (e) {
+        setLanguageState('en') // Fallback
+      }
     }
 
     setMounted(true)
