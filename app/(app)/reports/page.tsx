@@ -226,7 +226,6 @@ export default function ReportsPage() {
                       <Cell fill="var(--danger)" />
                     </Pie>
                     <RechartsTooltip content={<CustomTooltip />} />
-                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none" style={{ marginTop: '-18px' }}>
@@ -328,7 +327,7 @@ export default function ReportsPage() {
                     </div>
                   </div>
 
-                  <div className="h-[320px] w-full relative">
+                  <div className="h-[300px] w-full relative">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -339,27 +338,17 @@ export default function ReportsPage() {
                           dataKey="value"
                           cornerRadius={10}
                           cx="50%"
-                          cy="45%"
+                          cy="50%"
+                          stroke="none"
                         >
                           {chartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
                         <RechartsTooltip content={<CustomTooltip />} />
-                        <Legend 
-                          verticalAlign="bottom" 
-                          align="center"
-                          iconType="circle"
-                          wrapperStyle={{ paddingTop: '20px' }}
-                          formatter={(value) => (
-                            <span className="text-[10px] font-medium ml-1" style={{ color: 'var(--text-tertiary)' }}>
-                              {value}
-                            </span>
-                          )}
-                        />
                       </PieChart>
                     </ResponsiveContainer>
-                    <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
                       <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>{t('common.total')}</p>
                       <p className="text-xl font-black" style={{ color: 'var(--text-primary)' }}>
                         {isVisible ? formatCurrency(filterType === 'income' ? totalIncome : totalExpense, currency) : '••••'}

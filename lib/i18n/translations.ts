@@ -27,6 +27,7 @@ export const translations = {
       clavi_name_meaning: 'from Latin clavis, meaning key.',
       clavi_principle: 'A key does not store your wealth — it grants you access to it. Clavi was built on the same principle: your financial data belongs to you, and only you hold the key.',
       optional: 'optional',
+      total: 'Total',
     },
     nav: {
       dashboard: 'Dashboard',
@@ -402,8 +403,9 @@ export const translations = {
       clavi_vision_long: '服務於人，而非平台的理財。',
       clavi_vision_subtitle: '我們相信管理金錢應該感到自由，而非被監視。Clavi 為那些希望完全掌控自己財務故事的人而建 — 沒有廣告，沒有演算法監視，不將數據出售給陌生人。',
       clavi_name_meaning: '源自拉丁語 clavis，意為鑰匙。',
-      clavi_principle: '鑰匙本身不儲存財富 — 它賦予您存取的權限。Clavi 基於同樣的原則：您的財務數據屬於您，且只有您掌握鑰匙。',
+      clavi_principle: '鑰匙本身不儲存您的財富，而是授予您存取權限。Clavi 正是基於此原則打造：您的財務數據屬於您，只有您握有這把鑰匙。',
       optional: '選填',
+      total: '總計',
     },
     nav: {
       dashboard: '儀表板',
