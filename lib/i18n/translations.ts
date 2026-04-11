@@ -755,6 +755,9 @@ export const translations = {
       pass_requirements_error: '密碼不符合安全要求',
       use_another_email: '使用另一個電子郵件',
       activation_sent: '請點擊連結以啟動您的帳戶。',
+      signin_with: '使用 {provider} 登入',
+      signup_with: '使用 {provider} 註冊',
+      or: '或使用以下方式繼續',
     }
   }
 };

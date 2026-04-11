@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase/client'
 import { Eye, EyeOff, LogIn, Shield, ArrowLeft, Languages } from 'lucide-react'
 import { useTranslation, useTheme, useLanguage } from '@/app/providers'
 import { TurnstileWidget } from '../TurnstileWidget'
+import { SocialAuth } from '@/components/auth/SocialAuth'
 
 const TURNSTILE_SITE_KEY = '0x4AAAAAAC58QEXTzEw4Mr-A'
 
@@ -352,6 +353,10 @@ export default function LoginPage() {
               </button>
             )}
           </form>
+
+          <div className="animate-fade-up delay-4 mb-8">
+            <SocialAuth />
+          </div>
         )}
 
         {!showMfa && (

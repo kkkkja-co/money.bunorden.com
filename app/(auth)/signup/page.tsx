@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase/client'
 import { Eye, EyeOff, UserPlus, Languages } from 'lucide-react'
 import { useTheme, useTranslation, useLanguage } from '@/app/providers'
 import { TurnstileWidget } from '../TurnstileWidget'
+import { SocialAuth } from '@/components/auth/SocialAuth'
 
 const TURNSTILE_SITE_KEY = '0x4AAAAAAC58QEXTzEw4Mr-A'
 
@@ -268,6 +269,12 @@ export default function SignupPage() {
             </button>
           )}
         </form>
+
+        {!success && (
+          <div className="animate-fade-up delay-5 mb-8">
+            <SocialAuth />
+          </div>
+        )}
         <div className="text-center animate-fade-up delay-5">
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
             {t('auth.have_account')}{' '}
