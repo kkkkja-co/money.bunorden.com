@@ -316,8 +316,12 @@ export default function DashboardPage() {
               </div>
               <Link
                 href="/budgets"
-                className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-0.5 flex-shrink-0"
-                style={{ color: 'var(--accent-primary)' }}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider flex-shrink-0 transition-all active:scale-95"
+                style={{ 
+                  color: 'var(--accent-primary)',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  border: '1px solid rgba(59, 130, 246, 0.2)'
+                }}
               >
                 <Target size={12} strokeWidth={2.5} />
                 {t('budgets.short_link')}

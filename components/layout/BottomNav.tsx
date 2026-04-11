@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings } from 'lucide-react'
+import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Target } from 'lucide-react'
 
 import { useTranslation } from '@/app/providers'
 
@@ -14,6 +14,7 @@ export function BottomNav() {
     { href: '/dashboard', icon: Home, label: t('nav.home') },
     { href: '/transactions', icon: ArrowLeftRight, label: t('nav.history') },
     { href: '/add', icon: PlusCircle, label: t('nav.add') },
+    { href: '/budgets', icon: Target, label: t('nav.budgets') },
     { href: '/reports', icon: BarChart3, label: t('nav.reports') },
     { href: '/settings', icon: Settings, label: t('nav.settings') },
   ]
