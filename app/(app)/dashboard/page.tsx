@@ -53,6 +53,7 @@ export default function DashboardPage() {
   const [mfaEnabled, setMfaEnabled] = useState(true)
   const [showMfaReminder, setShowMfaReminder] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
+  const [chartData, setChartData] = useState<{ name: string, value: number }[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -110,21 +111,36 @@ export default function DashboardPage() {
       setTransactions(mapped)
 
       // Calculate totals for current month
+      // Calculate totals and category breakdown for current month
       const now = new Date()
       const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
       const { data: monthTx } = await supabase
         .from('transactions')
-        .select('type, amount')
+        .select('type, amount, exclude_from_budget, category:categories(name, icon)')
         .eq('user_id', user.id)
-        .eq('exclude_from_budget', false)
         .gte('date', monthStart)
 
+      // Filter to only included transactions for the summary and chart
+      const budgetTransactions = (monthTx || []).filter(t => !t.exclude_from_budget)
+
       let inc = 0, exp = 0
-      ;(monthTx || []).forEach(t => {
-        if (t.type === 'income') inc += Number(t.amount)
-        else if (t.type === 'expense') exp += Number(t.amount)
+      const chartMap: Record<string, { name: string, value: number }> = {}
+
+      budgetTransactions.forEach(t => {
+        const amt = Number(t.amount)
+        if (t.type === 'income') {
+          inc += amt
+        } else if (t.type === 'expense') {
+          exp += amt
+          const cat = Array.isArray(t.category) ? t.category[0] : t.category
+          const catName = cat?.name || 'Other'
+          if (!chartMap[catName]) chartMap[catName] = { name: catName, value: 0 }
+          chartMap[catName].value += amt
+        }
       })
+
       setTotals({ income: inc, expense: exp })
+      setChartData(Object.values(chartMap).sort((a, b) => b.value - a.value).slice(0, 10))
 
       // Fetch Budget
       const { data: budgetData } = await supabase
@@ -359,26 +375,16 @@ export default function DashboardPage() {
               </div>
 
               <div className="w-full grid grid-cols-2 gap-x-6 gap-y-2 px-2">
-                {Object.values(
-                  transactions
-                    .filter(t => t.type === 'expense')
-                    .reduce((acc: any, t) => {
-                      const name = t.category?.name || 'Other'
-                      if (!acc[name]) acc[name] = { name, value: 0 }
-                      acc[name].value += Number(t.amount)
-                      return acc
-                    }, {})
-                )
-                  .sort((a: any, b: any) => b.value - a.value)
+                {chartData
                   .slice(0, 4)
-                  .map((item: any, i) => (
+                  .map((item, i) => (
                     <div key={item.name} className="flex items-center justify-between overflow-hidden">
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
                         <span className="text-[11px] font-medium truncate" style={{ color: 'var(--text-secondary)' }}>{item.name}</span>
                       </div>
                       <span className="text-[10px] font-bold flex-shrink-0" style={{ color: 'var(--text-primary)' }}>
-                        {isVisible ? `${Math.round((item.value / totals.expense) * 100)}%` : '••%'}
+                        {isVisible ? `${totals.expense > 0 ? Math.round((item.value / totals.expense) * 100) : 0}%` : '••%'}
                       </span>
                     </div>
                   ))}
