@@ -299,8 +299,9 @@ export default function TransactionsPage() {
           </div>
         )}
       </div>
+    </div>
 
-      {deleteId && (
+    {deleteId && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-fade-in" onClick={() => setDeleteId(null)}>
           <div className="bg-secondary rounded-[32px] p-8 max-w-sm w-full border border-border" onClick={e => e.stopPropagation()}>
             <div className="text-center">
