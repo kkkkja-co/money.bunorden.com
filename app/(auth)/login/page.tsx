@@ -255,108 +255,110 @@ export default function LoginPage() {
             </div>
           </form>
         ) : (
-          <form onSubmit={resetMode ? handlePasswordReset : handleLogin} className="space-y-4 mb-6">
-            <div className="animate-fade-up delay-1">
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                {t('settings.email')}
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="input-glass"
-                required
-                autoFocus
-              />
-            </div>
-
-            {!resetMode && (
-              <div className="animate-fade-up delay-2">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                    {t('auth.password')}
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setResetMode(true)}
-                    className="text-xs font-semibold"
-                    style={{ color: 'var(--accent-primary)' }}
-                  >
-                    {t('auth.forgot_password')}
-                  </button>
-                </div>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="input-glass pr-12"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
-                    style={{ color: 'var(--text-tertiary)' }}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {!resetMode && (
-              <div className="animate-fade-up delay-3">
-                <TurnstileWidget
-                  siteKey={TURNSTILE_SITE_KEY}
-                  onVerify={(token) => {
-                    setCaptchaToken(token)
-                    setError('')
-                  }}
-                  onExpire={() => setCaptchaToken('')}
-                  resetSignal={captchaResetSignal}
+          <>
+            <form onSubmit={resetMode ? handlePasswordReset : handleLogin} className="space-y-4 mb-6">
+              <div className="animate-fade-up delay-1">
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                  {t('settings.email')}
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="input-glass"
+                  required
+                  autoFocus
                 />
               </div>
-            )}
 
-            {error && (
-              <div
-                className="p-3 rounded-xl text-sm font-medium animate-scale-in"
-                style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
-              >
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-4"
-            >
-              {loading ? (
-                <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
-              ) : (
-                <>{resetMode ? <LogIn size={18} /> : <LogIn size={18} />} {resetMode ? t('auth.send_reset_link') : t('auth.signin')}</>
+              {!resetMode && (
+                <div className="animate-fade-up delay-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                      {t('auth.password')}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setResetMode(true)}
+                      className="text-xs font-semibold"
+                      style={{ color: 'var(--accent-primary)' }}
+                    >
+                      {t('auth.forgot_password')}
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="input-glass pr-12"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                      style={{ color: 'var(--text-tertiary)' }}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
               )}
-            </button>
 
-            {resetMode && (
+              {!resetMode && (
+                <div className="animate-fade-up delay-3">
+                  <TurnstileWidget
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onVerify={(token) => {
+                      setCaptchaToken(token)
+                      setError('')
+                    }}
+                    onExpire={() => setCaptchaToken('')}
+                    resetSignal={captchaResetSignal}
+                  />
+                </div>
+              )}
+
+              {error && (
+                <div
+                  className="p-3 rounded-xl text-sm font-medium animate-scale-in"
+                  style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid rgba(255,59,48,0.2)' }}
+                >
+                  {error}
+                </div>
+              )}
+
               <button
-                type="button"
-                onClick={() => setResetMode(false)}
-                className="w-full text-center text-sm font-medium"
-                style={{ color: 'var(--text-tertiary)' }}
+                type="submit"
+                disabled={loading}
+                className="btn-primary-gradient w-full py-4 flex items-center justify-center gap-2 text-base animate-fade-up delay-4"
               >
-                {t('auth.back_to_signin')}
+                {loading ? (
+                  <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                ) : (
+                  <>{resetMode ? <LogIn size={18} /> : <LogIn size={18} />} {resetMode ? t('auth.send_reset_link') : t('auth.signin')}</>
+                )}
               </button>
-            )}
-          </form>
 
-          <div className="animate-fade-up delay-4 mb-8">
-            <SocialAuth />
-          </div>
+              {resetMode && (
+                <button
+                  type="button"
+                  onClick={() => setResetMode(false)}
+                  className="w-full text-center text-sm font-medium"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
+                  {t('auth.back_to_signin')}
+                </button>
+              )}
+            </form>
+
+            <div className="animate-fade-up delay-4 mb-8">
+              <SocialAuth />
+            </div>
+          </>
         )}
 
         {!showMfa && (
