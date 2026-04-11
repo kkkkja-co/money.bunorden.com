@@ -60,7 +60,7 @@ export function BottomNav() {
         background: 'var(--bg-secondary)',
         backdropFilter: 'blur(32px)',
         borderTop: '1px solid var(--border)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 12px) + 20px)', /* Lifted higher */
+        paddingBottom: 'env(safe-area-inset-bottom, 8px)',
         WebkitBackdropFilter: 'blur(32px)',
       }}
     >

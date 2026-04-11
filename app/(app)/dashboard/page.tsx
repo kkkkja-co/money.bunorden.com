@@ -99,23 +99,21 @@ export default function DashboardPage() {
         
         {/* Unified Header Group (Fixed Spacing & Overlap) */}
         <section className="animate-slide-up mb-12">
-          <div className="flex items-start justify-between gap-8 mb-10">
-            <div className="min-w-0 pr-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-1.5 truncate">
-                {new Date().toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-              </p>
-              <h1 className="text-3xl font-bold tracking-tight leading-tight">
-                {t('common.welcome')}, <br/>
-                <span className="text-primary">{profile?.display_name?.split(' ')[0]}</span>
-              </h1>
-            </div>
-            <Link href="/settings" className="flex-shrink-0 mt-2 w-12 h-12 rounded-full bg-secondary border border-border flex items-center justify-center relative active:scale-95 transition-transform">
-              <Bell size={20} className="text-secondary" />
-              <div className="absolute top-3.5 right-3.5 w-2 h-2 rounded-full bg-accent-primary ring-2 ring-black" />
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary">
+              {new Date().toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+            </p>
+            <Link href="/settings" className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center relative active:scale-95 transition-transform">
+              <Bell size={18} className="text-secondary" />
+              <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-accent-primary ring-2 ring-black" />
             </Link>
           </div>
+          
+          <h1 className="text-3xl font-bold tracking-tight text-primary">
+            {t('common.welcome')}, <span className="opacity-50">{profile?.display_name?.split(' ')[0]}</span>
+          </h1>
 
-          <div className="text-center py-6">
+          <div className="text-center py-10">
             <div className="flex items-center justify-center gap-2 mb-2">
               <span className="text-[11px] font-black uppercase tracking-[0.25em] text-secondary">{t('dashboard.balance_title')}</span>
               <button onClick={() => setIsVisible(!isVisible)} className="opacity-30 hover:opacity-100 transition-opacity">

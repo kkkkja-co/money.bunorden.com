@@ -8,35 +8,34 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        accent: {
-          DEFAULT: '#3b82f6',
-          hover: '#2563eb',
-          secondary: '#8b5cf6',
+        primary: 'var(--text-primary)',
+        secondary: 'var(--text-secondary)',
+        tertiary: 'var(--text-tertiary)',
+        bg: {
+          primary: 'var(--bg-primary)',
+          secondary: 'var(--bg-secondary)',
+          elevated: 'var(--bg-elevated)',
         },
-        success: '#34c759',
-        danger: '#ff3b30',
-        warning: '#ff9500',
+        accent: {
+          primary: 'var(--accent-primary)',
+          secondary: 'var(--accent-secondary)',
+          DEFAULT: 'var(--accent-primary)',
+        },
+        success: 'var(--success)',
+        danger: 'var(--danger)',
+        border: 'var(--border)',
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', 'sans-serif'],
-      },
-      borderRadius: {
-        card: '16px',
-        input: '12px',
-        pill: '9999px',
+        sans: ['-apple-system', '"SF Pro Text"', '"SF Pro Display"', 'Inter', 'system-ui', 'sans-serif'],
       },
       spacing: {
         'safe-bottom': 'env(safe-area-inset-bottom)',
         'safe-top': 'env(safe-area-inset-top)',
       },
-      boxShadow: {
-        subtle: '0 2px 20px rgba(0,0,0,0.06)',
-        glass: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-        glow: '0 8px 24px rgba(59, 130, 246, 0.3)',
-      },
       letterSpacing: {
         tight: '-0.02em',
         tighter: '-0.04em',
+        widest: '0.2em',
       },
     },
   },

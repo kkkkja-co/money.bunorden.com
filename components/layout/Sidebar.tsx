@@ -47,8 +47,8 @@ export function Sidebar() {
               href={item.href}
               className="flex items-center gap-4 px-6 py-4 rounded-3xl font-bold text-sm transition-all active:scale-95 relative overflow-hidden"
               style={{
-                background: isActive ? 'var(--text-primary)' : 'transparent',
-                color: isActive ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                background: isActive ? 'var(--accent-primary)' : 'transparent',
+                color: isActive ? '#ffffff' : 'var(--text-secondary)',
               }}
               onMouseEnter={(e) => {
                 if (!isActive) {
