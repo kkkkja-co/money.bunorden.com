@@ -215,7 +215,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               transactions.map((tx) => (
-                <Link key={tx.id} href="/transactions" className="list-item">
+                <Link key={tx.id} href={`/add?id=${tx.id}`} className="list-item active:bg-white/5 transition-colors">
                   <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl">
                     {tx.category?.icon || (tx.type === 'income' ? '💰' : '💸')}
                   </div>

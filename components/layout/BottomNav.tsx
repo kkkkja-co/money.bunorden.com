@@ -44,7 +44,7 @@ export function BottomNav() {
     { href: '/dashboard', icon: Home, label: t('nav.home') },
     { href: '/transactions', icon: ArrowLeftRight, label: t('nav.history') },
     { href: '/add', icon: PlusCircle, label: t('nav.add'), isSpecial: true },
-    { id: 'analysis', icon: PieChart, label: t('nav.budgets'), isMenu: true, hasBadge: !hasSeenNewFeature },
+    { id: 'analysis', icon: PieChart, label: t('nav.insights'), isMenu: true, hasBadge: !hasSeenNewFeature },
     { href: '/settings', icon: Settings, label: t('nav.settings') },
   ]
 

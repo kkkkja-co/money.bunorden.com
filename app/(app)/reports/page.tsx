@@ -76,7 +76,6 @@ export default function ReportsPage() {
         .from('transactions')
         .select('type, amount, date, category:categories(name, icon)')
         .eq('user_id', user.id)
-        .eq('exclude_from_budget', false)
         .order('date', { ascending: false })
 
       if (!rawTxs || rawTxs.length === 0) { setLoading(false); return }

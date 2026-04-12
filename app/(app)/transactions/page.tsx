@@ -283,7 +283,11 @@ export default function TransactionsPage() {
                   </h3>
                   <div className="list-wrapper">
                     {txs.map((tx) => (
-                      <div key={tx.id} className={`list-item group ${tx.exclude_from_budget ? 'opacity-40 grayscale' : ''}`}>
+                      <div 
+                        key={tx.id} 
+                        onClick={() => router.push(`/add?id=${tx.id}`)}
+                        className={`list-item group cursor-pointer active:bg-white/5 transition-colors ${tx.exclude_from_budget ? 'opacity-40 grayscale' : ''}`}
+                      >
                         <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl">
                           {tx.category?.icon || (tx.type === 'income' ? '💰' : '💸')}
                         </div>
@@ -298,10 +302,24 @@ export default function TransactionsPage() {
                             {tx.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(tx.amount), tx.currency)}
                           </p>
                           <div className="flex justify-end gap-3 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => router.push(`/add?id=${tx.id}`)} className="text-[var(--text-tertiary)] hover:text-[var(--accent-primary)]" aria-label={t('common.settings')}>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                router.push(`/add?id=${tx.id}`)
+                              }} 
+                              className="p-1 text-[var(--text-tertiary)] hover:text-[var(--accent-primary)]" 
+                              aria-label={t('common.settings')}
+                            >
                               <Edit2 size={12} />
                             </button>
-                            <button onClick={() => setDeleteId(tx.id)} className="text-[var(--text-tertiary)] hover:text-[var(--danger)]" aria-label={t('common.delete')}>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setDeleteId(tx.id)
+                              }} 
+                              className="p-1 text-[var(--text-tertiary)] hover:text-[var(--danger)]" 
+                              aria-label={t('common.delete')}
+                            >
                               <Trash2 size={12} />
                             </button>
                           </div>
