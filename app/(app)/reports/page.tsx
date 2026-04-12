@@ -7,7 +7,7 @@ import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency } from '@/lib/utils'
 import { 
   BarChart3, PieChart as PieChartIcon, TrendingUp, TrendingDown, 
-  ChevronRight, Filter, SortAsc, LayoutGrid, List, Eye, EyeOff
+  ChevronRight, Filter, SortAsc, LayoutGrid, List, Eye, EyeOff, Calendar
 } from 'lucide-react'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { 
@@ -49,6 +49,8 @@ export default function ReportsPage() {
   const [sortBy, setSortBy] = useState<'amount' | 'name'>('amount')
   const [filterType, setFilterType] = useState<'income' | 'expense'>('expense')
   const [isVisible, setIsVisible] = useState(true)
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
 
   useEffect(() => {
     const saved = localStorage.getItem('clavi-balance-visible')
@@ -72,11 +74,15 @@ export default function ReportsPage() {
         .from('profiles').select('currency').eq('id', user.id).single()
       if (profile?.currency) setCurrency(profile.currency)
 
-      const { data: rawTxs } = await supabase
+      let query = supabase
         .from('transactions')
         .select('type, amount, date, category:categories(name, icon)')
         .eq('user_id', user.id)
-        .order('date', { ascending: false })
+
+      if (startDate) query = query.gte('date', startDate)
+      if (endDate) query = query.lte('date', endDate)
+
+      const { data: rawTxs } = await query.order('date', { ascending: false })
 
       if (!rawTxs || rawTxs.length === 0) { setLoading(false); return }
 
@@ -117,7 +123,7 @@ export default function ReportsPage() {
     } finally {
       setLoading(false)
     }
-  }, [router])
+  }, [router, startDate, endDate])
 
   useEffect(() => { fetchData() }, [fetchData])
 
@@ -172,6 +178,59 @@ export default function ReportsPage() {
             {viewType === 'categories' ? t('reports.by_category') : t('reports.monthly')}
           </p>
         </header>
+
+        {/* Date Range Picker */}
+        <div className="space-y-2 mb-8 animate-slide-up delay-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="start-date" className="block text-[9px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 ml-1">From</label>
+              <div className="relative group w-full h-[48px]">
+                <input
+                  id="start-date"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-20"
+                  style={{ colorScheme: 'dark' }}
+                />
+                <div className="absolute inset-0 surface-elevated-interactive py-3 px-4 flex items-center justify-center z-10 pointer-events-none">
+                  <Calendar size={14} className="absolute left-4 text-[var(--text-secondary)] group-hover:text-[var(--accent-primary)] transition-colors" />
+                  <span className="text-sm font-bold text-[var(--text-primary)]">
+                    {startDate ? new Date(startDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : 'Any'}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label htmlFor="end-date" className="block text-[9px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 ml-1">To</label>
+              <div className="relative group w-full h-[48px]">
+                <input
+                  id="end-date"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-20"
+                  style={{ colorScheme: 'dark' }}
+                />
+                <div className="absolute inset-0 surface-elevated-interactive py-3 px-4 flex items-center justify-center z-10 pointer-events-none">
+                  <Calendar size={14} className="absolute left-4 text-[var(--text-secondary)] group-hover:text-[var(--accent-primary)] transition-colors" />
+                  <span className="text-sm font-bold text-[var(--text-primary)]">
+                    {endDate ? new Date(endDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : 'Any'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {(startDate || endDate) && (
+            <button
+              onClick={() => { setStartDate(''); setEndDate('') }}
+              className="w-full py-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--danger)] font-bold text-xs uppercase tracking-widest hover:bg-white/5 transition-colors"
+              aria-label="Clear date range"
+            >
+              {t('common.cancel')}
+            </button>
+          )}
+        </div>
 
         {loading ? (
           <PageSkeleton />

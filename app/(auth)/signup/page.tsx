@@ -145,7 +145,7 @@ export default function SignupPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
+                  placeholder="ghost@example.com"
                   className="input-minimal w-full"
                   required
                   autoFocus
