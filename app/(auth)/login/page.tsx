@@ -154,11 +154,12 @@ export default function LoginPage() {
       })
       if (verifyError) throw verifyError
 
-      // Successful verification will trigger the onAuthStateChange listener 
-      // which will handle the final redirect to /dashboard
+      // Redirect immediately to ensure no hang
+      router.push('/dashboard')
     } catch (err: any) {
       setLoading(false)
       setError(err?.message || 'MFA verification failed')
+      setMfaCode('') // Clear code on error to allow retry
     }
   }
 
@@ -270,14 +271,14 @@ export default function LoginPage() {
                 <Shield size={32} />
               </div>
 
-              <div className="relative">
+              <div className="flex justify-center max-w-[280px] mx-auto">
                 <input
                   type="text"
                   maxLength={6}
                   value={mfaCode}
                   onChange={(e) => setMfaCode(e.target.value.replace(/[^0-9]/g, ''))}
                   placeholder={t('auth.mfa_code_placeholder')}
-                  className="input-minimal text-center text-3xl font-bold tracking-[0.5em] py-6"
+                  className="input-minimal text-center text-3xl font-black tracking-[0.3em] py-8 w-full"
                   required
                   autoFocus
                   autoComplete="one-time-code"
