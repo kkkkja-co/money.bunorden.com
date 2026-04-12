@@ -154,12 +154,12 @@ export default function LoginPage() {
       })
       if (verifyError) throw verifyError
 
-      // Redirect immediately to ensure no hang
-      router.push('/dashboard')
+      // Use a hard redirect to ensure the session is properly picked up by all middleware
+      window.location.href = '/dashboard'
     } catch (err: any) {
       setLoading(false)
       setError(err?.message || 'MFA verification failed')
-      setMfaCode('') // Clear code on error to allow retry
+      setMfaCode('') 
     }
   }
 
