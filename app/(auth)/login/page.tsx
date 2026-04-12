@@ -154,12 +154,20 @@ export default function LoginPage() {
       })
       if (verifyError) throw verifyError
 
-      // Use a hard redirect to ensure the session is properly picked up by all middleware
+      // Start a fallback timer just in case the browser navigation hangs
+      const fallbackTimeout = setTimeout(() => {
+        window.location.assign('/dashboard')
+      }, 500)
+
+      // Primary redirect
       window.location.href = '/dashboard'
+      
+      return () => clearTimeout(fallbackTimeout)
     } catch (err: any) {
       setLoading(false)
-      setError(err?.message || 'MFA verification failed')
-      setMfaCode('') 
+      const message = err?.message || 'MFA verification failed'
+      setError(message)
+      setMfaCode('')
     }
   }
 
