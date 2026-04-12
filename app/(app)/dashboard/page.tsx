@@ -8,8 +8,10 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 import { 
   Plus, TrendingUp, TrendingDown,
   ChevronRight, Eye, EyeOff, Bell,
-  Target, Sparkles, Activity
+  Target, Sparkles, Activity, X,
+  ShieldCheck, Cpu, Globe, Lock
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { User } from '@supabase/supabase-js'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
@@ -29,6 +31,7 @@ export default function DashboardPage() {
   const [overallBudget, setOverallBudget] = useState<number | null>(null)
   const [isVisible, setIsVisible] = useState(true)
   const [chartData, setChartData] = useState<any[]>([])
+  const [showNotifications, setShowNotifications] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem('clavi-balance-visible')
@@ -106,7 +109,7 @@ export default function DashboardPage() {
             <button 
               onClick={() => {
                 const audio = new Audio('/assets/notification.mp3').play().catch(() => {})
-                alert('Vault Integrity: All security protocols (MFA, Encryption) are currently active and stable.')
+                setShowNotifications(true)
               }}
               className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative transition-all active:scale-90 hover:bg-white/10"
               aria-label={t('common.notifications_title') || 'Notifications'}
@@ -115,6 +118,107 @@ export default function DashboardPage() {
               <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[var(--accent-primary)] ring-2 ring-[var(--bg-primary)]" />
             </button>
           </div>
+
+          <AnimatePresence>
+            {showNotifications && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowNotifications(false)}
+                  className="absolute inset-0 bg-black/60 backdrop-blur-xl"
+                />
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  className="w-full max-w-md surface-elevated relative z-10 overflow-hidden shadow-2xl border border-white/10"
+                >
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-bold text-primary flex items-center gap-2">
+                        <Lock size={18} className="text-secondary opacity-40" />
+                        {t('notifications.title')}
+                      </h3>
+                      <button 
+                        onClick={() => setShowNotifications(false)}
+                        className="p-2 rounded-full hover:bg-white/5 transition-colors"
+                      >
+                        <X size={18} className="text-secondary" />
+                      </button>
+                    </div>
+
+                    {/* System Health dots */}
+                    <div className="mb-8">
+                      <div className="flex gap-1.5 mb-3">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="h-1 flex-1 rounded-full bg-success shadow-[0_0_8px_rgba(52,199,89,0.5)]" />
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex items-center gap-2 opacity-60">
+                          <ShieldCheck size={12} className="text-success" />
+                          <span className="text-[9px] font-black uppercase tracking-wider text-secondary">{t('notifications.mfa')}</span>
+                        </div>
+                        <div className="flex items-center gap-2 opacity-60">
+                          <Lock size={12} className="text-success" />
+                          <span className="text-[9px] font-black uppercase tracking-wider text-secondary">{t('notifications.encryption')}</span>
+                        </div>
+                        <div className="flex items-center gap-2 opacity-60">
+                          <Globe size={12} className="text-success" />
+                          <span className="text-[9px] font-black uppercase tracking-wider text-secondary">{t('notifications.cloudflare')}</span>
+                        </div>
+                        <div className="flex items-center gap-2 opacity-60">
+                          <Cpu size={12} className="text-success" />
+                          <span className="text-[9px] font-black uppercase tracking-wider text-secondary">{t('notifications.vercel')}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                      {/* Budget Insight */}
+                      {overallBudget !== null && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-secondary">{t('notifications.budget_integrity')}</p>
+                            <span className={`text-[10px] font-bold ${budgetSpent > overallBudget ? 'text-danger' : 'text-success'}`}>
+                              {budgetSpent > overallBudget ? 'Alert: Variance Detected' : 'All Clear'}
+                            </span>
+                          </div>
+                          <div className={`p-4 rounded-2xl border ${budgetSpent > overallBudget ? 'bg-danger/5 border-danger/20' : 'bg-success/5 border-success/20'}`}>
+                            <p className="text-sm font-bold mb-1">
+                              {budgetSpent > overallBudget 
+                                ? t('budgets.over_by', { amount: formatCurrency(budgetSpent - overallBudget, currency) }) 
+                                : t('budgets.remaining', { amount: formatCurrency(overallBudget - budgetSpent, currency) })
+                              }
+                            </p>
+                            <p className="text-[10px] text-tertiary">
+                              {budgetSpent > overallBudget ? 'Consider reviewing recent outsized expenses.' : 'Your spending pace is within healthy limits for this period.'}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Recent Updates */}
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-secondary">{t('notifications.recent_updates')}</p>
+                        <div className="surface-elevated p-4 border border-white/5 bg-white/[0.02]">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Sparkles size={14} className="text-accent-primary" />
+                            <p className="text-xs font-black uppercase text-accent-primary">{t('notifications.v051_title')}</p>
+                          </div>
+                          <p className="text-[11px] leading-relaxed text-secondary italic opacity-80">
+                            "{t('notifications.v051_desc')}"
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
           
           <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-primary mb-2">
             {t('common.welcome')}, <span className="opacity-30 font-normal">{profile?.display_name?.split(' ')[0]}</span>

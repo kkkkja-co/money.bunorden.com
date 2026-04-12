@@ -386,6 +386,19 @@ export const translations = {
       magic_link: 'Sign in with Magic Link',
       send_magic_link: 'Send Magic Link',
       magic_link_sent: 'Magic link sent! Check your email to sign in.',
+    },
+    notifications: {
+      title: 'Vault Integrity & Insights',
+      system_health: 'System Health',
+      mfa: 'MFA Protection',
+      encryption: 'End-to-End Encryption',
+      cloudflare: 'WAF Protection',
+      vercel: 'Edge Deployment',
+      budget_integrity: 'Budget Integrity',
+      recent_updates: 'Recent Updates',
+      v051_title: 'v0.5.1 Fluid Surface',
+      v051_desc: 'Improved mobile responsiveness, touch-to-edit history, and global "Insights" navigation.',
+      status_stable: 'Active & Stable',
     }
   },
   'zh-TW': {
@@ -773,6 +786,19 @@ export const translations = {
       magic_link: '使用魔術連結登入',
       send_magic_link: '發送魔術連結',
       magic_link_sent: '魔術連結已發送！請查收電子郵件以登入。',
+    },
+    notifications: {
+      title: '金庫安全與洞察',
+      system_health: '系統運行狀態',
+      mfa: '雙重認證保護',
+      encryption: '端到端加密',
+      cloudflare: 'WAF 防護 (Cloudflare)',
+      vercel: '邊緣網路佈署 (Vercel)',
+      budget_integrity: '預算執行進度',
+      recent_updates: '近期更新',
+      v051_title: 'v0.5.1 流體介面升級',
+      v051_desc: '優化行動端響應式介面、歷史紀錄觸控編輯以及全新的「數據洞察」導覽。',
+      status_stable: '運行正常',
     }
   }
 };
