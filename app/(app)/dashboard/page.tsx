@@ -127,7 +127,7 @@ export default function DashboardPage() {
                 {isVisible ? <Eye size={12} /> : <EyeOff size={12} />}
               </button>
             </div>
-            <h2 className={`text-6xl font-black tracking-tighter mb-10 ${balance >= 0 ? 'text-primary' : 'text-danger'}`}>
+            <h2 className={`text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter mb-10 px-2 truncate ${balance >= 0 ? 'text-primary' : 'text-danger'}`}>
               {isVisible ? formatCurrency(balance, currency) : '••••••'}
             </h2>
             
@@ -145,11 +145,11 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 divide-x divide-border border-b border-border">
             <div className="px-6 py-5 text-center">
               <p className="text-[10px] font-black uppercase tracking-widest text-secondary mb-1">{t('dashboard.income')}</p>
-              <p className="text-lg font-bold text-success">{isVisible ? formatCurrency(totals.income, currency) : '••••'}</p>
+              <p className="text-lg font-bold text-success truncate px-1">{isVisible ? formatCurrency(totals.income, currency) : '••••'}</p>
             </div>
             <div className="px-6 py-5 text-center">
               <p className="text-[10px] font-black uppercase tracking-widest text-secondary mb-1">{t('dashboard.expenses')}</p>
-              <p className="text-lg font-bold text-danger">{isVisible ? formatCurrency(totals.expense, currency) : '••••'}</p>
+              <p className="text-lg font-bold text-danger truncate px-1">{isVisible ? formatCurrency(totals.expense, currency) : '••••'}</p>
             </div>
           </div>
           
