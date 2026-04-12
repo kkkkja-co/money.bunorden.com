@@ -121,31 +121,31 @@ export default function DashboardPage() {
 
           <AnimatePresence>
             {showNotifications && (
-              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 sm:p-8">
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={() => setShowNotifications(false)}
-                  className="absolute inset-0 bg-black/60 backdrop-blur-xl"
+                  className="absolute inset-0 bg-black/80 backdrop-blur-2xl"
                 />
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                  className="w-full max-w-md surface-elevated relative z-10 overflow-hidden shadow-2xl border border-white/10"
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                  className="w-full max-w-sm surface-elevated relative z-10 overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.6)] border border-white/10 flex flex-col max-h-[85vh]"
                 >
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-lg font-bold text-primary flex items-center gap-2">
-                        <Lock size={18} className="text-secondary opacity-40" />
+                  <div className="p-6 overflow-y-auto custom-scrollbar">
+                    <div className="flex items-center justify-between mb-8 sticky top-0 bg-[var(--surface-primary)] z-20 pb-2">
+                      <h3 className="text-xl font-bold text-primary flex items-center gap-2.5">
+                        <ShieldCheck size={22} className="text-accent-primary" />
                         {t('notifications.title')}
                       </h3>
                       <button 
                         onClick={() => setShowNotifications(false)}
-                        className="p-2 rounded-full hover:bg-white/5 transition-colors"
+                        className="p-2 rounded-full hover:bg-white/10 transition-colors"
                       >
-                        <X size={18} className="text-secondary" />
+                        <X size={20} className="text-secondary" />
                       </button>
                     </div>
 
