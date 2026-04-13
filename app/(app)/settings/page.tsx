@@ -12,6 +12,7 @@ import {
 import Link from 'next/link'
 import { Language } from '@/lib/i18n/translations'
 import { requestNotificationPermission } from '@/lib/notifications'
+import { exportDataAsJson } from '@/lib/export'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -26,6 +27,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
   const [showSaved, setShowSaved] = useState(false)
   const [notifPermission, setNotifPermission] = useState<string>('default')
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window && window.Notification) {
@@ -69,10 +71,19 @@ export default function SettingsPage() {
       
       setShowSaved(true)
       setTimeout(() => setShowSaved(false), 3000)
-    } catch (err) {
-      console.error(err)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleExport = async () => {
+    setExporting(true)
+    const success = await exportDataAsJson()
+    setExporting(false)
+    if (success) {
+      alert('Data export successful! Your backup file has been downloaded.')
+    } else {
+      alert('Failed to export data. Please check your connection and try again.')
     }
   }
 
@@ -170,7 +181,12 @@ export default function SettingsPage() {
           <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-3 px-1">{t('settings.security')} & {t('settings.data')}</h2>
           <div className="list-wrapper">
             <SettingsRow icon={Shield} label={t('settings.mfa_title')} value={mfaFactors.length > 0 ? 'SECURED' : 'UNSET'} onClick={() => router.push('/settings/security')} />
-            <SettingsRow icon={Download} label={t('settings.export_data')} onClick={() => {}} />
+            <SettingsRow 
+              icon={Download} 
+              label={t('settings.export_data')} 
+              value={exporting ? 'EXPORTING...' : ''}
+              onClick={handleExport} 
+            />
           </div>
         </section>
 
