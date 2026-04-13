@@ -4,12 +4,12 @@ export async function requestNotificationPermission() {
     return false
   }
 
-  if (Notification.permission === 'granted') {
+  if (!window.Notification || window.Notification.permission === 'granted') {
     return true
   }
 
-  if (Notification.permission !== 'denied') {
-    const permission = await Notification.requestPermission()
+  if (window.Notification.permission !== 'denied') {
+    const permission = await window.Notification.requestPermission()
     return permission === 'granted'
   }
 
@@ -17,7 +17,7 @@ export async function requestNotificationPermission() {
 }
 
 export async function sendLocalNotification(title: string, options?: NotificationOptions) {
-  if (!('Notification' in window) || Notification.permission !== 'granted') {
+  if (!('Notification' in window) || !window.Notification || window.Notification.permission !== 'granted') {
     return
   }
 
@@ -30,10 +30,12 @@ export async function sendLocalNotification(title: string, options?: Notificatio
         badge: '/assets/icon-192.png',
         ...options
       })
-    } else {
-      new Notification(title, options)
+    } else if (window.Notification) {
+      new window.Notification(title, options)
     }
   } catch (err) {
-    new Notification(title, options)
+    if (window.Notification) {
+      new window.Notification(title, options)
+    }
   }
 }

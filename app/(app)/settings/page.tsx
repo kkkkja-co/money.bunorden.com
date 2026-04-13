@@ -28,8 +28,8 @@ export default function SettingsPage() {
   const [notifPermission, setNotifPermission] = useState<string>('default')
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setNotifPermission(Notification.permission)
+    if (typeof window !== 'undefined' && 'Notification' in window && window.Notification) {
+      setNotifPermission(window.Notification.permission)
     }
   }, [])
 
@@ -157,7 +157,9 @@ export default function SettingsPage() {
                   setNotifPermission('granted')
                   alert('Vault Test: Notifications are strictly for security alerts and major updates.')
                 } else {
-                  setNotifPermission(Notification.permission)
+                if (typeof window !== 'undefined' && 'Notification' in window && window.Notification) {
+                  setNotifPermission(window.Notification.permission)
+                }
                 }
               }} 
             />
