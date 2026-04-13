@@ -71,6 +71,11 @@ export default function LoginPage() {
       setError('Please enter your email first.')
       return
     }
+    // Turnstile is enabled project-wide — OTP also needs the captcha token
+    if (!captchaToken) {
+      setError('Please complete the Turnstile verification first.')
+      return
+    }
     setError('')
     setLoading(true)
     try {
@@ -78,12 +83,17 @@ export default function LoginPage() {
         email,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/confirm`,
+          captchaToken,
         },
       })
       if (error) throw error
+      setCaptchaToken('')
+      setCaptchaResetSignal((c) => c + 1)
       setMagicLinkSent(true)
     } catch (err: any) {
       setError(err.message || 'Failed to send magic link')
+      setCaptchaToken('')
+      setCaptchaResetSignal((c) => c + 1)
     } finally {
       setLoading(false)
     }
