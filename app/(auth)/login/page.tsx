@@ -1,20 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
-import { Eye, EyeOff, LogIn, Shield, ArrowLeft, Languages, Mail } from 'lucide-react'
+import { Eye, EyeOff, LogIn, Shield, ArrowLeft, Mail } from 'lucide-react'
 import { useTranslation, useTheme, useLanguage } from '@/app/providers'
 import { TurnstileWidget } from '../TurnstileWidget'
 import { SocialAuth } from '@/components/auth/SocialAuth'
 
 const TURNSTILE_SITE_KEY = '0x4AAAAAAC58QEXTzEw4Mr-A'
 
+type AuthStep = 'login' | 'mfa'
+
 export default function LoginPage() {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { language, setLanguage } = useLanguage()
+
+  // Form state
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -24,52 +28,44 @@ export default function LoginPage() {
   const [resetSent, setResetSent] = useState(false)
   const [captchaToken, setCaptchaToken] = useState('')
   const [captchaResetSignal, setCaptchaResetSignal] = useState(0)
-
-  // MFA States
-  const [showMfa, setShowMfa] = useState(false)
-  const [mfaCode, setMfaCode] = useState('')
-  const [mfaFactors, setMfaFactors] = useState<any[]>([])
-
   const [magicLinkSent, setMagicLinkSent] = useState(false)
-  const router = useRouter()
 
+  // MFA state — using a single step to avoid race conditions
+  const [step, setStep] = useState<AuthStep>('login')
+  const [mfaCode, setMfaCode] = useState('')
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null)
+
+  // Prevent onAuthStateChange from interfering while we handle MFA ourselves
+  const handlingMfaRef = useRef(false)
+
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Show error from auth callback failures (e.g. expired magic link)
+  useEffect(() => {
+    const cbError = searchParams.get('error')
+    if (cbError === 'auth_callback_failed') {
+      setError('The sign-in link has expired or is invalid. Please try again.')
+    }
+  }, [searchParams])
+
+  // ─── Check existing session on mount (only) ──────────────────────────────
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        router.push('/dashboard')
+      if (!session) return
+
+      // If a session already exists and assurance is already aal2 (or no MFA)
+      const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+      if (!mfaData || mfaData.currentLevel === mfaData.nextLevel) {
+        router.replace('/dashboard')
       }
+      // Otherwise, leave on login page — user needs to re-authenticate
     }
     checkSession()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session) {
-        // Check if MFA is required
-        const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
-        
-        if (mfaData) {
-          const { currentLevel, nextLevel } = mfaData
-          if (currentLevel === nextLevel) {
-            router.push('/dashboard')
-          } else if (nextLevel === 'aal2') {
-            // If MFA is required (nextLevel is aal2 but current is aal1)
-            const { data: factors } = await supabase.auth.mfa.listFactors()
-            if (factors && factors.all.length > 0) {
-              setMfaFactors(factors.all)
-              setShowMfa(true)
-            } else {
-              router.push('/dashboard')
-            }
-          }
-        } else {
-          router.push('/dashboard')
-        }
-      }
-    })
-
-    return () => subscription.unsubscribe()
   }, [router])
 
+  // ─── Handle Magic Link ────────────────────────────────────────────────────
   const handleMagicLink = async () => {
     if (!email) {
       setError('Please enter your email first.')
@@ -81,7 +77,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
         },
       })
       if (error) throw error
@@ -93,84 +89,114 @@ export default function LoginPage() {
     }
   }
 
+  // ─── Handle Password Login ────────────────────────────────────────────────
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
     if (!captchaToken) {
       setError('Please complete Turnstile verification.')
       return
     }
+
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
         options: { captchaToken },
       })
-      if (error) throw error
 
-      // Check for MFA factors
-      const { data: factors, error: mfaError } = await supabase.auth.mfa.listFactors()
-      if (mfaError) throw mfaError
+      if (signInError) throw signInError
 
-      if (factors?.all?.length > 0) {
-        setMfaFactors(factors.all)
-        setShowMfa(true)
-        setLoading(false)
-      } else {
-        router.push('/dashboard')
+      // Check MFA assurance level — this is authoritative.
+      const { data: mfaData, error: mfaLevelError } =
+        await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+
+      if (mfaLevelError) throw mfaLevelError
+
+      if (mfaData && mfaData.nextLevel === 'aal2' && mfaData.currentLevel !== 'aal2') {
+        // User has MFA enrolled — find a verified TOTP factor
+        const { data: factorsData, error: factorsError } =
+          await supabase.auth.mfa.listFactors()
+
+        if (factorsError) throw factorsError
+
+        // Only use factors that are verified (status === 'verified')
+        const verifiedFactor = factorsData?.totp?.find(
+          (f) => f.factor_type === 'totp' && f.status === 'verified'
+        ) ?? factorsData?.all?.find(
+          (f) => f.status === 'verified'
+        )
+
+        if (verifiedFactor) {
+          handlingMfaRef.current = true
+          setMfaFactorId(verifiedFactor.id)
+          setStep('mfa')
+          setLoading(false)
+          return
+        }
       }
-    } catch (err) {
+
+      // No MFA required — proceed to dashboard
+      router.replace('/dashboard')
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : 'Login failed')
       setCaptchaToken('')
-      setCaptchaResetSignal((current) => current + 1)
-    } finally {
-      if (!showMfa) setLoading(false)
+      setCaptchaResetSignal((c) => c + 1)
+      setLoading(false)
     }
   }
 
+  // ─── Handle MFA Verification ──────────────────────────────────────────────
   const handleMfaVerify = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (mfaCode.length !== 6) return
-    if (!mfaFactors || mfaFactors.length === 0) {
-      setError('No MFA factors found. Please try signing in again.')
-      return
-    }
+
+    if (mfaCode.length !== 6 || !mfaFactorId) return
+
     setError('')
     setLoading(true)
 
     try {
-      const factorId = mfaFactors[0].id
-      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId
-      })
+      // Step 1: Create a challenge
+      const { data: challengeData, error: challengeError } =
+        await supabase.auth.mfa.challenge({ factorId: mfaFactorId })
+
       if (challengeError) throw challengeError
 
+      // Step 2: Verify with the code
       const { error: verifyError } = await supabase.auth.mfa.verify({
-        factorId,
+        factorId: mfaFactorId,
         challengeId: challengeData.id,
-        code: mfaCode
+        code: mfaCode,
       })
+
       if (verifyError) throw verifyError
 
-      // Start a fallback timer just in case the browser navigation hangs
-      const fallbackTimeout = setTimeout(() => {
-        window.location.assign('/dashboard')
-      }, 500)
-
-      // Primary redirect
-      window.location.href = '/dashboard'
-      
-      return () => clearTimeout(fallbackTimeout)
+      // Success — navigate to dashboard
+      router.replace('/dashboard')
     } catch (err: any) {
       setLoading(false)
-      const message = err?.message || 'MFA verification failed'
-      setError(message)
+      setError(err?.message || 'MFA verification failed')
       setMfaCode('')
     }
   }
 
+  // ─── Handle MFA Back (cancel MFA, sign out) ───────────────────────────────
+  const handleMfaBack = async () => {
+    handlingMfaRef.current = false
+    // Sign out to clear the aal1 session — don't leave a partial session
+    await supabase.auth.signOut()
+    setStep('login')
+    setMfaCode('')
+    setMfaFactorId(null)
+    setError('')
+    setCaptchaToken('')
+    setCaptchaResetSignal((c) => c + 1)
+  }
+
+  // ─── Handle Password Reset ────────────────────────────────────────────────
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -189,6 +215,7 @@ export default function LoginPage() {
     }
   }
 
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex flex-col items-center px-4 py-8 overflow-y-auto">
       {/* Background gradient orbs */}
@@ -243,18 +270,15 @@ export default function LoginPage() {
             className="text-3xl font-bold tracking-tight mb-2"
             style={{ color: 'var(--text-primary)' }}
           >
-            {showMfa ? t('auth.mfa_title') : resetMode ? t('common.settings') : t('common.welcome')}
+            {step === 'mfa' ? t('auth.mfa_title') : resetMode ? t('common.settings') : t('common.welcome')}
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-            {showMfa
-              ? t('auth.mfa_subtitle')
-              : resetMode
-                ? t('auth.signin_subtitle')
-                : t('auth.signin_subtitle')}
+            {step === 'mfa' ? t('auth.mfa_subtitle') : t('auth.signin_subtitle')}
           </p>
         </div>
 
-        {resetSent || magicLinkSent ? (
+        {/* ── Email Sent States ── */}
+        {(resetSent || magicLinkSent) ? (
           <div className="surface-elevated p-6 text-center animate-scale-in">
             <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-success" style={{ background: 'rgba(52, 199, 89, 0.1)' }}>
               <Mail size={20} />
@@ -271,7 +295,9 @@ export default function LoginPage() {
               {t('auth.back_to_signin')}
             </button>
           </div>
-        ) : showMfa ? (
+
+        ) : step === 'mfa' ? (
+          /* ── MFA Step ── */
           <form onSubmit={handleMfaVerify} className="space-y-6 animate-slide-up">
             <div className="text-center">
               <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center"
@@ -292,6 +318,7 @@ export default function LoginPage() {
                   autoComplete="one-time-code"
                   inputMode="numeric"
                   pattern="[0-9]*"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -312,7 +339,7 @@ export default function LoginPage() {
                 className="btn-apple-primary w-full py-4 flex items-center justify-center gap-2 text-base"
               >
                 {loading ? (
-                  <span className="animate-pulse font-bold tracking-[0.2em] text-[10px] uppercase opacity-60">Working...</span>
+                  <span className="animate-pulse font-bold tracking-[0.2em] text-[10px] uppercase opacity-60">Verifying...</span>
                 ) : (
                   <>{t('auth.verify_button')}</>
                 )}
@@ -320,15 +347,18 @@ export default function LoginPage() {
 
               <button
                 type="button"
-                onClick={() => { setShowMfa(false); setMfaCode(''); }}
-                className="w-full py-3 text-sm font-medium flex items-center justify-center gap-2"
+                onClick={handleMfaBack}
+                disabled={loading}
+                className="w-full py-3 text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50"
                 style={{ color: 'var(--text-tertiary)' }}
               >
                 <ArrowLeft size={16} /> {t('common.back')}
               </button>
             </div>
           </form>
+
         ) : (
+          /* ── Login / Reset Step ── */
           <>
             <form onSubmit={resetMode ? handlePasswordReset : handleLogin} className="space-y-4 mb-6">
               <div className="animate-slide-up delay-1">
@@ -413,7 +443,7 @@ export default function LoginPage() {
                 {loading ? (
                   <span className="animate-pulse font-bold tracking-[0.2em] text-[10px] uppercase opacity-60">Working...</span>
                 ) : (
-                  <>{resetMode ? <LogIn size={18} /> : <LogIn size={18} />} {resetMode ? t('auth.send_reset_link') : t('auth.signin')}</>
+                  <><LogIn size={18} /> {resetMode ? t('auth.send_reset_link') : t('auth.signin')}</>
                 )}
               </button>
 
@@ -448,7 +478,7 @@ export default function LoginPage() {
           </>
         )}
 
-        {!showMfa && (
+        {step === 'login' && (
           <div className="text-center animate-slide-up delay-4">
             <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
               {t('auth.no_account')}{' '}
