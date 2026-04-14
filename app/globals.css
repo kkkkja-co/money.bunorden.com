@@ -136,7 +136,7 @@
 
   input[type="date"] {
     -webkit-appearance: none;
-    /* Removed global appearance: none to fix Firefox picker trigger */
+    appearance: auto; /* Standard property for compatibility, keeps Firefox picker working */
     text-align: center;
     min-height: 48px; /* Better tap target for mobile */
     display: flex;
