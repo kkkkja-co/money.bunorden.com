@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
@@ -36,6 +36,8 @@ const COLORS = [
 ]
 
 export default function ReportsPage() {
+  const startDateRef = useRef<HTMLInputElement>(null)
+  const endDateRef = useRef<HTMLInputElement>(null)
   const { t } = useTranslation()
   const { language } = useLanguage()
   const router = useRouter()
@@ -184,9 +186,21 @@ export default function ReportsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label htmlFor="start-date" className="block text-[9px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 ml-1">From</label>
-              <div className="relative group w-full h-[48px]">
+              <div 
+                className="relative group w-full h-[48px] cursor-pointer"
+                onClick={() => {
+                  if (startDateRef.current && 'showPicker' in startDateRef.current) {
+                    try {
+                      startDateRef.current.showPicker();
+                    } catch (err) {
+                      console.error('showPicker failed:', err);
+                    }
+                  }
+                }}
+              >
                 <input
                   id="start-date"
+                  ref={startDateRef}
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
@@ -203,9 +217,21 @@ export default function ReportsPage() {
             </div>
             <div>
               <label htmlFor="end-date" className="block text-[9px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 ml-1">To</label>
-              <div className="relative group w-full h-[48px]">
+              <div 
+                className="relative group w-full h-[48px] cursor-pointer"
+                onClick={() => {
+                  if (endDateRef.current && 'showPicker' in endDateRef.current) {
+                    try {
+                      endDateRef.current.showPicker();
+                    } catch (err) {
+                      console.error('showPicker failed:', err);
+                    }
+                  }
+                }}
+              >
                 <input
                   id="end-date"
+                  ref={endDateRef}
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, Suspense } from 'react'
+import { useEffect, useState, useCallback, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { parseTagsInput, tagsToInputString } from '@/lib/tags'
@@ -25,6 +25,7 @@ interface Account {
 type TxType = 'expense' | 'income' | 'transfer'
 
 function AddTransactionForm() {
+  const dateInputRef = useRef<HTMLInputElement>(null)
   const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -528,9 +529,21 @@ function AddTransactionForm() {
             <label htmlFor="date-input" className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">
               {t('transactions.date')}
             </label>
-            <div className="relative w-full h-[56px] group">
+            <div 
+              className="relative w-full h-[56px] group cursor-pointer"
+              onClick={() => {
+                if (dateInputRef.current && 'showPicker' in dateInputRef.current) {
+                  try {
+                    dateInputRef.current.showPicker();
+                  } catch (err) {
+                    console.error('showPicker failed:', err);
+                  }
+                }
+              }}
+            >
               <input
                 id="date-input"
+                ref={dateInputRef}
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
