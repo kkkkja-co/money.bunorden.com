@@ -16,6 +16,7 @@ interface Card {
   name: string
   number: string
   expiry: string
+  icon?: string
 }
 
 const CARD_ICONS = ['💳', '🏦', '💰', '🎫', '💼', '🔐']
@@ -125,6 +126,7 @@ export default function CardsPage() {
     setName(c.name)
     setNumber(c.number)
     setExpiry(c.expiry)
+    setIcon(c.icon || '💳')
     setShowModal(true)
   }
 
@@ -158,7 +160,7 @@ export default function CardsPage() {
                 <div 
                   className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 bg-accent-primary/10"
                 >
-                  {icon === card.icon || card.icon || '💳'}
+                  {card.icon || '💳'}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-base truncate" style={{ color: 'var(--text-primary)' }}>{card.name}</p>
