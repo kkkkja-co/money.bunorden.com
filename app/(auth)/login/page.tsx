@@ -8,6 +8,7 @@ import { Eye, EyeOff, LogIn, Shield, ArrowLeft, Mail } from 'lucide-react'
 import { useTranslation, useTheme, useLanguage } from '@/app/providers'
 import { TurnstileWidget } from '../TurnstileWidget'
 import { SocialAuth } from '@/components/auth/SocialAuth'
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 
 const TURNSTILE_SITE_KEY = '0x4AAAAAAC58QEXTzEw4Mr-A'
 
@@ -241,24 +242,7 @@ export default function LoginPage() {
 
       {/* Language Switcher */}
       <div className="fixed top-6 right-6 z-50 animate-fade-in">
-        <div className="flex bg-white/5 backdrop-blur-md rounded-full p-1 border border-white/10 shadow-lg">
-          {[
-            { id: 'en', label: 'EN' },
-            { id: 'zh-TW', label: '繁' }
-          ].map((lang) => (
-            <button
-              key={lang.id}
-              onClick={() => setLanguage(lang.id as any)}
-              className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider transition-all"
-              style={{
-                background: language === lang.id ? 'var(--accent-primary)' : 'transparent',
-                color: language === lang.id ? 'white' : 'var(--text-tertiary)'
-              }}
-            >
-              {lang.label}
-            </button>
-          ))}
-        </div>
+        <LanguageSwitcher />
       </div>
 
       <div className="w-full max-w-sm relative z-10 flex flex-col my-auto">

@@ -3,50 +3,47 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useTheme } from '@/app/providers'
+import { useTheme, useTranslation } from '@/app/providers'
 import { Moon, Sun } from 'lucide-react'
-
-interface Feature {
-  icon: string
-  title: string
-  description: string
-}
-
-const features: Feature[] = [
-  {
-    icon: '🛡️',
-    title: 'Zero Surveillance',
-    description: 'No ads. No analytics. No third-party scripts. Your financial data never leaves your vault.',
-  },
-  {
-    icon: '🏦',
-    title: 'Multi-Account Vaults',
-    description: 'Manage personal, business, and savings accounts all in one unified, encrypted interface.',
-  },
-  {
-    icon: '📊',
-    title: 'Insightful Reports',
-    description: 'Visual spending breakdowns and monthly trends that actually help you understand your money.',
-  },
-  {
-    icon: '🎯',
-    title: 'Budget Protocols',
-    description: 'Real-time budget tracking with glowing progress indicators that keep you on target.',
-  },
-  {
-    icon: '🔑',
-    title: 'Next-Gen Security',
-    description: 'Native 2FA at the vault core. Built-in MFA so only you hold the key.',
-  },
-  {
-    icon: '📤',
-    title: 'Data Sovereignty',
-    description: 'Export your entire vault history to JSON or CSV at any time. Your data, your rules.',
-  },
-]
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
+import { motion } from 'framer-motion'
 
 export default function Page() {
   const { theme, toggleTheme } = useTheme()
+  const { t } = useTranslation()
+
+  const features = [
+    {
+      icon: '🛡️',
+      title: t('landing.feat_1_title'),
+      description: t('landing.feat_1_desc'),
+    },
+    {
+      icon: '🏦',
+      title: t('landing.feat_2_title'),
+      description: t('landing.feat_2_desc'),
+    },
+    {
+      icon: '📊',
+      title: t('landing.feat_3_title'),
+      description: t('landing.feat_3_desc'),
+    },
+    {
+      icon: '🎯',
+      title: t('landing.feat_4_title'),
+      description: t('landing.feat_4_desc'),
+    },
+    {
+      icon: '🔑',
+      title: t('landing.feat_5_title'),
+      description: t('landing.feat_5_desc'),
+    },
+    {
+      icon: '📤',
+      title: t('landing.feat_6_title'),
+      description: t('landing.feat_6_desc'),
+    },
+  ]
 
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     e.preventDefault()
@@ -65,22 +62,24 @@ export default function Page() {
 
       {/* ── Navigation ──────────────────────────────────── */}
       <nav className="landing-nav animate-slide-up">
-        <div className="landing-nav-inner">
+        <div className="landing-nav-inner flex flex-wrap gap-4 items-center w-full max-w-[1100px] mx-auto">
           <div className="landing-logo">
             <Image src={theme === 'dark' ? "/assets/clavi-icon-dark.svg" : "/assets/clavi-icon-light.svg"} alt="Clavi logo" width={32} height={32} />
             <span className="landing-logo-name">Clavi</span>
           </div>
-          <div className="landing-nav-links">
-            <a href="#features" onClick={handleScroll} className="landing-nav-link">Features</a>
-            <a href="#privacy" onClick={handleScroll} className="landing-nav-link">Privacy</a>
+          <div className="landing-nav-links hidden sm:flex">
+            <a href="#features" onClick={handleScroll} className="landing-nav-link">{t('landing.features')}</a>
+            <a href="#privacy" onClick={handleScroll} className="landing-nav-link">{t('landing.privacy')}</a>
           </div>
           
-          <div className="flex items-center gap-4 ml-auto">
+          <div className="flex items-center gap-2 sm:gap-4 ml-auto">
+            {/* Language Switcher */}
+            <LanguageSwitcher />
             <button onClick={toggleTheme} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors p-1" aria-label="Toggle Theme">
               {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
             <Link href="/login" className="btn-apple-primary landing-nav-cta !ml-0">
-              Sign In
+              {t('landing.sign_in')}
             </Link>
           </div>
         </div>
@@ -88,10 +87,10 @@ export default function Page() {
 
       {/* ── Hero ────────────────────────────────────────── */}
       <main>
-        <section className="landing-hero">
+        <section className="landing-hero sm:pt-[5rem] pt-[6rem]">
           <div className="landing-hero-badge animate-slide-up">
             <span className="landing-badge-dot" aria-hidden="true" />
-            Privacy-First · Open Source · Self-Hostable
+            {t('landing.badge')}
           </div>
 
           <div className="landing-hero-icon animate-slide-up delay-1">
@@ -106,62 +105,85 @@ export default function Page() {
           </div>
 
           <h1 className="landing-title animate-slide-up delay-2">
-            You Hold<br />
-            <span className="landing-title-gradient">the Key.</span>
+            {t('landing.title_1')}<br />
+            <span className="landing-title-gradient">{t('landing.title_2')}</span>
           </h1>
 
           <p className="landing-subtitle animate-slide-up delay-3">
-            Clavi is a premium, privacy-first financial vault built for people who demand{' '}
-            <em>absolute control</em> over their data. Zero trackers. Zero compromises.
+            {t('landing.subtitle_1')}
+            <em>{t('landing.subtitle_2')}</em>
+            {t('landing.subtitle_3')}
           </p>
 
           <div className="landing-cta-group animate-slide-up delay-4">
             <Link href="/login" className="btn-apple-primary landing-cta-primary">
-              Open Your Vault →
+              {t('landing.open_vault')}
             </Link>
-            <a href="#features" className="landing-cta-secondary">
-              Explore Features
+            <a href="#features" onClick={handleScroll} className="landing-cta-secondary">
+              {t('landing.explore_features')}
             </a>
           </div>
 
           {/* stat strip */}
-          <div className="landing-stats animate-slide-up delay-5">
+          <div className="landing-stats animate-slide-up delay-5 flex-wrap justify-center">
             <div className="landing-stat">
               <span className="landing-stat-value">0</span>
-              <span className="landing-stat-label">Trackers</span>
+              <span className="landing-stat-label">{t('landing.trackers')}</span>
             </div>
             <div className="landing-stat-divider" aria-hidden="true" />
             <div className="landing-stat">
               <span className="landing-stat-value">100%</span>
-              <span className="landing-stat-label">Data Ownership</span>
+              <span className="landing-stat-label">{t('landing.ownership')}</span>
             </div>
             <div className="landing-stat-divider" aria-hidden="true" />
             <div className="landing-stat">
               <span className="landing-stat-value">E2E</span>
-              <span className="landing-stat-label">Encrypted</span>
+              <span className="landing-stat-label">{t('landing.encrypted')}</span>
             </div>
           </div>
         </section>
 
         {/* ── Features ────────────────────────────────────── */}
         <section id="features" className="landing-features-section">
-          <div className="landing-section-header">
-            <span className="landing-section-eyebrow">Built different</span>
-            <h2 className="landing-section-title">Everything you need.<br />Nothing you don't.</h2>
-          </div>
+          <motion.div 
+            className="landing-section-header"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="landing-section-eyebrow">{t('landing.built_diff')}</span>
+            <h2 className="landing-section-title">{t('landing.everything_you_need')}</h2>
+          </motion.div>
 
-          <div className="landing-features-grid">
-            {features.map((f, i) => (
-              <div
+          <motion.div 
+            className="landing-features-grid"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+          >
+            {features.map((f) => (
+              <motion.div
                 key={f.title}
-                className={`landing-feature-card animate-slide-up delay-${Math.min(i + 1, 5)}`}
+                className="landing-feature-card"
+                variants={{
+                  hidden: { opacity: 0, y: 30 },
+                  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 20 } }
+                }}
               >
                 <div className="landing-feature-icon" aria-hidden="true">{f.icon}</div>
                 <h3 className="landing-feature-title">{f.title}</h3>
                 <p className="landing-feature-desc">{f.description}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </section>
 
         {/* ── Privacy Section ─────────────────────────────── */}
@@ -169,31 +191,29 @@ export default function Page() {
           <div className="landing-privacy-card animate-slide-up">
             <div className="landing-privacy-icon" aria-hidden="true">🔐</div>
             <h2 className="landing-section-title" style={{ textAlign: 'center' }}>
-              Financial data is a<br />
-              <span className="landing-title-gradient">human right.</span>
+              {t('landing.human_right_1')}<br />
+              <span className="landing-title-gradient">{t('landing.human_right_2')}</span>
             </h2>
             <p className="landing-privacy-body">
-              Clavi was built on one belief: your money is your business. We never sell your data,
-              serve ads, or run third-party analytics. Every transaction stays in your own encrypted
-              Supabase vault — and when you leave, a single click erases everything permanently.
+              {t('landing.privacy_desc')}
             </p>
             <div className="landing-privacy-pills">
-              <span className="landing-pill">No Ads</span>
-              <span className="landing-pill">No Data Selling</span>
-              <span className="landing-pill">No Third-Party Scripts</span>
-              <span className="landing-pill">Self-Hostable</span>
+              <span className="landing-pill">{t('landing.pill_1')}</span>
+              <span className="landing-pill">{t('landing.pill_2')}</span>
+              <span className="landing-pill">{t('landing.pill_3')}</span>
+              <span className="landing-pill">{t('landing.pill_4')}</span>
             </div>
           </div>
         </section>
 
         {/* ── Final CTA ───────────────────────────────────── */}
         <section className="landing-final-cta animate-slide-up">
-          <h2 className="landing-final-title">Ready to take control?</h2>
+          <h2 className="landing-final-title">{t('landing.ready')}</h2>
           <p className="landing-final-sub">
-            Create your vault in seconds. No credit card. No catch.
+            {t('landing.create_seconds')}
           </p>
           <Link href="/login" className="btn-apple-primary landing-cta-primary">
-            Get Started — It&apos;s Free
+            {t('landing.get_started')}
           </Link>
         </section>
       </main>
@@ -201,10 +221,10 @@ export default function Page() {
       {/* ── Footer ──────────────────────────────────────── */}
       <footer className="landing-footer">
         <div className="landing-footer-logo">
-          <Image src="/assets/clavi-icon-dark.svg" alt="Clavi" width={24} height={24} />
+          <Image src={theme === 'dark' ? "/assets/clavi-icon-dark.svg" : "/assets/clavi-icon-light.svg"} alt="Clavi" width={24} height={24} />
           <span>Clavi</span>
         </div>
-        <p className="landing-footer-tagline">The Key is Yours. 🗝️</p>
+        <p className="landing-footer-tagline">{t('landing.tagline')}</p>
         <p className="landing-footer-credit">
           Built with ❤️ by{' '}
           <a href="https://bunorden.com" className="landing-footer-link" target="_blank" rel="noopener noreferrer">
@@ -264,14 +284,19 @@ export default function Page() {
 
         /* ── Nav ──────────────────────────────────── */
         .landing-nav {
-          position: sticky;
+          position: fixed;
           top: 0;
+          left: 0;
+          right: 0;
           z-index: 100;
           padding: 0.875rem 1.5rem;
           background: rgba(0, 0, 0, 0.6);
           backdrop-filter: blur(24px) saturate(180%);
           -webkit-backdrop-filter: blur(24px) saturate(180%);
           border-bottom: 1px solid var(--border);
+        }
+        [data-theme="light"] .landing-nav {
+          background: rgba(255, 255, 255, 0.7);
         }
         .landing-nav-inner {
           max-width: 1100px;

@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import type { User } from '@supabase/supabase-js'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 
 const COLORS = ['#af52de', '#5856d6', '#34c759', '#ff9500', '#ff3b30']
 
@@ -207,17 +208,20 @@ export default function DashboardPage() {
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary opacity-60">
               {new Date().toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
             </p>
-            <button 
-              onClick={() => {
-                const audio = new Audio('/assets/notification.mp3').play().catch(() => {})
-                setShowNotifications(true)
-              }}
-              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative transition-all active:scale-90 hover:bg-white/10"
-              aria-label={t('common.notifications_title') || 'Notifications'}
-            >
-              <Bell size={20} className="text-[var(--text-secondary)] opacity-80" />
-              <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[var(--accent-primary)] ring-2 ring-[var(--bg-primary)]" />
-            </button>
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher />
+              <button 
+                onClick={() => {
+                  const audio = new Audio('/assets/notification.mp3').play().catch(() => {})
+                  setShowNotifications(true)
+                }}
+                className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative transition-all active:scale-90 hover:bg-white/10"
+                aria-label={t('common.notifications_title') || 'Notifications'}
+              >
+                <Bell size={20} className="text-[var(--text-secondary)] opacity-80" />
+                <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[var(--accent-primary)] ring-2 ring-[var(--bg-primary)]" />
+              </button>
+            </div>
           </div>
           
           <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-primary mb-2">
