@@ -3,6 +3,12 @@
 @import "tailwindcss/utilities";
 
 @layer base {
+  /* Global button optimization for mobile responsiveness */
+  button, a[role="button"], [role="button"] {
+    touch-action: manipulation;
+    user-select: none;
+  }
+
   :root {
     /* ── Logo-Informed Premium Palette ── */
     --bg-primary: #000000;
@@ -119,12 +125,22 @@
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
                 box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
                 border-color 0.3s ease;
+    touch-action: manipulation;
+    user-select: none;
   }
 
   .surface-elevated-interactive:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.3);
     border-color: var(--accent-primary);
+  }
+
+  @media (max-width: 640px) {
+    .surface-elevated-interactive {
+      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.15s ease;
+    }
   }
 
   .list-wrapper {
@@ -142,6 +158,8 @@
     gap: 1rem;
     border-bottom: 1px solid var(--border-subtle);
     transition: background 0.25s ease, transform 0.2s ease;
+    touch-action: manipulation;
+    user-select: none;
   }
 
   .list-item:last-child {
@@ -153,6 +171,12 @@
     transform: scale(0.98);
   }
 
+  @media (max-width: 640px) {
+    .list-item {
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+  }
+
   .btn-apple-primary {
     background: var(--accent-gradient);
     color: white;
@@ -161,6 +185,8 @@
     padding: 0.8rem 1.5rem;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 10px 20px -5px rgba(175, 82, 222, 0.3);
+    touch-action: manipulation;
+    user-select: none;
   }
 
   .btn-apple-primary:hover {
@@ -173,6 +199,12 @@
     opacity: 0.9;
   }
 
+  @media (max-width: 640px) {
+    .btn-apple-primary {
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+
   .input-minimal {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
@@ -181,12 +213,19 @@
     color: var(--text-primary);
     font-size: 0.95rem;
     transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    touch-action: manipulation;
   }
 
   .input-minimal:focus {
     outline: none;
     border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px rgba(175, 82, 222, 0.1);
+  }
+
+  @media (max-width: 640px) {
+    .input-minimal {
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
   }
 
   input[type="date"]::-webkit-calendar-picker-indicator {
@@ -232,6 +271,23 @@
     animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  /* Mobile modal bottom sheet style */
+  @media (max-width: 640px) {
+    .modal-overlay {
+      align-items: flex-end;
+      padding: 0;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+      max-width: 100%;
+      max-height: 90vh;
+      animation: modalSlideUpMobile 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow-y: auto;
+    }
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -240,6 +296,11 @@
   @keyframes modalSlideUp {
     from { opacity: 0; transform: translateY(16px) scale(0.96); }
     to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes modalSlideUpMobile {
+    from { opacity: 0; transform: translateY(100%); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }
 

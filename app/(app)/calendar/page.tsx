@@ -211,9 +211,8 @@ export default function CalendarPage() {
         {selectedDate && (
           <div className="modal-overlay z-50 p-4 sm:p-0 items-end sm:items-center" onClick={() => setSelectedDate(null)}>
             <div 
-              className="w-full max-w-md bg-[var(--bg-elevated)] border border-[var(--border)] rounded-3xl p-6 relative overflow-hidden shadow-2xl" 
+              className="w-full max-w-md bg-[var(--bg-elevated)] border border-[var(--border)] rounded-3xl p-6 relative overflow-hidden shadow-2xl modal-content" 
               onClick={e => e.stopPropagation()}
-              style={{ animation: 'modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">

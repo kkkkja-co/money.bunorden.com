@@ -8,7 +8,7 @@ import { useTheme, useTranslation, useLanguage, AccentColor } from '@/app/provid
 import {
   Sun, Moon, LogOut, Trash2, Download, Shield, Bell,
   ChevronRight, ArrowLeftRight, LayoutGrid, Check, Loader2, Palette,
-  FileText, Scale
+  FileText, Scale, CreditCard
 } from 'lucide-react'
 import Link from 'next/link'
 import { Language } from '@/lib/i18n/translations'
@@ -208,6 +208,7 @@ export default function SettingsPage() {
           <div className="list-wrapper">
             <Link href="/settings/accounts" aria-label={t('settings.accounts')}><SettingsRow icon={ArrowLeftRight} label={t('settings.accounts')} /></Link>
             <Link href="/settings/categories" aria-label={t('settings.categories')}><SettingsRow icon={LayoutGrid} label={t('settings.categories')} /></Link>
+            <Link href="/settings/cards" aria-label={t('settings.cards')}><SettingsRow icon={CreditCard} label={t('settings.cards')} /></Link>
             <SettingsRow 
               icon={Bell} 
               label={t('tour.notifications_title')} 

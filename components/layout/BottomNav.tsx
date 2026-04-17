@@ -44,7 +44,7 @@ export function BottomNav() {
     { href: '/dashboard', icon: Home, label: t('nav.home') },
     { href: '/transactions', icon: ArrowLeftRight, label: t('nav.history') },
     { href: '/add', icon: PlusCircle, label: t('nav.add'), isSpecial: true },
-    { id: 'analysis', icon: PieChart, label: t('nav.insights'), isMenu: true, hasBadge: !hasSeenNewFeature },
+    { id: 'analysis', icon: PieChart, label: t('nav.more'), isMenu: true, hasBadge: !hasSeenNewFeature },
     { href: '/settings', icon: Settings, label: t('nav.settings') },
   ]
 
@@ -78,7 +78,7 @@ export function BottomNav() {
           >
             <div className="flex flex-col gap-2">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 opacity-40 text-secondary">
-                Insights
+                {t('nav.more')}
               </p>
               {analysisItems.map((item) => (
                 <Link
