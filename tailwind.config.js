@@ -26,7 +26,7 @@ module.exports = {
         border: 'var(--border)',
       },
       fontFamily: {
-        sans: ['-apple-system', '"SF Pro Text"', '"SF Pro Display"', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['-apple-system', '"SF Pro Text"', '"SF Pro Display"', '"Helvetica Neue"', 'system-ui', 'sans-serif'],
       },
       spacing: {
         'safe-bottom': 'env(safe-area-inset-bottom)',

@@ -5,10 +5,13 @@ import { Language, translations } from '@/lib/i18n/translations'
 import { supabase } from '@/lib/supabase/client'
 
 type Theme = 'dark' | 'light'
+export type AccentColor = 'violet' | 'ocean' | 'emerald' | 'sunset' | 'rose' | 'slate'
 
 interface ThemeContextType {
   theme: Theme
   toggleTheme: () => void
+  accent: AccentColor
+  setAccent: (color: AccentColor) => void
 }
 
 interface LanguageContextType {
@@ -20,6 +23,8 @@ interface LanguageContextType {
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'dark',
   toggleTheme: () => {},
+  accent: 'violet',
+  setAccent: () => {},
 })
 
 const LanguageContext = createContext<LanguageContextType>({
@@ -38,6 +43,7 @@ export const useTranslation = () => {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark')
+  const [accent, setAccentState] = useState<AccentColor>('violet')
   const [language, setLanguageState] = useState<Language>('en')
   const [mounted, setMounted] = useState(false)
 
@@ -49,6 +55,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
     const initialTheme = storedTheme || (prefersDark ? 'dark' : 'light')
     setTheme(initialTheme)
     document.documentElement.setAttribute('data-theme', initialTheme)
+
+    // Accent color
+    const storedAccent = localStorage.getItem('clavi-accent') as AccentColor | null
+    const initialAccent = storedAccent || 'violet'
+    setAccentState(initialAccent)
+    document.documentElement.setAttribute('data-accent', initialAccent)
 
     // Language
     const storedLang = localStorage.getItem('clavi-lang') as Language | null
@@ -110,6 +122,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
+  const setAccent = useCallback((color: AccentColor) => {
+    setAccentState(color)
+    document.documentElement.setAttribute('data-accent', color)
+    localStorage.setItem('clavi-accent', color)
+  }, [])
+
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang)
     localStorage.setItem('clavi-lang', lang)
@@ -150,7 +168,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, accent, setAccent }}>
       <LanguageContext.Provider value={{ language, setLanguage, t }}>
         {children}
       </LanguageContext.Provider>

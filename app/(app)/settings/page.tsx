@@ -4,19 +4,29 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
-import { useTheme, useTranslation, useLanguage } from '@/app/providers'
+import { useTheme, useTranslation, useLanguage, AccentColor } from '@/app/providers'
 import {
   Sun, Moon, LogOut, Trash2, Download, Shield, Bell,
-  ChevronRight, ArrowLeftRight, LayoutGrid, Check, Loader2
+  ChevronRight, ArrowLeftRight, LayoutGrid, Check, Loader2, Palette,
+  FileText, Scale
 } from 'lucide-react'
 import Link from 'next/link'
 import { Language } from '@/lib/i18n/translations'
 import { requestNotificationPermission } from '@/lib/notifications'
 import { exportDataAsJson } from '@/lib/export'
 
+const ACCENT_PRESETS: { id: AccentColor; color: string; label: string; labelZh: string }[] = [
+  { id: 'violet', color: '#af52de', label: 'Violet', labelZh: '紫羅蘭' },
+  { id: 'ocean', color: '#0a84ff', label: 'Ocean', labelZh: '海洋藍' },
+  { id: 'emerald', color: '#30d158', label: 'Emerald', labelZh: '翡翠綠' },
+  { id: 'sunset', color: '#ff9f0a', label: 'Sunset', labelZh: '日落橘' },
+  { id: 'rose', color: '#ff375f', label: 'Rose', labelZh: '玫瑰紅' },
+  { id: 'slate', color: '#8e8e93', label: 'Slate', labelZh: '石板灰' },
+]
+
 export default function SettingsPage() {
   const router = useRouter()
-  const { theme, toggleTheme } = useTheme()
+  const { theme, toggleTheme, accent, setAccent } = useTheme()
   const { t } = useTranslation()
   const { language, setLanguage } = useLanguage()
   
@@ -107,7 +117,7 @@ export default function SettingsPage() {
       <div className="flex-1 max-w-xl mx-auto w-full px-5 py-8 md:py-12">
         <header className="mb-10 animate-slide-up">
           <h1 className="text-2xl font-bold tracking-tight text-primary">{t('common.settings')}</h1>
-          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-secondary mt-1">v0.5.0 • Vault Secured</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-secondary mt-1">v0.6.0 • Vault Secured</p>
         </header>
 
         <section className="animate-slide-up delay-1 mb-10">
@@ -153,9 +163,49 @@ export default function SettingsPage() {
         </section>
 
         <section className="animate-slide-up delay-2 mb-10">
-          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-3 px-1">{t('settings.appearance')} & {t('settings.manage')}</h2>
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-3 px-1">{t('settings.appearance')}</h2>
           <div className="list-wrapper">
             <SettingsRow icon={theme === 'dark' ? Moon : Sun} label={t('settings.theme')} value={theme === 'dark' ? 'DARK' : 'LIGHT'} onClick={toggleTheme} />
+          </div>
+
+          {/* Accent Color Picker */}
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <Palette size={12} className="text-secondary" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary">{t('settings.accent_color')}</span>
+            </div>
+            <div className="list-wrapper p-4">
+              <div className="grid grid-cols-6 gap-3">
+                {ACCENT_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    onClick={() => setAccent(preset.id)}
+                    className="flex flex-col items-center gap-1.5 group"
+                    aria-label={language === 'zh-TW' ? preset.labelZh : preset.label}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
+                      style={{
+                        background: preset.color,
+                        boxShadow: accent === preset.id ? `0 0 0 3px var(--bg-secondary), 0 0 0 5px ${preset.color}` : 'none',
+                        transform: accent === preset.id ? 'scale(1.1)' : 'scale(1)',
+                      }}
+                    >
+                      {accent === preset.id && <Check size={16} className="text-white" strokeWidth={3} />}
+                    </div>
+                    <span className="text-[8px] font-bold uppercase tracking-wider text-secondary opacity-60">
+                      {language === 'zh-TW' ? preset.labelZh : preset.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="animate-slide-up delay-3 mb-10">
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-3 px-1">{t('settings.manage')}</h2>
+          <div className="list-wrapper">
             <Link href="/settings/accounts" aria-label={t('settings.accounts')}><SettingsRow icon={ArrowLeftRight} label={t('settings.accounts')} /></Link>
             <Link href="/settings/categories" aria-label={t('settings.categories')}><SettingsRow icon={LayoutGrid} label={t('settings.categories')} /></Link>
             <SettingsRow 
@@ -177,7 +227,7 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        <section className="animate-slide-up delay-3 mb-10">
+        <section className="animate-slide-up delay-4 mb-10">
           <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-3 px-1">{t('settings.security')} & {t('settings.data')}</h2>
           <div className="list-wrapper">
             <SettingsRow icon={Shield} label={t('settings.mfa_title')} value={mfaFactors.length > 0 ? 'SECURED' : 'UNSET'} onClick={() => router.push('/settings/security')} />
@@ -190,7 +240,15 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        <section className="animate-slide-up delay-4 mb-20">
+        <section className="animate-slide-up delay-5 mb-10">
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-3 px-1">{t('settings.legal')}</h2>
+          <div className="list-wrapper">
+            <Link href="/privacy"><SettingsRow icon={FileText} label={t('settings.privacy')} /></Link>
+            <Link href="/terms"><SettingsRow icon={Scale} label={t('settings.terms')} /></Link>
+          </div>
+        </section>
+
+        <section className="animate-slide-up delay-5 mb-20">
           <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-danger mb-3 px-1">{t('settings.danger_zone')}</h2>
           <div className="list-wrapper border-danger/10">
             <SettingsRow icon={LogOut} label={t('common.logout')} onClick={async () => { await supabase.auth.signOut(); router.push('/login') }} />

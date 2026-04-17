@@ -39,10 +39,15 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/budgets') ||
     pathname.startsWith('/transactions') ||
     pathname.startsWith('/settings') ||
+    pathname.startsWith('/bills') ||
+    pathname.startsWith('/calendar') ||
     pathname.startsWith('/onboarding')
 
   const isAuthRoute =
     pathname.startsWith('/login') || pathname.startsWith('/signup')
+
+  // Root landing page: send authenticated users straight to the dashboard
+  const isRootPath = pathname === '/'
 
   if (!user && isProtectedRoute) {
     const redirectUrl = request.nextUrl.clone()
@@ -50,7 +55,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  if (user && isAuthRoute) {
+  if (user && (isAuthRoute || isRootPath)) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/dashboard'
     return NextResponse.redirect(redirectUrl)

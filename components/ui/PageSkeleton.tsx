@@ -3,29 +3,59 @@
 import { useTheme } from '@/app/providers'
 
 export function PageSkeleton() {
-  const { theme } = useTheme()
-  const logoSrc = theme === 'light' ? '/assets/clavi-icon-light.svg' : '/assets/clavi-icon-dark.svg'
-
   return (
-    <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] max-w-3xl mx-auto w-full">
-      <div 
-        className="w-16 h-16 rounded-3xl flex items-center justify-center mb-6 animate-breathe"
-        style={{
-          background: 'var(--bg-elevated)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-          border: '1px solid var(--border)'
-        }}
-      >
-        <img 
-          src={logoSrc} 
-          alt="Loading..." 
-          className="w-8 h-8 object-cover"
-        />
+    <div className="flex-1 max-w-4xl mx-auto w-full px-5 py-8 md:py-12 animate-fade-in">
+      {/* Header shimmer */}
+      <div className="mb-10">
+        <div className="skeleton h-3 w-32 mb-3" />
+        <div className="skeleton h-8 w-48" />
       </div>
-      <div className="animate-pulse-slow">
-        <span className="font-black text-[10px] tracking-[0.3em] uppercase text-secondary">
-          Loading Data...
-        </span>
+
+      {/* Balance card shimmer */}
+      <div className="text-center mb-10">
+        <div className="skeleton h-3 w-40 mx-auto mb-4" />
+        <div className="skeleton h-12 w-56 mx-auto mb-8 rounded-2xl" />
+        <div className="skeleton h-12 w-48 mx-auto rounded-2xl" />
+      </div>
+
+      {/* Stats grid shimmer */}
+      <div className="surface-elevated overflow-hidden mb-10">
+        <div className="grid grid-cols-2 divide-x divide-[var(--border)]">
+          <div className="px-6 py-5 flex flex-col items-center gap-2">
+            <div className="skeleton h-2.5 w-16" />
+            <div className="skeleton h-5 w-24" />
+          </div>
+          <div className="px-6 py-5 flex flex-col items-center gap-2">
+            <div className="skeleton h-2.5 w-16" />
+            <div className="skeleton h-5 w-24" />
+          </div>
+        </div>
+        <div className="border-t border-[var(--border)] px-6 py-6">
+          <div className="skeleton h-2.5 w-28 mb-4" />
+          <div className="skeleton h-2 w-full rounded-full mb-3" />
+          <div className="flex gap-4">
+            <div className="skeleton h-2 w-16" />
+            <div className="skeleton h-2 w-16" />
+            <div className="skeleton h-2 w-16" />
+          </div>
+        </div>
+      </div>
+
+      {/* Transaction list shimmer */}
+      <div className="mb-6">
+        <div className="skeleton h-2.5 w-32 mb-4" />
+      </div>
+      <div className="list-wrapper">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="list-item">
+            <div className="skeleton w-10 h-10 rounded-xl shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="skeleton h-3.5 w-24" />
+              <div className="skeleton h-2 w-16" />
+            </div>
+            <div className="skeleton h-3.5 w-16" />
+          </div>
+        ))}
       </div>
     </div>
   )

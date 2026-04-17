@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Target, PieChart, ChevronUp } from 'lucide-react'
+import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Target, PieChart, ChevronUp, CreditCard, Calendar } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from '@/app/providers'
 
@@ -49,6 +49,8 @@ export function BottomNav() {
   ]
 
   const analysisItems = [
+    { href: '/bills', icon: CreditCard, label: t('bills.title') || 'Bills', desc: t('bills.active') || 'Active' },
+    { href: '/calendar', icon: Calendar, label: t('calendar.title') || 'Calendar', desc: t('calendar.today') || 'Today' },
     { href: '/budgets', icon: Target, label: t('budgets.title'), desc: t('settings.budgets_subtitle') },
     { href: '/reports', icon: BarChart3, label: t('reports.title'), desc: t('reports.no_data_subtitle').split('.')[0] },
   ]
