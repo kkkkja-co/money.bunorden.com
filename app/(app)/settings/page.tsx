@@ -402,13 +402,13 @@ export default function SettingsPage() {
             <Link href="/settings/cards" aria-label={t('settings.cards')}><SettingsRow icon={CreditCard} label={t('settings.cards')} subtitle={t('settings.cards_subtitle')} /></Link>
             <SettingsRow
               icon={Bell}
-              label={t('tour.notifications_title')}
+              label={t('notifications.title')}
               value={notifPermission === 'granted' ? 'ON' : 'OFF'}
               onClick={async () => {
                 const granted = await requestNotificationPermission()
                 if (granted) {
                   setNotifPermission('granted')
-                  alert('Vault Test: Notifications are strictly for security alerts and major updates.')
+                  alert(t('notifications.title') + ': Notifications are strictly for security alerts and major updates.')
                 } else {
                   if (typeof window !== 'undefined' && 'Notification' in window && window.Notification) {
                     setNotifPermission(window.Notification.permission)

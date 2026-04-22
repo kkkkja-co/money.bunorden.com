@@ -3,9 +3,9 @@
 -- Creates tables for:
 --   • notes           (cloud-synced notes)
 --   • cards           (payment card references)
+--   • notifications   (in-app invite & alert system)  ← created FIRST
 --   • split_sessions  (shared expense groups)
 --   • split_expenses  (individual expenses in a session)
---   • notifications   (in-app invite & alert system)
 --
 -- Run this in the Supabase SQL editor.
 -- All tables use RLS — each user can only access their own data.
@@ -57,14 +57,13 @@ CREATE TRIGGER notes_set_updated_at
 
 
 -- ── 2. CARDS ──────────────────────────────────────────────────
--- Stores payment card references (last 4 digits only — no full PAN)
 
 CREATE TABLE IF NOT EXISTS cards (
   id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id    UUID        NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   name       TEXT        NOT NULL,
-  number     TEXT        NOT NULL DEFAULT '',   -- stored as '****1234'
-  expiry     TEXT        NOT NULL DEFAULT '',   -- 'MM/YY'
+  number     TEXT        NOT NULL DEFAULT '',
+  expiry     TEXT        NOT NULL DEFAULT '',
   icon       TEXT        NOT NULL DEFAULT 'Visa',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -89,7 +88,46 @@ CREATE POLICY "Users can delete their cards"
   ON cards FOR DELETE USING (auth.uid() = user_id);
 
 
--- ── 3. SPLIT SESSIONS ─────────────────────────────────────────
+-- ── 3. NOTIFICATIONS ──────────────────────────────────────────
+-- Created BEFORE split_sessions so the cross-reference policies work.
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    UUID        NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  sender_id  UUID        REFERENCES profiles(id) ON DELETE SET NULL,
+  type       TEXT        NOT NULL DEFAULT 'alert'
+                           CHECK (type IN ('invite', 'alert', 'budget', 'system')),
+  title      TEXT        NOT NULL,
+  message    TEXT        NOT NULL,
+  status     TEXT        NOT NULL DEFAULT 'pending'
+                           CHECK (status IN ('pending', 'accepted', 'declined', 'read')),
+  metadata   JSONB       NOT NULL DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users read their notifications"    ON notifications;
+DROP POLICY IF EXISTS "Users update their notifications"  ON notifications;
+DROP POLICY IF EXISTS "Anyone can send a notification"    ON notifications;
+DROP POLICY IF EXISTS "Senders can read sent invites"     ON notifications;
+
+CREATE POLICY "Users read their notifications"
+  ON notifications FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users update their notifications"
+  ON notifications FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- Any authenticated user can INSERT a notification (needed to send invites to others)
+CREATE POLICY "Anyone can send a notification"
+  ON notifications FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+
+-- Senders can also read notifications they sent (to check delivery status)
+CREATE POLICY "Senders can read sent invites"
+  ON notifications FOR SELECT USING (auth.uid() = sender_id);
+
+
+-- ── 4. SPLIT SESSIONS ─────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS split_sessions (
   id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -105,13 +143,12 @@ CREATE TABLE IF NOT EXISTS split_sessions (
 
 ALTER TABLE split_sessions ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Session owners can read"        ON split_sessions;
-DROP POLICY IF EXISTS "Session owners can create"      ON split_sessions;
-DROP POLICY IF EXISTS "Session owners can update"      ON split_sessions;
-DROP POLICY IF EXISTS "Session owners can delete"      ON split_sessions;
-DROP POLICY IF EXISTS "Invited members can read"       ON split_sessions;
+DROP POLICY IF EXISTS "Session owners can read"    ON split_sessions;
+DROP POLICY IF EXISTS "Session owners can create"  ON split_sessions;
+DROP POLICY IF EXISTS "Session owners can update"  ON split_sessions;
+DROP POLICY IF EXISTS "Session owners can delete"  ON split_sessions;
+DROP POLICY IF EXISTS "Invited members can read"   ON split_sessions;
 
--- Owner full access
 CREATE POLICY "Session owners can read"
   ON split_sessions FOR SELECT USING (auth.uid() = user_id);
 
@@ -124,8 +161,8 @@ CREATE POLICY "Session owners can update"
 CREATE POLICY "Session owners can delete"
   ON split_sessions FOR DELETE USING (auth.uid() = user_id);
 
--- Invited members can also read sessions they were invited to
--- (invitation accepted = notification status = 'accepted')
+-- Invited members (accepted invite) can also read sessions
+-- notifications table already exists at this point ✓
 CREATE POLICY "Invited members can read"
   ON split_sessions FOR SELECT USING (
     EXISTS (
@@ -138,17 +175,17 @@ CREATE POLICY "Invited members can read"
   );
 
 
--- ── 4. SPLIT EXPENSES ─────────────────────────────────────────
+-- ── 5. SPLIT EXPENSES ─────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS split_expenses (
-  id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  session_id   UUID        NOT NULL REFERENCES split_sessions(id) ON DELETE CASCADE,
-  description  TEXT        NOT NULL,
+  id           UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id   UUID          NOT NULL REFERENCES split_sessions(id) ON DELETE CASCADE,
+  description  TEXT          NOT NULL,
   amount       NUMERIC(12,2) NOT NULL CHECK (amount >= 0),
-  paid_by      TEXT        NOT NULL,
-  split_among  TEXT[]      NOT NULL DEFAULT '{}',
-  date         DATE        NOT NULL DEFAULT CURRENT_DATE,
-  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  paid_by      TEXT          NOT NULL,
+  split_among  TEXT[]        NOT NULL DEFAULT '{}',
+  date         DATE          NOT NULL DEFAULT CURRENT_DATE,
+  created_at   TIMESTAMPTZ   NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE split_expenses ENABLE ROW LEVEL SECURITY;
@@ -159,7 +196,6 @@ DROP POLICY IF EXISTS "Expense update via session ownership"  ON split_expenses;
 DROP POLICY IF EXISTS "Expense delete via session ownership"  ON split_expenses;
 DROP POLICY IF EXISTS "Expense access via invitation"         ON split_expenses;
 
--- Session owner can manage expenses
 CREATE POLICY "Expense access via session ownership"
   ON split_expenses FOR SELECT USING (
     EXISTS (
@@ -205,62 +241,17 @@ CREATE POLICY "Expense access via invitation"
   );
 
 
--- ── 5. NOTIFICATIONS ──────────────────────────────────────────
--- Used for in-app invitations (share/invite to a split session)
--- and general system alerts.
-
-CREATE TABLE IF NOT EXISTS notifications (
-  id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id    UUID        NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  sender_id  UUID        REFERENCES profiles(id) ON DELETE SET NULL,
-  type       TEXT        NOT NULL DEFAULT 'alert'
-                           CHECK (type IN ('invite', 'alert', 'budget', 'system')),
-  title      TEXT        NOT NULL,
-  message    TEXT        NOT NULL,
-  status     TEXT        NOT NULL DEFAULT 'pending'
-                           CHECK (status IN ('pending', 'accepted', 'declined', 'read')),
-  metadata   JSONB       NOT NULL DEFAULT '{}',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Users read their notifications"    ON notifications;
-DROP POLICY IF EXISTS "Users update their notifications"  ON notifications;
-DROP POLICY IF EXISTS "Anyone can send a notification"    ON notifications;
-DROP POLICY IF EXISTS "Senders can read sent invites"     ON notifications;
-
--- Recipients can read and update (accept/decline) their own notifications
-CREATE POLICY "Users read their notifications"
-  ON notifications FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Users update their notifications"
-  ON notifications FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-
--- Any authenticated user can insert a notification (to send invites)
--- The INSERT policy intentionally does NOT restrict user_id so a sender
--- can create a notification for another user.
-CREATE POLICY "Anyone can send a notification"
-  ON notifications FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
-
--- Senders can also read notifications they sent (to check delivery)
-CREATE POLICY "Senders can read sent invites"
-  ON notifications FOR SELECT USING (auth.uid() = sender_id);
-
-
--- ── 6. HELPER VIEW: Expose email for invite lookup ─────────────
--- The profiles table does not store emails (they live in auth.users).
--- This view safely exposes {id, email} so the app can look up a user
--- by email when sending an invitation.
--- Access is restricted to authenticated users only.
+-- ── 6. HELPER VIEW: user email lookup for invites ──────────────
+-- Safely exposes {id, email} from auth.users so the app can look
+-- up a Clavi user by email when sending an invitation.
+-- Only accessible to authenticated users.
 
 CREATE OR REPLACE VIEW public.user_emails AS
   SELECT id, email
   FROM auth.users;
 
--- Grant SELECT to authenticated role only
 GRANT SELECT ON public.user_emails TO authenticated;
 
 -- ── DONE ──────────────────────────────────────────────────────
--- Run this file once in Supabase SQL Editor.
--- Tables are idempotent (IF NOT EXISTS / DROP POLICY IF EXISTS).
+-- Tables are idempotent (CREATE TABLE IF NOT EXISTS / DROP POLICY IF EXISTS).
+-- Safe to re-run if needed.
