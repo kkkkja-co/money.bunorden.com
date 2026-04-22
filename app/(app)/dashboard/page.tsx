@@ -115,12 +115,6 @@ export default function DashboardPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
-  // #region agent log
-  useEffect(() => {
-    fetch('http://127.0.0.1:7700/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'271e6f'},body:JSON.stringify({sessionId:'271e6f',runId:'pre-fix',hypothesisId:'H5',location:'app/(app)/dashboard/page.tsx:118',message:'Dashboard notification bell state',data:{notificationCount:notifications.length,showNotifications},timestamp:Date.now()})}).catch(()=>{});
-  }, [notifications.length, showNotifications])
-  // #endregion
-
   const handleAcceptInvite = async (notif: any) => {
     setNotifProcessing(notif.id)
     try {

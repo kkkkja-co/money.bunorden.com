@@ -94,9 +94,6 @@ export default function SharingPage() {
         })
       )
 
-      // #region agent log
-      fetch('http://127.0.0.1:7700/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'271e6f'},body:JSON.stringify({sessionId:'271e6f',runId:'pre-fix',hypothesisId:'H3',location:'app/(app)/settings/sharing/page.tsx:97',message:'Fetched shared sessions and recipient statuses',data:{sessionCount:sessionsWithRecipients.length,recipientCounts:sessionsWithRecipients.map(s=>({sessionId:s.id,recipients:s.recipients.length,statuses:s.recipients.map(r=>r.status)}))},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       setSessions(sessionsWithRecipients)
     } catch (err) {
       console.error('Fetch sessions error:', err)
@@ -152,10 +149,6 @@ export default function SharingPage() {
       })
 
       if (inviteError) throw inviteError
-
-      // #region agent log
-      fetch('http://127.0.0.1:7700/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'271e6f'},body:JSON.stringify({sessionId:'271e6f',runId:'pre-fix',hypothesisId:'H4',location:'app/(app)/settings/sharing/page.tsx:152',message:'Invite created from sharing page',data:{selectedSession,shareEmailDomain:shareEmail.includes('@')?shareEmail.split('@')[1]:'invalid'},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
 
       setShareEmail('')
       setSelectedSession(null)
