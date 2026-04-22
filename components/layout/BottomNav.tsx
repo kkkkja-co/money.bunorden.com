@@ -75,25 +75,25 @@ export function BottomNav() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="absolute bottom-full left-4 right-4 mb-4 p-3 rounded-[32px] shadow-2xl overflow-hidden border border-white/10"
+            className="absolute bottom-full left-4 right-4 mb-6 p-4 rounded-[32px] shadow-2xl border border-white/10"
             style={{ background: 'var(--bg-elevated)', backdropFilter: 'blur(32px)' }}
           >
-            <div className="flex flex-col gap-2">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 opacity-40 text-secondary">
-                {t('nav.more')}
-              </p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] px-2 mb-3 opacity-40 text-secondary">
+              {t('nav.more')}
+            </p>
+            <div className="grid grid-cols-2 gap-2.5">
               {analysisItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-4 p-3 rounded-2xl transition-all active:scale-95 hover:bg-white/5"
+                  className="flex flex-col gap-2 p-3.5 rounded-2xl transition-all active:scale-95 bg-white/5 hover:bg-white/10"
                 >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-accent-primary/10 text-accent-primary">
-                    <item.icon size={20} />
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]">
+                    <item.icon size={18} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm tracking-tight text-primary">{item.label}</p>
-                    <p className="text-[10px] font-bold text-secondary uppercase tracking-widest truncate">{item.desc}</p>
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm tracking-tight text-primary truncate">{item.label}</p>
+                    <p className="text-[9px] font-bold text-secondary uppercase tracking-widest truncate opacity-80 mt-0.5">{item.desc}</p>
                   </div>
                 </Link>
               ))}
@@ -109,15 +109,15 @@ export function BottomNav() {
 
           if (tab.isSpecial) {
             return (
-              <Link key={tab.href} href={tab.href!} className="relative w-12 h-12 flex items-center justify-center">
+              <Link key={tab.href} href={tab.href!} className="relative w-14 h-14 flex items-center justify-center mb-6">
                 <div 
-                  className="absolute inset-0 rounded-2xl shadow-xl flex items-center justify-center -top-4"
+                  className="absolute inset-0 rounded-[24px] shadow-2xl flex items-center justify-center transform active:scale-95 transition-transform"
                   style={{ 
                     background: 'var(--accent-gradient)',
-                    boxShadow: '0 8px 24px rgba(175, 82, 222, 0.4)'
+                    boxShadow: '0 8px 32px rgba(175, 82, 222, 0.4), inset 0 2px 0 rgba(255,255,255,0.2)'
                   }}
                 >
-                  <Icon size={22} color="#fff" strokeWidth={3} />
+                  <Icon size={24} color="#fff" strokeWidth={2.5} />
                 </div>
               </Link>
             )

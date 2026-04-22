@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from '@/app/providers'
-import { X, Sparkles, Target, Bell, ArrowRight } from 'lucide-react'
+import { X, Sparkles, BookOpen, Users, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-const APP_VERSION = 'v0.5.0'
+const APP_VERSION = 'v0.7.0'
 
 export function NewFeaturePopup() {
   const { t } = useTranslation()
@@ -33,7 +33,7 @@ export function NewFeaturePopup() {
 
   const explore = () => {
     dismiss()
-    router.push('/budgets')
+    router.push('/notes')
   }
 
   if (!isVisible) return null
@@ -78,20 +78,20 @@ export function NewFeaturePopup() {
             <div className="space-y-4 mb-8">
               <div className="flex items-center gap-4 text-left p-3 rounded-2xl bg-white/5">
                 <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center text-accent-primary">
-                  <Target size={20} />
+                  <BookOpen size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{t('budgets.title')}</p>
-                  <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{t('tour.budgets_desc').slice(0, 40)}...</p>
+                  <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{t('notes.title')}</p>
+                  <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{t('notes.subtitle')}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4 text-left p-3 rounded-2xl bg-white/5">
                 <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center text-accent-primary">
-                  <Bell size={20} />
+                  <Users size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{t('tour.notifications_title')}</p>
-                  <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{t('tour.notifications_desc').slice(0, 40)}...</p>
+                  <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{t('split.title')}</p>
+                  <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{t('split.subtitle')}</p>
                 </div>
               </div>
             </div>
