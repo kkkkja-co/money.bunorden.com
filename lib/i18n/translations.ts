@@ -427,8 +427,8 @@ export const translations = {
       vercel: 'Edge Deployment',
       budget_integrity: 'Budget Integrity',
       recent_updates: 'Recent Updates',
-      v060_title: 'v0.6.0 Ultimate Vault',
-      v060_desc: 'Introduces comprehensive Bills tracking, native Calendar views, and customized Vault themes.',
+      v070_title: 'v0.7.0 Collab & Utility',
+      v070_desc: 'Introduces a private Notes tracker, Travel Expense Splitter, and beautiful redesigned cards & accounts managers.',
       status_stable: 'Active & Stable',
     },
     bills: {
@@ -970,8 +970,8 @@ export const translations = {
       vercel: '邊緣網路佈署 (Vercel)',
       budget_integrity: '預算執行進度',
       recent_updates: '近期更新',
-      v060_title: 'v0.6.0 終極金庫',
-      v060_desc: '全新加入帳單追蹤功能、原生行事曆檢視，以及可自定義的金庫主題配色。',
+      v070_title: 'v0.7.0 協作與工具',
+      v070_desc: '全新推出本地私有備忘錄、多人分帳工具，以及重新設計的高質感卡片與帳戶管理器。',
       status_stable: '保護中且穩定',
     },
     bills: {

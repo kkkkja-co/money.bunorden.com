@@ -186,10 +186,10 @@ export default function DashboardPage() {
                     <div className="surface-elevated p-4 border border-white/5 bg-white/[0.02]">
                       <div className="flex items-center gap-2 mb-2">
                         <Sparkles size={14} className="text-accent-primary" />
-                        <p className="text-xs font-black uppercase text-accent-primary">{t('notifications.v060_title')}</p>
+                        <p className="text-xs font-black uppercase text-accent-primary">{t('notifications.v070_title')}</p>
                       </div>
                       <p className="text-[11px] leading-relaxed text-secondary italic opacity-80">
-                        "{t('notifications.v060_desc')}"
+                        "{t('notifications.v070_desc')}"
                       </p>
                     </div>
                   </div>

@@ -266,7 +266,7 @@ export default function SettingsPage() {
       <div className="flex-1 max-w-xl mx-auto w-full px-5 py-8 md:py-12">
         <header className="mb-10 animate-slide-up">
           <h1 className="text-2xl font-bold tracking-tight text-primary">{t('common.settings')}</h1>
-          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-secondary mt-1">v0.6.0 • Vault Secured</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-secondary mt-1">v0.7.0 • Vault Secured</p>
         </header>
 
         {/* ── PROFILE ── */}
