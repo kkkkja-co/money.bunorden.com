@@ -58,6 +58,12 @@ export function BottomNav() {
     { href: '/split', icon: Users, label: t('split.title') || 'Split', desc: t('split.subtitle') || 'Group expenses' },
   ]
 
+  // #region agent log
+  useEffect(() => {
+    fetch('http://127.0.0.1:7700/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'271e6f'},body:JSON.stringify({sessionId:'271e6f',runId:'pre-fix',hypothesisId:'H1',location:'components/layout/BottomNav.tsx:62',message:'Bottom nav render state',data:{pathname,tabCount:tabs.length,hasSettingsTab:tabs.some(tab => tab.href === '/settings')},timestamp:Date.now()})}).catch(()=>{});
+  }, [pathname, tabs.length])
+  // #endregion
+
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 lg:hidden overflow-visible"
@@ -126,6 +132,9 @@ export function BottomNav() {
 
           // Settings tab: render side-by-side with NotificationPanel bell
           if (tab.href === '/settings') {
+            // #region agent log
+            fetch('http://127.0.0.1:7700/ingest/05c610a6-adde-401b-9935-ea01e4edcbce',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'271e6f'},body:JSON.stringify({sessionId:'271e6f',runId:'pre-fix',hypothesisId:'H2',location:'components/layout/BottomNav.tsx:129',message:'Rendering settings+notification pair in bottom nav',data:{pathname,isActive},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
             return (
               <div key="settings-notif" className="flex items-center gap-1">
                 <div
