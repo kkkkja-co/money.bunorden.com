@@ -174,15 +174,16 @@ export default function SettingsPage() {
     }
   }
 
-  const SettingsRow = ({ icon: Icon, label, value, onClick, danger }: any) => (
+  const SettingsRow = ({ icon: Icon, label, subtitle, value, onClick, danger }: any) => (
     <button onClick={onClick} className="list-item w-full text-left">
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${danger ? 'bg-danger/10 text-danger' : 'bg-primary/5 text-secondary'}`}>
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${danger ? 'bg-danger/10 text-danger' : 'bg-primary/5 text-secondary'}`}>
         <Icon size={16} />
       </div>
-      <div className="flex-1">
-        <p className={`font-bold text-sm ${danger ? 'text-danger' : 'text-primary'}`}>{label}</p>
+      <div className="flex-1 min-w-0 pr-2">
+        <p className={`font-bold text-sm truncate ${danger ? 'text-danger' : 'text-primary'}`}>{label}</p>
+        {subtitle && <p className="text-[10px] text-[var(--text-secondary)] truncate mt-0.5 opacity-80">{subtitle}</p>}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-shrink-0">
         {value && <span className="text-[10px] text-secondary font-black uppercase tracking-widest">{value}</span>}
         <ChevronRight size={14} className="text-secondary opacity-30" />
       </div>
@@ -396,9 +397,9 @@ export default function SettingsPage() {
         <section className="animate-slide-up delay-4 mb-10">
           <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-3 px-1">{t('settings.manage')}</h2>
           <div className="list-wrapper">
-            <Link href="/settings/accounts" aria-label={t('settings.accounts')}><SettingsRow icon={ArrowLeftRight} label={t('settings.accounts')} /></Link>
-            <Link href="/settings/categories" aria-label={t('settings.categories')}><SettingsRow icon={LayoutGrid} label={t('settings.categories')} /></Link>
-            <Link href="/settings/cards" aria-label={t('settings.cards')}><SettingsRow icon={CreditCard} label={t('settings.cards')} /></Link>
+            <Link href="/settings/accounts" aria-label={t('settings.accounts')}><SettingsRow icon={ArrowLeftRight} label={t('settings.accounts')} subtitle={t('settings.accounts_subtitle')} /></Link>
+            <Link href="/settings/categories" aria-label={t('settings.categories')}><SettingsRow icon={LayoutGrid} label={t('settings.categories')} subtitle={t('settings.categories_subtitle')} /></Link>
+            <Link href="/settings/cards" aria-label={t('settings.cards')}><SettingsRow icon={CreditCard} label={t('settings.cards')} subtitle={t('settings.cards_subtitle')} /></Link>
             <SettingsRow
               icon={Bell}
               label={t('tour.notifications_title')}

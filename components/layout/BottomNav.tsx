@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Target, PieChart, ChevronUp, CreditCard, Calendar } from 'lucide-react'
+import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Target, PieChart, ChevronUp, CreditCard, Calendar, BookOpen, Users } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from '@/app/providers'
 
@@ -53,6 +53,8 @@ export function BottomNav() {
     { href: '/calendar', icon: Calendar, label: t('calendar.title') || 'Calendar', desc: t('calendar.today') || 'Today' },
     { href: '/budgets', icon: Target, label: t('budgets.title'), desc: t('settings.budgets_subtitle') },
     { href: '/reports', icon: BarChart3, label: t('reports.title'), desc: t('reports.no_data_subtitle').split('.')[0] },
+    { href: '/notes', icon: BookOpen, label: t('notes.title') || 'Notes', desc: t('notes.subtitle') || 'Financial notes' },
+    { href: '/split', icon: Users, label: t('split.title') || 'Split', desc: t('split.subtitle') || 'Group expenses' },
   ]
 
   return (
@@ -102,7 +104,7 @@ export function BottomNav() {
 
       <div className="flex justify-around items-center max-w-lg mx-auto h-16 px-2">
         {tabs.map((tab) => {
-          const isActive = tab.href ? pathname.startsWith(tab.href) : (tab.id === 'analysis' && (pathname.startsWith('/budgets') || pathname.startsWith('/reports')))
+          const isActive = tab.href ? pathname.startsWith(tab.href) : (tab.id === 'analysis' && (pathname.startsWith('/budgets') || pathname.startsWith('/reports') || pathname.startsWith('/notes') || pathname.startsWith('/split')))
           const Icon = tab.icon
 
           if (tab.isSpecial) {

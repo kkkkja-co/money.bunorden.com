@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme, useTranslation } from '@/app/providers'
-import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Target, CreditCard, Calendar } from 'lucide-react'
+import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Target, CreditCard, Calendar, BookOpen, Users } from 'lucide-react'
 
 export function Sidebar() {
   const { t } = useTranslation()
@@ -18,6 +18,8 @@ export function Sidebar() {
     { href: '/budgets', icon: Target, label: t('nav.budgets') },
     { href: '/bills', icon: CreditCard, label: t('bills.title') || 'Bills' },
     { href: '/calendar', icon: Calendar, label: t('calendar.title') || 'Calendar' },
+    { href: '/notes', icon: BookOpen, label: t('notes.title') || 'Notes' },
+    { href: '/split', icon: Users, label: t('split.title') || 'Split' },
     { href: '/settings', icon: Settings, label: t('nav.settings') },
   ]
 

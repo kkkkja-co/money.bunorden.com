@@ -35,6 +35,16 @@ const COLORS = [
   '#f43f5e', '#a855f7'
 ]
 
+function getMonthRange() {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = now.getMonth()
+  const start = `${y}-${String(m + 1).padStart(2, '0')}-01`
+  const lastDay = new Date(y, m + 1, 0).getDate()
+  const end = `${y}-${String(m + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+  return { start, end }
+}
+
 export default function ReportsPage() {
   const startDateRef = useRef<HTMLInputElement>(null)
   const endDateRef = useRef<HTMLInputElement>(null)
@@ -51,8 +61,8 @@ export default function ReportsPage() {
   const [sortBy, setSortBy] = useState<'amount' | 'name'>('amount')
   const [filterType, setFilterType] = useState<'income' | 'expense'>('expense')
   const [isVisible, setIsVisible] = useState(true)
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
+  const [startDate, setStartDate] = useState(() => getMonthRange().start)
+  const [endDate, setEndDate] = useState(() => getMonthRange().end)
 
   useEffect(() => {
     const saved = localStorage.getItem('clavi-balance-visible')
@@ -494,29 +504,48 @@ export default function ReportsPage() {
                   <h3 className="text-sm font-bold mb-8 px-2 text-[var(--text-primary)]">{t('reports.trend')}</h3>
                   <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={monthSummaries}>
+                      <BarChart
+                        data={monthSummaries}
+                        margin={{ top: 8, right: 20, left: 20, bottom: 8 }}
+                        barCategoryGap="25%"
+                        barGap={4}
+                      >
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                        <XAxis 
-                          dataKey="month" 
-                          tickFormatter={monthLabel} 
+                        <XAxis
+                          dataKey="month"
+                          tickFormatter={(m) => {
+                            const [y, mo] = m.split('-')
+                            const date = new Date(Number(y), Number(mo) - 1)
+                            const mon = date.toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : 'en-US', { month: 'short' })
+                            return monthSummaries.length > 12 ? `${mon} '${String(y).slice(2)}` : mon
+                          }}
                           axisLine={false}
                           tickLine={false}
                           tick={{ fill: 'var(--text-tertiary)', fontSize: 10, fontWeight: 'bold' }}
                           dy={10}
                         />
                         <YAxis hide />
-                        <RechartsTooltip 
-                          content={({ active, payload, label }) => {
+                        <RechartsTooltip
+                          content={({ active, payload, label }: any) => {
                             if (active && payload && payload.length) {
+                              const inc = payload.find((p: any) => p.dataKey === 'income')?.value ?? 0
+                              const exp = payload.find((p: any) => p.dataKey === 'expense')?.value ?? 0
+                              const [y, mo] = (label as string).split('-')
+                              const monthName = new Date(Number(y), Number(mo) - 1).toLocaleDateString(
+                                language === 'zh-TW' ? 'zh-TW' : 'en-US',
+                                { month: 'long', year: 'numeric' }
+                              )
                               return (
-                                <div className="surface-elevated p-3 shadow-2xl border-none">
-                                  <p className="text-xs font-bold mb-2 uppercase tracking-wider text-[var(--text-tertiary)]">{monthLabel(label)}</p>
-                                  <div className="space-y-1">
+                                <div className="surface-elevated p-3 shadow-2xl">
+                                  <p className="text-[10px] font-black mb-2 uppercase tracking-wider text-[var(--text-tertiary)]">{monthName}</p>
+                                  <div className="space-y-1.5">
                                     <p className="text-sm font-bold flex items-center gap-2 text-[var(--success)]">
-                                      <div className="w-2 h-2 rounded-full bg-[var(--success)]" /> {formatCurrency(Number(payload[0].value), currency)}
+                                      <span className="w-2 h-2 rounded-full bg-[var(--success)] inline-block flex-shrink-0" />
+                                      {formatCurrency(Number(inc), currency)}
                                     </p>
                                     <p className="text-sm font-bold flex items-center gap-2 text-[var(--danger)]">
-                                      <div className="w-2 h-2 rounded-full bg-[var(--danger)]" /> {formatCurrency(Number(payload[1].value), currency)}
+                                      <span className="w-2 h-2 rounded-full bg-[var(--danger)] inline-block flex-shrink-0" />
+                                      {formatCurrency(Number(exp), currency)}
                                     </p>
                                   </div>
                                 </div>
@@ -525,8 +554,8 @@ export default function ReportsPage() {
                             return null
                           }}
                         />
-                        <Bar dataKey="income" fill="var(--success)" radius={[4, 4, 0, 0]} name={t('dashboard.income')} />
-                        <Bar dataKey="expense" fill="var(--danger)" radius={[4, 4, 0, 0]} name={t('dashboard.expenses')} />
+                        <Bar dataKey="income" fill="var(--success)" radius={[6, 6, 0, 0]} name={t('dashboard.income')} maxBarSize={36} />
+                        <Bar dataKey="expense" fill="var(--danger)" radius={[6, 6, 0, 0]} name={t('dashboard.expenses')} maxBarSize={36} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
