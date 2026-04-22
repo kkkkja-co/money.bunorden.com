@@ -7,6 +7,7 @@ import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { useTranslation } from '@/app/providers'
 import { ArrowLeft, Plus, Edit2, Trash2, X, CreditCard, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface Card {
   id: string
@@ -265,10 +266,22 @@ export default function CardsPage() {
       <BunordenFooter />
 
       {/* Add/Edit Modal */}
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content p-6" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
+      <AnimatePresence>
+        {showModal && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md" 
+              onClick={() => setShowModal(false)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-sm surface-elevated p-6 md:p-8 shadow-[0_32px_96px_-12px_rgba(0,0,0,0.8)] border border-white/10 rounded-[2rem] max-h-[90dvh] overflow-y-auto custom-scrollbar" 
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-primary">
                 {editingCard ? t('settings.cards_edit') : t('settings.cards_new')}
               </h3>
@@ -386,14 +399,27 @@ export default function CardsPage() {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
 
       {/* Delete Modal */}
+      <AnimatePresence>
       {showDeleteModal && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(null)}>
-          <div className="modal-content p-6 max-w-xs" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-md" 
+            onClick={() => setShowDeleteModal(null)}
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+            animate={{ opacity: 1, scale: 1, y: 0 }} 
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="relative w-full max-w-xs surface-elevated p-6 md:p-8 text-center shadow-[0_32px_96px_-12px_rgba(0,0,0,0.8)] border border-white/10 rounded-[2rem]" 
+            onClick={e => e.stopPropagation()}
+          >
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-[var(--danger-bg)] flex items-center justify-center mx-auto mb-4">
                 <Trash2 size={28} className="text-[var(--danger)]" />
@@ -411,9 +437,10 @@ export default function CardsPage() {
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
     </div>
   )
 }

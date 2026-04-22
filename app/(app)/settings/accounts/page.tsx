@@ -11,6 +11,8 @@ import {
   Wallet, Landmark, PiggyBank, Briefcase, DollarSign, TrendingUp, TrendingDown
 } from 'lucide-react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
+
 
 interface Account {
   id: string
@@ -25,21 +27,21 @@ interface Account {
 
 type AccountType = 'wallet' | 'bank' | 'savings' | 'investment'
 const ACCOUNT_TYPES: { id: AccountType; label: string; icon: typeof Wallet; emoji: string }[] = [
-  { id: 'wallet',     label: 'Cash / Wallet',   icon: Wallet,     emoji: '💵' },
-  { id: 'bank',       label: 'Bank Account',     icon: Landmark,   emoji: '🏦' },
-  { id: 'savings',    label: 'Savings',          icon: PiggyBank,  emoji: '🐷' },
-  { id: 'investment', label: 'Investment',       icon: Briefcase,  emoji: '📈' },
+  { id: 'wallet', label: 'Cash / Wallet', icon: Wallet, emoji: '💵' },
+  { id: 'bank', label: 'Bank Account', icon: Landmark, emoji: '🏦' },
+  { id: 'savings', label: 'Savings', icon: PiggyBank, emoji: '🐷' },
+  { id: 'investment', label: 'Investment', icon: Briefcase, emoji: '📈' },
 ]
 
 const COLOURS = [
-  { hex: '#007AFF', name: 'Blue'   },
-  { hex: '#34C759', name: 'Green'  },
+  { hex: '#007AFF', name: 'Blue' },
+  { hex: '#34C759', name: 'Green' },
   { hex: '#FF9500', name: 'Orange' },
-  { hex: '#FF3B30', name: 'Red'    },
+  { hex: '#FF3B30', name: 'Red' },
   { hex: '#AF52DE', name: 'Purple' },
   { hex: '#5856D6', name: 'Indigo' },
-  { hex: '#5AC8FA', name: 'Cyan'   },
-  { hex: '#FF2D55', name: 'Rose'   },
+  { hex: '#5AC8FA', name: 'Cyan' },
+  { hex: '#FF2D55', name: 'Rose' },
 ]
 
 export default function AccountsPage() {
@@ -51,10 +53,10 @@ export default function AccountsPage() {
   const [showModal, setShowModal] = useState(false)
   const [editingAccount, setEditingAccount] = useState<Account | null>(null)
 
-  const [name, setName]       = useState('')
-  const [icon, setIcon]       = useState('💵')
-  const [colour, setColour]   = useState('#007AFF')
-  const [processing, setProcessing]           = useState(false)
+  const [name, setName] = useState('')
+  const [icon, setIcon] = useState('💵')
+  const [colour, setColour] = useState('#007AFF')
+  const [processing, setProcessing] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null)
 
   const fetchData = useCallback(async () => {
@@ -72,20 +74,20 @@ export default function AccountsPage() {
       const { data: txs } = await supabase
         .from('transactions').select('account_id, amount, type').eq('user_id', user.id)
 
-      const balMap:  Record<string, number> = {}
-      const incMap:  Record<string, number> = {}
-      const expMap:  Record<string, number> = {}
+      const balMap: Record<string, number> = {}
+      const incMap: Record<string, number> = {}
+      const expMap: Record<string, number> = {}
       txs?.forEach(tx => {
         const amt = Number(tx.amount)
         if (!balMap[tx.account_id]) { balMap[tx.account_id] = 0; incMap[tx.account_id] = 0; expMap[tx.account_id] = 0 }
-        if (tx.type === 'income')  { balMap[tx.account_id] += amt; incMap[tx.account_id] += amt }
+        if (tx.type === 'income') { balMap[tx.account_id] += amt; incMap[tx.account_id] += amt }
         else if (tx.type === 'expense') { balMap[tx.account_id] -= amt; expMap[tx.account_id] += amt }
       })
 
       setAccounts((accountsData || []).map(a => ({
         ...a,
-        balance:      balMap[a.id] ?? 0,
-        totalIncome:  incMap[a.id] ?? 0,
+        balance: balMap[a.id] ?? 0,
+        totalIncome: incMap[a.id] ?? 0,
         totalExpense: expMap[a.id] ?? 0,
       })))
     } finally {
@@ -275,130 +277,159 @@ export default function AccountsPage() {
 
       <BunordenFooter />
 
-      {/* Account Modal */}
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content p-6" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-primary">
-                {editingAccount ? t('settings.accounts_edit') : t('settings.accounts_new')}
-              </h3>
-              <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center">
-                <X size={16} />
-              </button>
-            </div>
+      {/* Account Modal — unified framer-motion style */}
+      <AnimatePresence>
+        {showModal && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              onClick={() => setShowModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-sm surface-elevated p-6 md:p-8 shadow-[0_32px_96px_-12px_rgba(0,0,0,0.8)] border border-white/10 rounded-[2rem] max-h-[90dvh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-primary">
+                  {editingAccount ? t('settings.accounts_edit') : t('settings.accounts_new')}
+                </h3>
+                <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center hover:bg-white/10 transition-colors">
+                  <X size={16} />
+                </button>
+              </div>
 
-            <form onSubmit={handleSave} className="space-y-5">
-              {/* Quick type selector */}
-              {!editingAccount && (
+              <form onSubmit={handleSave} className="space-y-5">
+                {/* Quick type selector */}
+                {!editingAccount && (
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2">Type</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {ACCOUNT_TYPES.map(type => (
+                        <button
+                          key={type.id}
+                          type="button"
+                          onClick={() => { setIcon(type.emoji) }}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl border text-sm font-bold transition-all ${
+                            icon === type.emoji
+                              ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]'
+                              : 'border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
+                          }`}
+                        >
+                          <span className="text-xl">{type.emoji}</span>
+                          <span className="text-xs font-bold">{type.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Name */}
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2">Type</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {ACCOUNT_TYPES.map(type => (
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2">
+                    {t('settings.accounts_name')}
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder={t('settings.accounts_name_placeholder')}
+                    className="input-minimal w-full"
+                    autoFocus={!!editingAccount}
+                    required
+                  />
+                </div>
+
+                {/* Colour */}
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-3">
+                    {t('settings.accounts_colour')}
+                  </label>
+                  <div className="flex flex-wrap gap-2.5">
+                    {COLOURS.map(c => (
                       <button
-                        key={type.id}
+                        key={c.hex}
                         type="button"
-                        onClick={() => { setIcon(type.emoji) }}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl border text-sm font-bold transition-all ${
-                          icon === type.emoji
-                            ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]'
-                            : 'border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
-                        }`}
+                        onClick={() => setColour(c.hex)}
+                        title={c.name}
+                        className="relative w-9 h-9 rounded-full transition-all"
+                        style={{
+                          background: c.hex,
+                          boxShadow: colour === c.hex ? `0 0 0 3px var(--bg-secondary), 0 0 0 5px ${c.hex}` : 'none',
+                          transform: colour === c.hex ? 'scale(1.15)' : 'scale(1)',
+                        }}
                       >
-                        <span className="text-xl">{type.emoji}</span>
-                        <span className="text-xs font-bold">{type.label}</span>
+                        {colour === c.hex && <Check size={14} className="text-white absolute inset-0 m-auto" strokeWidth={3} />}
                       </button>
                     ))}
                   </div>
                 </div>
-              )}
 
-              {/* Name */}
-              <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2">
-                  {t('settings.accounts_name')}
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder={t('settings.accounts_name_placeholder')}
-                  className="input-minimal w-full"
-                  autoFocus={!!editingAccount}
-                  required
-                />
-              </div>
-
-              {/* Colour */}
-              <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-3">
-                  {t('settings.accounts_colour')}
-                </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {COLOURS.map(c => (
-                    <button
-                      key={c.hex}
-                      type="button"
-                      onClick={() => setColour(c.hex)}
-                      title={c.name}
-                      className="relative w-9 h-9 rounded-full transition-all"
-                      style={{
-                        background: c.hex,
-                        boxShadow: colour === c.hex ? `0 0 0 3px var(--bg-secondary), 0 0 0 5px ${c.hex}` : 'none',
-                        transform: colour === c.hex ? 'scale(1.15)' : 'scale(1)',
-                      }}
-                    >
-                      {colour === c.hex && <Check size={14} className="text-white absolute inset-0 m-auto" strokeWidth={3} />}
-                    </button>
-                  ))}
+                {/* Preview */}
+                <div className="rounded-2xl p-4 border border-[var(--border)] flex items-center gap-3" style={{ background: 'var(--bg-elevated)' }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: `${colour}20` }}>
+                    {icon}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-primary">{name || 'Account name'}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">Balance: {formatCurrency(0, currency)}</p>
+                  </div>
+                  <div className="ml-auto w-1 h-10 rounded-full" style={{ background: colour }} />
                 </div>
-              </div>
 
-              {/* Preview */}
-              <div className="rounded-2xl p-4 border border-[var(--border)] flex items-center gap-3" style={{ background: 'var(--bg-elevated)' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: `${colour}20` }}>
-                  {icon}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="flex-1 py-3 rounded-2xl border border-[var(--border)] font-bold text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] transition-colors"
+                  >
+                    {t('common.cancel')}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={processing || !name.trim()}
+                    className="btn-apple-primary flex-1 py-3 font-bold text-sm disabled:opacity-50"
+                  >
+                    {processing ? t('common.loading') : t('common.save')}
+                  </button>
                 </div>
-                <div>
-                  <p className="font-bold text-sm text-primary">{name || 'Account name'}</p>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">Balance: {formatCurrency(0, currency)}</p>
-                </div>
-                <div className="ml-auto w-1 h-10 rounded-full" style={{ background: colour }} />
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 py-3 rounded-2xl border border-[var(--border)] font-bold text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] transition-colors"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={processing || !name.trim()}
-                  className="btn-apple-primary flex-1 py-3 font-bold text-sm disabled:opacity-50"
-                >
-                  {processing ? t('common.loading') : t('common.save')}
-                </button>
-              </div>
-            </form>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
-      {/* Delete Confirmation */}
-      {showDeleteModal && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(null)}>
-          <div className="modal-content p-6 max-w-xs" onClick={e => e.stopPropagation()}>
-            <div className="text-center">
+      {/* Delete Confirmation — unified framer-motion style */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              onClick={() => setShowDeleteModal(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-xs surface-elevated p-6 md:p-8 text-center shadow-[0_32px_96px_-12px_rgba(0,0,0,0.8)] border border-white/10 rounded-[2rem]"
+              onClick={e => e.stopPropagation()}
+            >
               <div className="w-16 h-16 rounded-full bg-[var(--danger-bg)] flex items-center justify-center mx-auto mb-4">
                 <Trash2 size={28} className="text-[var(--danger)]" />
               </div>
               <h3 className="text-lg font-bold mb-2 text-primary">{t('settings.accounts_delete_confirm')}</h3>
               <p className="text-sm mb-6 text-[var(--text-secondary)]">{t('settings.accounts_delete_warning')}</p>
               <div className="flex gap-3">
-                <button onClick={() => setShowDeleteModal(null)} className="flex-1 py-3 rounded-2xl border border-[var(--border)] font-bold text-sm text-[var(--text-secondary)]">{t('common.cancel')}</button>
+                <button
+                  onClick={() => setShowDeleteModal(null)}
+                  className="flex-1 py-3 rounded-2xl border border-[var(--border)] font-bold text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] transition-colors"
+                >
+                  {t('common.cancel')}
+                </button>
                 <button
                   onClick={() => handleDelete(showDeleteModal)}
                   disabled={processing}
@@ -407,10 +438,10 @@ export default function AccountsPage() {
                   {processing ? t('common.loading') : t('common.delete')}
                 </button>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   )
 }

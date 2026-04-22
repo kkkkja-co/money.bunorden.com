@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Target, PieChart, ChevronUp, CreditCard, Calendar, BookOpen, Users } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from '@/app/providers'
+import { NotificationPanel } from '@/components/ui/NotificationPanel'
 
 export function BottomNav() {
   const { t } = useTranslation()
@@ -120,6 +121,30 @@ export function BottomNav() {
                   <Icon size={24} color="#fff" strokeWidth={2.5} />
                 </div>
               </Link>
+            )
+          }
+
+          // Settings tab: render side-by-side with NotificationPanel bell
+          if (tab.href === '/settings') {
+            return (
+              <div key="settings-notif" className="flex items-center gap-1">
+                <div
+                  className="flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-90 px-1"
+                  onClick={() => router.push('/settings')}
+                >
+                  <Icon
+                    size={20}
+                    strokeWidth={isActive ? 3 : 2}
+                    className={`transition-colors ${isActive ? 'text-accent-primary' : 'text-secondary'}`}
+                  />
+                  <span className={`text-[9px] font-black uppercase tracking-widest transition-colors opacity-70 ${isActive ? 'text-accent-primary' : 'text-secondary'}`}>
+                    {tab.label}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center justify-center pb-1">
+                  <NotificationPanel />
+                </div>
+              </div>
             )
           }
 

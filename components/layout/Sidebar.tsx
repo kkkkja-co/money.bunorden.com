@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme, useTranslation } from '@/app/providers'
 import { Home, ArrowLeftRight, PlusCircle, BarChart3, Settings, Target, CreditCard, Calendar, BookOpen, Users } from 'lucide-react'
+import { NotificationPanel } from '@/components/ui/NotificationPanel'
 
 export function Sidebar() {
   const { t } = useTranslation()
@@ -33,10 +34,13 @@ export function Sidebar() {
         borderRight: '1px solid var(--border)',
       }}
     >
-      <Link href="/dashboard" className="flex items-center gap-3 px-6 py-10 transition-transform active:scale-95">
-        <img src={logoSrc} alt="Clavi" className="w-8 h-8 object-contain" />
-        <span className="font-bold text-xl tracking-tight text-primary">Clavi</span>
-      </Link>
+      <div className="flex items-center justify-between px-6 py-8">
+        <Link href="/dashboard" className="flex items-center gap-3 transition-transform active:scale-95">
+          <img src={logoSrc} alt="Clavi" className="w-8 h-8 object-contain" />
+          <span className="font-bold text-xl tracking-tight text-primary">Clavi</span>
+        </Link>
+        <NotificationPanel />
+      </div>
 
       <nav className="flex-1 px-4 space-y-2 mt-4">
         {navItems.map((item) => {

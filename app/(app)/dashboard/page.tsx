@@ -9,7 +9,7 @@ import {
   Plus, TrendingUp, TrendingDown,
   ChevronRight, Eye, EyeOff, Bell,
   Target, Sparkles, Activity, X,
-  ShieldCheck, Cpu, Globe, Lock
+  ShieldCheck, Cpu, Globe, Lock, Mail, PartyPopper
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { User } from '@supabase/supabase-js'
@@ -33,16 +33,39 @@ export default function DashboardPage() {
   const [isVisible, setIsVisible] = useState(true)
   const [chartData, setChartData] = useState<any[]>([])
   const [showNotifications, setShowNotifications] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [notifProcessing, setNotifProcessing] = useState<string | null>(null)
 
   useEffect(() => {
     const saved = localStorage.getItem('clavi-balance-visible')
     if (saved !== null) setIsVisible(saved === 'true')
   }, [])
 
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+      
+      if (!error) setNotifications(data || [])
+    } catch (err) {
+      console.error('Fetch notifications error:', err)
+    }
+  }, [])
+
   const fetchData = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
+
+      // Also fetch notifications
+      fetchNotifications()
 
       const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       if (!profileData?.onboarding_done) { router.push('/onboarding'); return }
@@ -91,6 +114,44 @@ export default function DashboardPage() {
   }, [router])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  const handleAcceptInvite = async (notif: any) => {
+    setNotifProcessing(notif.id)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const sessionId = notif.metadata?.session_id
+      if (!sessionId) throw new Error('Missing session ID')
+
+      // 1. Join session
+      const { error: joinError } = await supabase
+        .from('session_members')
+        .insert({ session_id: sessionId, user_id: user.id })
+      
+      if (joinError && joinError.code !== '23505') throw joinError // Ignore duplicate error
+
+      // 2. Mark notification as accepted
+      await supabase.from('notifications').update({ status: 'accepted', read_at: new Date().toISOString() }).eq('id', notif.id)
+
+      setNotifications(prev => prev.filter(n => n.id !== notif.id))
+      alert('Project joined successfully!')
+    } catch (err) {
+      console.error('Accept invite error:', err)
+      alert('Failed to join project.')
+    } finally {
+      setNotifProcessing(null)
+    }
+  }
+
+  const handleDeclineInvite = async (notifId: string) => {
+    try {
+      await supabase.from('notifications').update({ status: 'declined', read_at: new Date().toISOString() }).eq('id', notifId)
+      setNotifications(prev => prev.filter(n => n.id !== notifId))
+    } catch (err) {
+      console.error('Decline invite error:', err)
+    }
+  }
 
   if (loading) return <PageSkeleton />
 
@@ -180,6 +241,43 @@ export default function DashboardPage() {
                     </div>
                   )}
 
+                  {/* Project Invites */}
+                  {notifications.filter(n => n.type === 'invite').length > 0 && (
+                    <div className="space-y-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-secondary">Project Invites</p>
+                      <div className="space-y-3">
+                        {notifications.map((notif) => (
+                          <div key={notif.id} className="surface-elevated p-4 border border-accent-primary/20 bg-accent-primary/5">
+                            <div className="flex items-start gap-4">
+                              <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center flex-shrink-0">
+                                <Mail size={18} className="text-accent-primary" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-primary mb-1">{notif.title}</p>
+                                <p className="text-[11px] text-secondary leading-relaxed mb-3">{notif.message}</p>
+                                <div className="flex gap-2">
+                                  <button 
+                                    onClick={() => handleAcceptInvite(notif)}
+                                    disabled={notifProcessing === notif.id}
+                                    className="flex-1 py-2 rounded-lg bg-accent-primary text-white text-[10px] font-black uppercase tracking-wider disabled:opacity-50"
+                                  >
+                                    Accept
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDeclineInvite(notif.id)}
+                                    className="px-3 py-2 rounded-lg bg-white/5 text-secondary text-[10px] font-black uppercase tracking-wider"
+                                  >
+                                    Decline
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Recent Updates */}
                   <div className="space-y-2">
                     <p className="text-[10px] font-black uppercase tracking-widest text-secondary">{t('notifications.recent_updates')}</p>
@@ -219,7 +317,9 @@ export default function DashboardPage() {
                 aria-label={t('common.notifications_title') || 'Notifications'}
               >
                 <Bell size={20} className="text-[var(--text-secondary)] opacity-80" />
-                <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[var(--accent-primary)] ring-2 ring-[var(--bg-primary)]" />
+                {notifications.length > 0 && (
+                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[var(--accent-primary)] ring-2 ring-[var(--bg-primary)] animate-pulse" />
+                )}
               </button>
             </div>
           </div>

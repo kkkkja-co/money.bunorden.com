@@ -4,11 +4,14 @@ import { useState, useEffect, useCallback } from 'react'
 import {
   Plus, Trash2, ArrowLeft, Users, Receipt, Calculator,
   Plane, Briefcase, MoreHorizontal, ChevronRight, X, Check,
-  ArrowRight, DollarSign
+  ArrowRight, DollarSign, Share2, Mail
 } from 'lucide-react'
 import { useTranslation } from '@/app/providers'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency } from '@/lib/utils'
+import { motion, AnimatePresence } from 'framer-motion'
+import { supabase } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 const STORAGE_KEY = 'clavi-split-sessions-v1'
 
@@ -87,9 +90,11 @@ const EMOJIS = ['✈️','🏖️','🏕️','🗼','🎉','🍜','🍣','💼',
 
 export default function SplitPage() {
   const { t } = useTranslation()
+  const router = useRouter()
   const [sessions, setSessions] = useState<SplitSession[]>([])
   const [activeSession, setActiveSession] = useState<SplitSession | null>(null)
   const [tab, setTab] = useState<'expenses' | 'settlement'>('expenses')
+  const [loading, setLoading] = useState(true)
 
   // Modals
   const [showCreateSession, setShowCreateSession] = useState(false)
@@ -100,7 +105,7 @@ export default function SplitPage() {
   const [newEmoji, setNewEmoji] = useState('✈️')
   const [newType, setNewType] = useState<SessionType>('travel')
   const [newCurrency, setNewCurrency] = useState('HKD')
-  const [newParticipants, setNewParticipants] = useState<string[]>([''])
+  const [newParticipants, setNewParticipants] = useState<string[]>(['', ''])
 
   // New expense form
   const [expDesc, setExpDesc] = useState('')
@@ -108,7 +113,55 @@ export default function SplitPage() {
   const [expPaidBy, setExpPaidBy] = useState('')
   const [expSplitAmong, setExpSplitAmong] = useState<string[]>([])
 
-  useEffect(() => { setSessions(load()) }, [])
+  // Share state
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareEmail, setShareEmail] = useState('')
+  const [sharing, setSharing] = useState(false)
+  const [sharingSuccess, setSharingSuccess] = useState(false)
+
+
+  const fetchSessions = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
+
+      // Fetch sessions
+      const { data: sessionsData, error: sessionsError } = await supabase
+        .from('split_sessions')
+        .select('*, expenses:split_expenses(*)')
+        .order('created_at', { ascending: false })
+
+      if (sessionsError) throw sessionsError
+
+      const mappedData = (sessionsData || []).map(s => ({
+        id: s.id,
+        name: s.name,
+        emoji: s.emoji,
+        type: s.type as SessionType,
+        currency: s.currency,
+        participants: s.participants,
+        createdAt: s.created_at,
+        expenses: (s.expenses || []).map((e: any) => ({
+          id: e.id,
+          description: e.description,
+          amount: Number(e.amount),
+          paidBy: e.paid_by,
+          splitAmong: e.split_among,
+          date: e.date
+        }))
+      }))
+
+      setSessions(mappedData)
+      persist(mappedData)
+    } catch (err) {
+      console.error('Fetch sessions error:', err)
+      setSessions(load())
+    } finally {
+      setLoading(false)
+    }
+  }, [router])
+
+  useEffect(() => { fetchSessions() }, [fetchSessions])
 
   // Sync activeSession from sessions list
   useEffect(() => {
@@ -123,23 +176,45 @@ export default function SplitPage() {
     persist(updated)
   }
 
-  const createSession = () => {
+  const createSession = async () => {
     const participants = newParticipants.filter(p => p.trim())
     if (!newName.trim() || participants.length < 2) return
-    const session: SplitSession = {
-      id: crypto.randomUUID(),
-      name: newName.trim(),
-      emoji: newEmoji,
-      type: newType,
-      currency: newCurrency,
-      participants,
-      expenses: [],
-      createdAt: new Date().toISOString(),
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data, error } = await supabase
+        .from('split_sessions')
+        .insert({
+          user_id: user.id,
+          name: newName.trim(),
+          emoji: newEmoji,
+          type: newType,
+          currency: newCurrency,
+          participants,
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      const session: SplitSession = {
+        id: data.id,
+        name: data.name,
+        emoji: data.emoji,
+        type: data.type as SessionType,
+        currency: data.currency,
+        participants,
+        expenses: [],
+        createdAt: data.created_at,
+      }
+      updateSessions([session, ...sessions])
+      setActiveSession(session)
+      setShowCreateSession(false)
+      resetCreateForm()
+    } catch (err) {
+      console.error('Create session error:', err)
     }
-    updateSessions([session, ...sessions])
-    setActiveSession(session)
-    setShowCreateSession(false)
-    resetCreateForm()
   }
 
   const resetCreateForm = () => {
@@ -147,41 +222,160 @@ export default function SplitPage() {
     setNewCurrency('HKD'); setNewParticipants(['', ''])
   }
 
-  const addExpense = () => {
+  const addExpense = async () => {
     if (!expDesc.trim() || !expAmount || !expPaidBy || !expSplitAmong.length || !activeSession) return
-    const expense: SplitExpense = {
-      id: crypto.randomUUID(),
-      description: expDesc.trim(),
-      amount: parseFloat(expAmount),
-      paidBy: expPaidBy,
-      splitAmong: expSplitAmong,
-      date: new Date().toISOString(),
+    try {
+      const expenseData = {
+        session_id: activeSession.id,
+        description: expDesc.trim(),
+        amount: parseFloat(expAmount),
+        paid_by: expPaidBy,
+        split_among: expSplitAmong,
+      }
+
+      const { data, error } = await supabase
+        .from('split_expenses')
+        .insert(expenseData)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      const expense: SplitExpense = {
+        id: data.id,
+        description: data.description,
+        amount: Number(data.amount),
+        paidBy: data.paid_by,
+        splitAmong: data.split_among,
+        date: data.date,
+      }
+      const updated = sessions.map(s =>
+        s.id === activeSession.id ? { ...s, expenses: [...s.expenses, expense] } : s
+      )
+      updateSessions(updated)
+      setShowAddExpense(false)
+      resetExpenseForm()
+    } catch (err) {
+      console.error('Add expense error:', err)
     }
-    const updated = sessions.map(s =>
-      s.id === activeSession.id ? { ...s, expenses: [...s.expenses, expense] } : s
-    )
-    updateSessions(updated)
-    setShowAddExpense(false)
-    resetExpenseForm()
   }
 
   const resetExpenseForm = () => {
     setExpDesc(''); setExpAmount(''); setExpPaidBy(''); setExpSplitAmong([])
   }
 
-  const deleteExpense = (expId: string) => {
+  const deleteExpense = async (expId: string) => {
     if (!activeSession) return
-    const updated = sessions.map(s =>
-      s.id === activeSession.id ? { ...s, expenses: s.expenses.filter(e => e.id !== expId) } : s
-    )
-    updateSessions(updated)
+    try {
+      const { error } = await supabase.from('split_expenses').delete().eq('id', expId)
+      if (error) throw error
+
+      const updated = sessions.map(s =>
+        s.id === activeSession.id ? { ...s, expenses: s.expenses.filter(e => e.id !== expId) } : s
+      )
+      updateSessions(updated)
+    } catch (err) {
+      console.error('Delete expense error:', err)
+    }
   }
 
-  const deleteSession = (id: string) => {
+  const deleteSession = async (id: string) => {
     if (!confirm(t('split.delete_session_confirm'))) return
-    const updated = sessions.filter(s => s.id !== id)
-    updateSessions(updated)
-    if (activeSession?.id === id) setActiveSession(null)
+    try {
+      const { error } = await supabase.from('split_sessions').delete().eq('id', id)
+      if (error) throw error
+
+      const updated = sessions.filter(s => s.id !== id)
+      updateSessions(updated)
+      if (activeSession?.id === id) setActiveSession(null)
+    } catch (err) {
+      console.error('Delete session error:', err)
+    }
+  }
+
+  const handleShare = async () => {
+    if (!shareEmail.trim() || !activeSession) return
+    setSharing(true)
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      if (!currentUser) return
+
+      // Guard: cannot invite yourself
+      if (shareEmail.trim().toLowerCase() === currentUser.email?.toLowerCase()) {
+        alert('You cannot invite yourself to your own project.')
+        return
+      }
+
+      // Look up recipient via the user_emails view (created in 006_split_bill.sql)
+      // This view exposes {id, email} from auth.users safely.
+      const { data: found, error: lookupError } = await supabase
+        .from('user_emails')
+        .select('id')
+        .eq('email', shareEmail.trim().toLowerCase())
+        .maybeSingle()
+
+      if (lookupError || !found) {
+        alert('User not found. Please make sure the email belongs to a registered Clavi account.')
+        return
+      }
+
+      const recipientId = found.id
+
+      // Guard: check if a pending invite already exists for this session + recipient
+      const { data: existing } = await supabase
+        .from('notifications')
+        .select('id')
+        .eq('user_id', recipientId)
+        .eq('type', 'invite')
+        .eq('status', 'pending')
+        .maybeSingle()
+
+      // Filter by session_id in JS (JSONB path filter can vary by Supabase version)
+      // Re-fetch all pending invites for this recipient to check the session_id
+      const { data: pendingInvites } = await supabase
+        .from('notifications')
+        .select('id, metadata')
+        .eq('user_id', recipientId)
+        .eq('type', 'invite')
+        .eq('status', 'pending')
+
+      const alreadyInvited = (pendingInvites ?? []).some(
+        (n: any) => n.metadata?.session_id === activeSession.id
+      )
+
+      if (alreadyInvited) {
+        alert('A pending invitation has already been sent to this user.')
+        return
+      }
+
+      // Insert the notification/invite
+      const { error: inviteError } = await supabase.from('notifications').insert({
+        user_id: recipientId,
+        sender_id: currentUser.id,
+        type: 'invite',
+        title: `${currentUser.email?.split('@')[0] ?? 'Someone'} invited you`,
+        message: `You have been invited to join "${activeSession.name}". Accept to view and collaborate on expenses.`,
+        metadata: {
+          session_id: activeSession.id,
+          session_name: activeSession.name,
+          session_emoji: activeSession.emoji,
+          session_type: activeSession.type,
+        },
+      })
+
+      if (inviteError) throw inviteError
+
+      setShowShareModal(false)
+      setShareEmail('')
+      // Show success inline (no alert — better UX)
+      setSharingSuccess(true)
+      setTimeout(() => setSharingSuccess(false), 3000)
+    } catch (err) {
+      console.error('Share error:', err)
+      alert('Failed to send invitation. Please try again.')
+    } finally {
+      setSharing(false)
+    }
   }
 
   const openAddExpense = useCallback(() => {
@@ -200,9 +394,23 @@ export default function SplitPage() {
 
     return (
       <div className="flex flex-col min-h-screen">
+        {/* Invite success toast */}
+        <AnimatePresence>
+          {sharingSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed top-5 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-[var(--success)]/90 text-white text-sm font-bold backdrop-blur-xl shadow-xl"
+            >
+              <Check size={15} strokeWidth={3} /> Invitation sent!
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="flex-1 max-w-xl mx-auto w-full px-4 py-6 md:py-8">
           {/* Header */}
           <header className="mb-6 animate-slide-up">
+
             <div className="flex items-center gap-3 mb-4">
               <button
                 onClick={() => { setActiveSession(null); setTab('expenses') }}
@@ -224,12 +432,21 @@ export default function SplitPage() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => deleteSession(activeSession.id)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-colors"
-              >
-                <Trash2 size={16} />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-accent-primary hover:bg-accent-primary/10 transition-colors"
+                  title="Share Project"
+                >
+                  <Share2 size={18} />
+                </button>
+                <button
+                  onClick={() => deleteSession(activeSession.id)}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-colors"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             </div>
 
             {/* Stats row */}
@@ -276,7 +493,7 @@ export default function SplitPage() {
             <div className="space-y-3 animate-slide-up delay-2">
               <button
                 onClick={openAddExpense}
-                className="w-full py-4 rounded-2xl border-2 border-dashed border-[var(--accent-primary)]/40 text-[var(--accent-primary)] text-sm font-bold flex items-center justify-center gap-2 hover:bg-[var(--accent-primary)]/5 transition-colors active:scale-[0.98]"
+                className="w-full py-4 rounded-3xl border-2 border-dashed border-[var(--border)] text-[var(--text-secondary)] text-sm font-bold flex items-center justify-center gap-2 hover:border-[var(--accent-primary)]/40 hover:text-[var(--accent-primary)] transition-all active:scale-[0.98]"
               >
                 <Plus size={16} strokeWidth={3} /> {t('split.add_expense')}
               </button>
@@ -288,38 +505,47 @@ export default function SplitPage() {
                   <p className="text-xs text-[var(--text-secondary)] opacity-60 mt-1">{t('split.no_expenses_desc')}</p>
                 </div>
               ) : (
-                [...activeSession.expenses].reverse().map(exp => {
-                  const share = exp.amount / exp.splitAmong.length
-                  return (
-                    <div key={exp.id} className="surface-elevated group relative overflow-hidden">
-                      <div className="absolute top-0 left-0 w-1 h-full" style={{ background: TYPE_META[activeSession.type].color }} />
-                      <div className="pl-4 flex items-start justify-between gap-3">
+                <div className="list-wrapper">
+                  {[...activeSession.expenses].reverse().map(exp => {
+                    const share = exp.amount / exp.splitAmong.length
+                    return (
+                      <div key={exp.id} className="list-item group relative transition-colors cursor-default">
+                        <div className="w-10 h-10 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] flex items-center justify-center text-xl flex-shrink-0">
+                          {activeSession.emoji}
+                        </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-sm text-primary truncate">{exp.description}</p>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mt-0.5">
-                            {t('split.paid_by')} <span className="text-[var(--accent-primary)]">{exp.paidBy}</span>
-                            {' · '}
-                            {exp.splitAmong.length === activeSession.participants.length
-                              ? t('split.everyone')
-                              : exp.splitAmong.join(', ')}
-                          </p>
-                          <p className="text-[10px] text-[var(--text-secondary)] mt-1 opacity-60">
+                          <p className="font-bold text-sm text-primary truncate mb-0.5">{exp.description}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-secondary">
+                              Paid <span className="text-accent-primary">{exp.paidBy}</span>
+                            </p>
+                            <span className="text-[10px] text-secondary opacity-30">•</span>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-secondary opacity-60">
+                              {exp.splitAmong.length === activeSession.participants.length
+                                ? t('split.everyone')
+                                : exp.splitAmong.join(', ')}
+                            </p>
+                          </div>
+                          <p className="text-[10px] text-secondary mt-1 opacity-60 italic">
                             {formatCurrency(share, activeSession.currency)}/person
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-base font-black text-primary">{formatCurrency(exp.amount, activeSession.currency)}</p>
-                          <button
-                            onClick={() => deleteExpense(exp.id)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity w-7 h-7 rounded-lg flex items-center justify-center text-[var(--danger)] hover:bg-[var(--danger)]/10"
-                          >
-                            <X size={13} />
-                          </button>
+                        <div className="text-right">
+                          <p className="text-base font-black text-primary leading-tight">{formatCurrency(exp.amount, activeSession.currency)}</p>
+                          <div className="flex justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => deleteExpense(exp.id)}
+                              className="p-1.5 rounded-lg text-tertiary hover:text-danger hover:bg-danger/10 transition-colors"
+                              title={t('common.delete')}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )
-                })
+                    )
+                  })}
+                </div>
               )}
             </div>
           )}
@@ -393,15 +619,27 @@ export default function SplitPage() {
         </div>
 
         {/* Add Expense Modal */}
-        {showAddExpense && (
-          <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setShowAddExpense(false) }}>
-            <div className="modal-content p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-primary">{t('split.add_expense')}</h3>
-                <button onClick={() => { setShowAddExpense(false); resetExpenseForm() }} className="w-8 h-8 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center">
-                  <X size={16} />
-                </button>
-              </div>
+        <AnimatePresence>
+          {showAddExpense && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/60 backdrop-blur-md" 
+                onClick={() => setShowAddExpense(false)}
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-sm surface-elevated p-6 md:p-8 shadow-[0_32px_96px_-12px_rgba(0,0,0,0.8)] border border-white/10 rounded-[2rem] max-h-[90dvh] overflow-y-auto custom-scrollbar" 
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-xl font-bold text-primary">{t('split.add_expense')}</h3>
+                  <button onClick={() => { setShowAddExpense(false); resetExpenseForm() }} className="w-8 h-8 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <X size={16} />
+                  </button>
+                </div>
 
               <div className="space-y-4">
                 <div>
@@ -488,9 +726,64 @@ export default function SplitPage() {
                   {t('split.add_expense')}
                 </button>
               </div>
-            </div>
+            </motion.div>
           </div>
-        )}
+          )}
+        </AnimatePresence>
+        {/* Share Modal */}
+        <AnimatePresence>
+          {showShareModal && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/60 backdrop-blur-md" 
+                onClick={() => setShowShareModal(false)}
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-sm surface-elevated p-6 md:p-8 shadow-[0_32px_96px_-12px_rgba(0,0,0,0.8)] border border-white/10 rounded-[2rem]" 
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h3 className="text-xl font-bold text-primary">{t('split.share_title') || 'Share Project'}</h3>
+                    <p className="text-xs text-secondary mt-1">Invite others to collaborate</p>
+                  </div>
+                  <button onClick={() => setShowShareModal(false)} className="w-8 h-8 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2">Member Email</label>
+                    <div className="relative">
+                      <Mail size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary" />
+                      <input
+                        autoFocus
+                        type="email"
+                        value={shareEmail}
+                        onChange={e => setShareEmail(e.target.value)}
+                        placeholder="user@example.com"
+                        className="w-full input-minimal pl-11"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleShare}
+                    disabled={sharing || !shareEmail.trim()}
+                    className="w-full py-4 rounded-2xl bg-[var(--accent-primary)] text-white text-xs font-black uppercase tracking-[0.2em] disabled:opacity-40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  >
+                    {sharing ? 'Processing...' : 'Send Invitation'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         <BunordenFooter />
       </div>
@@ -575,15 +868,27 @@ export default function SplitPage() {
       </div>
 
       {/* Create Session Modal */}
-      {showCreateSession && (
-        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setShowCreateSession(false) }}>
-          <div className="modal-content p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-primary">{t('split.new_session')}</h3>
-              <button onClick={() => setShowCreateSession(false)} className="w-8 h-8 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center">
-                <X size={16} />
-              </button>
-            </div>
+      <AnimatePresence>
+        {showCreateSession && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md" 
+              onClick={() => setShowCreateSession(false)}
+            />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-sm surface-elevated p-6 md:p-8 shadow-[0_32px_96px_-12px_rgba(0,0,0,0.8)] border border-white/10 rounded-[2rem] max-h-[90dvh] overflow-y-auto custom-scrollbar" 
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-xl font-bold text-primary">{t('split.new_session')}</h3>
+                  <button onClick={() => setShowCreateSession(false)} className="w-8 h-8 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <X size={16} />
+                  </button>
+                </div>
 
             <div className="space-y-5">
               {/* Emoji picker */}
@@ -678,9 +983,10 @@ export default function SplitPage() {
                 Create Session
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
 
       <BunordenFooter />
     </div>

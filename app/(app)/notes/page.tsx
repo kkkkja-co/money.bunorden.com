@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Plus, Trash2, ArrowLeft, Eye, Edit3, BookOpen, Search, X, Save } from 'lucide-react'
 import { useTranslation } from '@/app/providers'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
+import { supabase } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 const STORAGE_KEY = 'clavi-notes-v1'
 
@@ -73,14 +75,46 @@ function saveNotes(notes: Note[]) {
 
 export default function NotesPage() {
   const { t } = useTranslation()
+  const router = useRouter()
   const [notes, setNotes] = useState<Note[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [mode, setMode] = useState<'edit' | 'preview'>('edit')
   const [search, setSearch] = useState('')
   const [dirty, setDirty] = useState(false)
   const [justSaved, setJustSaved] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => { setNotes(loadNotes()) }, [])
+  const fetchNotes = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
+
+      const { data, error } = await supabase
+        .from('notes')
+        .select('*')
+        .order('updated_at', { ascending: false })
+
+      if (error) throw error
+
+      const mappedData = (data || []).map(n => ({
+        id: n.id,
+        title: n.title,
+        content: n.content,
+        updatedAt: n.updated_at
+      }))
+
+      setNotes(mappedData)
+      saveNotes(mappedData)
+    } catch (err) {
+      console.error('Notes fetch error:', err)
+      // Fallback to local
+      setNotes(loadNotes())
+    } finally {
+      setLoading(false)
+    }
+  }, [router])
+
+  useEffect(() => { fetchNotes() }, [fetchNotes])
 
   const activeNote = notes.find(n => n.id === activeId) ?? null
 
@@ -92,32 +126,64 @@ export default function NotesPage() {
     [notes, search]
   )
 
-  const createNote = () => {
-    const note: Note = {
-      id: crypto.randomUUID(),
-      title: t('notes.untitled'),
-      content: '',
-      updatedAt: new Date().toISOString(),
+  const createNote = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const newNote = {
+        title: t('notes.untitled'),
+        content: '',
+        user_id: user.id
+      }
+
+      const { data, error } = await supabase
+        .from('notes')
+        .insert(newNote)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      const note: Note = {
+        id: data.id,
+        title: data.title,
+        content: data.content,
+        updatedAt: data.updated_at,
+      }
+      const updated = [note, ...notes]
+      setNotes(updated)
+      saveNotes(updated)
+      setActiveId(note.id)
+      setMode('edit')
+      setDirty(false)
+    } catch (err) {
+      console.error('Create note error:', err)
     }
-    const updated = [note, ...notes]
-    setNotes(updated)
-    saveNotes(updated)
-    setActiveId(note.id)
-    setMode('edit')
-    setDirty(false)
   }
 
-  const updateContent = (content: string) => {
+  const updateContent = async (content: string) => {
+    const updatedAt = new Date().toISOString()
     setNotes(prev => {
       const updated = prev.map(n =>
         n.id === activeId
-          ? { ...n, content, title: extractTitle(content), updatedAt: new Date().toISOString() }
+          ? { ...n, content, title: extractTitle(content), updatedAt }
           : n
       )
       saveNotes(updated)
       return updated
     })
     setDirty(true)
+    
+    // Sync to supabase in background
+    if (activeId) {
+      supabase.from('notes')
+        .update({ content, title: extractTitle(content), updated_at: updatedAt })
+        .eq('id', activeId)
+        .then(({ error }) => {
+          if (error) console.error('Sync note error:', error)
+        })
+    }
   }
 
   const saveNote = () => {
@@ -126,12 +192,19 @@ export default function NotesPage() {
     setTimeout(() => setJustSaved(false), 2000)
   }
 
-  const deleteNote = (id: string) => {
+  const deleteNote = async (id: string) => {
     if (!confirm(t('notes.delete_confirm'))) return
-    const updated = notes.filter(n => n.id !== id)
-    setNotes(updated)
-    saveNotes(updated)
-    if (activeId === id) setActiveId(null)
+    try {
+      const { error } = await supabase.from('notes').delete().eq('id', id)
+      if (error) throw error
+      
+      const updated = notes.filter(n => n.id !== id)
+      setNotes(updated)
+      saveNotes(updated)
+      if (activeId === id) setActiveId(null)
+    } catch (err) {
+      console.error('Delete note error:', err)
+    }
   }
 
   const back = () => {
