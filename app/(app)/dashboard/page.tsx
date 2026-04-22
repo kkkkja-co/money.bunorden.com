@@ -118,21 +118,13 @@ export default function DashboardPage() {
   const handleAcceptInvite = async (notif: any) => {
     setNotifProcessing(notif.id)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      // Mark notification as accepted - RLS policies will grant access based on this
+      const { error } = await supabase
+        .from('notifications')
+        .update({ status: 'accepted' })
+        .eq('id', notif.id)
 
-      const sessionId = notif.metadata?.session_id
-      if (!sessionId) throw new Error('Missing session ID')
-
-      // 1. Join session
-      const { error: joinError } = await supabase
-        .from('session_members')
-        .insert({ session_id: sessionId, user_id: user.id })
-      
-      if (joinError && joinError.code !== '23505') throw joinError // Ignore duplicate error
-
-      // 2. Mark notification as accepted
-      await supabase.from('notifications').update({ status: 'accepted', read_at: new Date().toISOString() }).eq('id', notif.id)
+      if (error) throw error
 
       setNotifications(prev => prev.filter(n => n.id !== notif.id))
       alert('Project joined successfully!')

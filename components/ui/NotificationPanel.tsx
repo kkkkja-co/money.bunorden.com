@@ -132,8 +132,17 @@ export function NotificationPanel() {
       setNotifications(prev =>
         prev.map(n => n.id === notif.id ? { ...n, status: action } : n)
       )
+
+      // Show success message for accepts
+      if (action === 'accepted' && notif.type === 'invite') {
+        // Small delay to show the update
+        setTimeout(() => {
+          alert(`✓ Project "${notif.metadata?.session_name || 'Project'}" joined successfully!`)
+        }, 300)
+      }
     } catch (err) {
       console.error('Notification action error:', err)
+      alert('Failed to process your response.')
     } finally {
       setActionId(null)
     }

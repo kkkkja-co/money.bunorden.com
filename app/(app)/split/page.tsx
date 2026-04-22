@@ -360,6 +360,7 @@ export default function SplitPage() {
           session_name: activeSession.name,
           session_emoji: activeSession.emoji,
           session_type: activeSession.type,
+          recipient_id: recipientId,
         },
       })
 

@@ -8,7 +8,7 @@ import { useTheme, useTranslation, useLanguage, AccentColor } from '@/app/provid
 import {
   Sun, Moon, LogOut, Trash2, Download, Shield, Bell,
   ChevronRight, ArrowLeftRight, LayoutGrid, Check, Loader2, Palette,
-  FileText, Scale, CreditCard, Mail, Link2, Link2Off, Github
+  FileText, Scale, CreditCard, Mail, Link2, Link2Off, Github, Users
 } from 'lucide-react'
 import Link from 'next/link'
 import { Language } from '@/lib/i18n/translations'
@@ -400,6 +400,7 @@ export default function SettingsPage() {
             <Link href="/settings/accounts" aria-label={t('settings.accounts')}><SettingsRow icon={ArrowLeftRight} label={t('settings.accounts')} subtitle={t('settings.accounts_subtitle')} /></Link>
             <Link href="/settings/categories" aria-label={t('settings.categories')}><SettingsRow icon={LayoutGrid} label={t('settings.categories')} subtitle={t('settings.categories_subtitle')} /></Link>
             <Link href="/settings/cards" aria-label={t('settings.cards')}><SettingsRow icon={CreditCard} label={t('settings.cards')} subtitle={t('settings.cards_subtitle')} /></Link>
+            <Link href="/settings/sharing" aria-label="Manage Sharing"><SettingsRow icon={Users} label="Manage Sharing" subtitle="Control who has access to your projects" /></Link>
             <SettingsRow
               icon={Bell}
               label={t('notifications.title')}
