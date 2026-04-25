@@ -7,7 +7,7 @@ import { useTranslation, useLanguage } from '@/app/providers'
 import { AnimatedCard } from '@/components/ui/AnimatedCard'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
 import { Plus, CreditCard, Check, AlertCircle, Bell, BellOff, X, MoreVertical, Trash2, Edit2, CalendarCheck } from 'lucide-react'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, parseSafeAmount } from '@/lib/utils'
 import { useVault } from '@/components/providers/VaultProvider'
 
 export default function BillsPage() {
@@ -51,10 +51,10 @@ export default function BillsPage() {
         .order('due_day', { ascending: true })
 
       const decryptedBills = await Promise.all((billsData || []).map(async (bill: any) => {
-        const decAmount = bill.amount ? await decryptData(bill.amount) : '0'
+        const decAmount = await decryptData(bill.amount || '0')
         return {
           ...bill,
-          amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount)
+          amount: parseSafeAmount(decAmount)
         }
       }))
       setBills(decryptedBills)

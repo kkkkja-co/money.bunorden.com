@@ -11,7 +11,7 @@ import { useTranslation } from '@/app/providers'
 import { useVault } from '@/components/providers/VaultProvider'
 import { sendLocalNotification } from '@/lib/notifications'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, parseSafeAmount } from '@/lib/utils'
 
 interface Category {
   id: string
@@ -222,9 +222,9 @@ function AddTransactionForm() {
         // 🛡️ Manual Account Balance Sync (Since DB Triggers are removed for E2EE)
         const { data: acc } = await supabase.from('accounts').select('balance').eq('id', accountId).single()
         if (acc) {
-          const decBal = await decryptData(acc.balance)
-          const currentBal = isNaN(Number(decBal)) ? 0 : Number(decBal)
-          const txAmt = Number(amount)
+          const decBal = await decryptData(acc.balance?.toString() || '0')
+          const currentBal = parseSafeAmount(decBal)
+          const txAmt = parseSafeAmount(amount)
           const newBal = type === 'income' ? currentBal + txAmt : currentBal - txAmt
           
           await supabase.from('accounts')
@@ -249,13 +249,13 @@ function AddTransactionForm() {
 
           if (budgetData && monthTxs) {
             const decryptedTxs = await Promise.all(monthTxs.map(async (t: any) => {
-              const dec = await decryptData(t.amount)
-              return isNaN(Number(dec)) ? 0 : Number(dec)
+              const dec = await decryptData(t.amount || '0')
+              return parseSafeAmount(dec)
             }))
             const spent = decryptedTxs.reduce((sum, val) => sum + val, 0)
             
-            const decCap = await decryptData(budgetData.amount)
-            const cap = isNaN(Number(decCap)) ? 0 : Number(decCap)
+            const decCap = await decryptData(budgetData.amount || '0')
+            const cap = parseSafeAmount(decCap)
             
             if (spent > cap && cap > 0) {
               sendLocalNotification('Budget Alert! ⚠️', {

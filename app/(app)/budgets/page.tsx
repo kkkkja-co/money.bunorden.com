@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, parseSafeAmount } from '@/lib/utils'
 import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
@@ -125,10 +125,10 @@ export default function BudgetsPage() {
       .lte('date', monthEnd)
 
     const decryptedTxs = await Promise.all((txs || []).map(async (row: any) => {
-      const decAmount = row.amount ? await decryptData(row.amount) : '0'
+      const decAmount = await decryptData(row.amount || '0')
       return {
         ...row,
-        amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount)
+        amount: parseSafeAmount(decAmount)
       }
     }))
 
@@ -150,10 +150,10 @@ export default function BudgetsPage() {
       .eq('month_year', monthStart)
 
     const decryptedBudgets = await Promise.all((budRows || []).map(async (b: any) => {
-      const decAmount = b.amount ? await decryptData(b.amount) : '0'
+      const decAmount = await decryptData(b.amount || '0')
       return {
         ...b,
-        amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount)
+        amount: parseSafeAmount(decAmount)
       }
     }))
 

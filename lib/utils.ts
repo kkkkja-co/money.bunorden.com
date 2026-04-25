@@ -42,3 +42,16 @@ export function groupByMonth(
 export function cn(...classes: (string | undefined | null | false)[]): string {
   return classes.filter(Boolean).join(' ')
 }
+
+export function parseSafeAmount(value: any): number {
+  if (value === null || value === undefined) return 0
+  if (typeof value === 'number') return value
+  
+  // Convert to string and clean up
+  const str = value.toString()
+  // Remove anything that isn't a digit, dot, or minus sign
+  const cleaned = str.replace(/[^0-9.-]/g, '')
+  const num = parseFloat(cleaned)
+  
+  return isNaN(num) ? 0 : num
+}

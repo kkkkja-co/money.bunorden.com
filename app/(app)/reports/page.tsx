@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, parseSafeAmount } from '@/lib/utils'
 import { 
   BarChart3, PieChart as PieChartIcon, TrendingUp, TrendingDown, 
   ChevronRight, Filter, SortAsc, LayoutGrid, List, Eye, EyeOff, Calendar
@@ -101,10 +101,10 @@ export default function ReportsPage() {
       if (!rawTxs || rawTxs.length === 0) { setLoading(false); return }
 
       const txs = await Promise.all((rawTxs || []).map(async (t: any) => {
-        const decAmount = t.amount ? await decryptData(t.amount) : '0'
+        const decAmount = await decryptData(t.amount || '0')
         return {
           ...t,
-          amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount),
+          amount: parseSafeAmount(decAmount),
           category: Array.isArray(t.category) ? t.category[0] || null : t.category,
         }
       }))

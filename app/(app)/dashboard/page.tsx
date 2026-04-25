@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency, formatDate, parseSafeAmount } from '@/lib/utils'
 import { 
   Plus, TrendingUp, TrendingDown,
   ChevronRight, Eye, EyeOff, Bell,
@@ -132,7 +132,7 @@ export default function DashboardPage() {
       const { data: budgetData } = await supabase.from('budgets').select('amount').eq('user_id', user.id).eq('month_year', monthStart).is('category_id', null).maybeSingle()
       if (budgetData) {
         const decBudget = await decryptData(budgetData.amount)
-        setOverallBudget(isNaN(Number(decBudget)) ? 0 : Number(decBudget))
+        setOverallBudget(parseSafeAmount(decBudget))
       } else {
         setOverallBudget(null)
       }
@@ -141,18 +141,8 @@ export default function DashboardPage() {
       const { data: accounts } = await supabase.from('accounts').select('balance').eq('user_id', user.id)
       
       const decryptedBalances = await Promise.all((accounts || []).map(async (a: any) => {
-        if (a.balance === null || a.balance === undefined) return 0
-        
-        // If it's already a number, just use it
-        if (typeof a.balance === 'number') return a.balance
-        
-        const dec = await decryptData(a.balance.toString())
-        
-        // Remove any non-numeric characters except dots and minus signs
-        const cleaned = dec.replace(/[^0-9.-]/g, '')
-        const num = parseFloat(cleaned)
-        
-        return isNaN(num) ? 0 : num
+        const dec = await decryptData(a.balance?.toString() || '0')
+        return parseSafeAmount(dec)
       }))
       
       const totalBalance = decryptedBalances.reduce((a, b) => a + b, 0)
