@@ -137,21 +137,21 @@ export default function DashboardPage() {
         setOverallBudget(null)
       }
 
-      // Fetch Account Balances for Total
-      const { data: accounts } = await supabase.from('accounts').select('balance').eq('user_id', user.id)
+      // Fetch ALL transactions for Balance Calculation (since amount is encrypted)
+      const { data: allTxs } = await supabase.from('transactions').select('amount, type').eq('user_id', user.id)
+      const totalBalance = (allTxs || []).reduce(async (accPromise, tx) => {
+        const acc = await accPromise
+        const dec = await decryptData(tx.amount || '0')
+        const amt = parseSafeAmount(dec)
+        return tx.type === 'income' ? acc + amt : acc - amt
+      }, Promise.resolve(0))
       
-      const decryptedBalances = await Promise.all((accounts || []).map(async (a: any) => {
-        const dec = await decryptData(a.balance?.toString() || '0')
-        return parseSafeAmount(dec)
-      }))
-      
-      const totalBalance = decryptedBalances.reduce((a, b) => a + b, 0)
-      setBalance(totalBalance)
+      setBalance(await totalBalance)
       if (profileData.currency) setCurrency(profileData.currency)
     } finally {
       setLoading(false)
     }
-  }, [router])
+  }, [router, decryptData])
 
   useEffect(() => { fetchData() }, [fetchData])
 
