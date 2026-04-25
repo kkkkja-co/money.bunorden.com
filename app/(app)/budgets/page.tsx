@@ -42,7 +42,8 @@ export default function BudgetsPage() {
   const [overallInput, setOverallInput] = useState('')
   const [catInputs, setCatInputs] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
-  const [toast, setToast] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
 
   const { start: monthStart, end: monthEnd, y, m } = monthBounds(offset)
 
@@ -53,45 +54,55 @@ export default function BudgetsPage() {
 
   const persistBudget = async (categoryId: string | null, raw: string) => {
     if (!userId) return
+    setSaving(true)
     const trimmed = raw.trim()
     const n = parseFloat(trimmed)
-    const hasAmount = trimmed !== '' && !Number.isNaN(n) && n > 0
+    const hasAmount = trimmed !== '' && !Number.isNaN(n) && n >= 0
 
-    let del = supabase.from('budgets').delete().eq('user_id', userId).eq('month_year', monthStart)
-    if (categoryId === null) del = del.is('category_id', null)
-    else del = del.eq('category_id', categoryId)
+    try {
+      if (!hasAmount || n === 0) {
+        let del = supabase.from('budgets').delete().eq('user_id', userId).eq('month_year', monthStart)
+        if (categoryId === null) del = del.is('category_id', null)
+        else del = del.eq('category_id', categoryId)
+        
+        const { error } = await del
+        if (error) throw error
+      } else {
+        const encryptedAmount = await encryptData(n.toString())
+        
+        // Use upsert logic if possible, otherwise manual check
+        let sel = supabase.from('budgets').select('id').eq('user_id', userId).eq('month_year', monthStart)
+        if (categoryId === null) sel = sel.is('category_id', null)
+        else sel = sel.eq('category_id', categoryId)
 
-    if (!hasAmount) {
-      const { error } = await del
-      if (error) console.error(error)
-      return
-    }
+        const { data: row, error: selErr } = await sel.maybeSingle()
+        if (selErr) throw selErr
 
-    let sel = supabase.from('budgets').select('id').eq('user_id', userId).eq('month_year', monthStart)
-    if (categoryId === null) sel = sel.is('category_id', null)
-    else sel = sel.eq('category_id', categoryId)
-
-    const { data: row, error: selErr } = await sel.maybeSingle()
-    if (selErr) {
-      console.error(selErr)
-      return
-    }
-
-    if (row) {
-      const { error } = await supabase
-        .from('budgets')
-        .update({ amount: await encryptData(n.toString()), currency })
-        .eq('id', row.id)
-      if (error) console.error(error)
-    } else {
-      const { error } = await supabase.from('budgets').insert({
-        user_id: userId,
-        category_id: categoryId,
-        month_year: monthStart,
-        amount: await encryptData(n.toString()),
-        currency,
-      })
-      if (error) console.error(error)
+        if (row) {
+          const { error: updErr } = await supabase
+            .from('budgets')
+            .update({ amount: encryptedAmount, currency })
+            .eq('id', row.id)
+          if (updErr) throw updErr
+        } else {
+          const { error: insErr } = await supabase.from('budgets').insert({
+            user_id: userId,
+            category_id: categoryId,
+            month_year: monthStart,
+            amount: encryptedAmount,
+            currency,
+          })
+          if (insErr) throw insErr
+        }
+      }
+      showToast(t('budgets.saved'), 'success')
+    } catch (err: any) {
+      console.error('Budget save error:', err)
+      showToast('Failed to save budget. Is your vault unlocked?', 'error')
+      // Refresh to revert UI to last known state
+      fetchData()
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -177,9 +188,9 @@ export default function BudgetsPage() {
     fetchData()
   }, [fetchData])
 
-  const showSaved = () => {
-    setToast(t('budgets.saved'))
-    setTimeout(() => setToast(''), 2000)
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 2500)
   }
 
   const barPct = (spent: number, cap: number) => {
@@ -254,7 +265,7 @@ export default function BudgetsPage() {
                     value={overallInput}
                     onChange={(e) => setOverallInput(e.target.value)}
                     onBlur={(e) => {
-                      void persistBudget(null, e.target.value).then(showSaved)
+                      persistBudget(null, e.target.value)
                     }}
                     className="input-minimal w-full"
                     placeholder="0"
@@ -332,7 +343,7 @@ export default function BudgetsPage() {
                               setCatInputs((prev) => ({ ...prev, [cat.id]: e.target.value }))
                             }
                             onBlur={(e) => {
-                              void persistBudget(cat.id, e.target.value).then(showSaved)
+                              persistBudget(cat.id, e.target.value)
                             }}
                             className="input-minimal w-full text-sm"
                             placeholder="0"
@@ -372,7 +383,12 @@ export default function BudgetsPage() {
 
       <BunordenFooter />
 
-      {toast && <div className="toast toast-success">{toast}</div>}
+      {toast && (
+        <div className={`toast ${toast.type === 'success' ? 'toast-success' : 'toast-error'} flex items-center gap-2 shadow-2xl`}>
+          {toast.type === 'error' && <span className="text-lg">⚠️</span>}
+          {toast.msg}
+        </div>
+      )}
     </div>
   )
 }

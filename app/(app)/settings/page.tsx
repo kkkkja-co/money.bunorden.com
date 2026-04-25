@@ -157,14 +157,21 @@ export default function SettingsPage() {
   }
 
   const handleUnlinkProvider = async (provider: OAuthProvider) => {
-    const identity = identities.find(id => id.provider === provider)
-    if (!identity) return
-    if (!confirm(`${t('settings.unlink_confirm')} ${t('settings.unlink_warning')}`)) return
-
-    setLinkingProvider(provider)
     try {
-      const { error } = await supabase.auth.unlinkIdentity({ identityId: identity.id, provider } as any)
+      const { data: idData } = await supabase.auth.getUserIdentities()
+      const identity = idData?.identities?.find(id => id.provider === provider)
+      
+      if (!identity) {
+        showLinkToast(t('settings.link_error'), false)
+        return
+      }
+
+      if (!confirm(`${t('settings.unlink_confirm')} ${t('settings.unlink_warning')}`)) return
+
+      setLinkingProvider(provider)
+      const { error } = await supabase.auth.unlinkIdentity(identity)
       if (error) throw error
+      
       setIdentities(prev => prev.filter(id => id.provider !== provider))
       showLinkToast(t('settings.link_success'), true)
     } catch (err: any) {
