@@ -82,13 +82,17 @@ export default function DashboardPage() {
         .order('date', { ascending: false })
         .limit(5)
 
-      const decryptedTxs = await Promise.all((txData || []).map(async (t: any) => ({
-        ...t,
-        note: t.note ? await decryptData(t.note) : '',
-        amount: t.amount ? Number(await decryptData(t.amount)) : 0,
-        tags: t.tags ? JSON.parse(await decryptData(t.tags)) : [],
-        category: Array.isArray(t.category) ? t.category[0] || null : t.category,
-      })))
+      const decryptedTxs = await Promise.all((txData || []).map(async (t: any) => {
+        const decAmount = t.amount ? await decryptData(t.amount) : '0'
+        const decTags = t.tags ? await decryptData(t.tags) : '[]'
+        return {
+          ...t,
+          note: t.note ? await decryptData(t.note) : '',
+          amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount),
+          tags: (() => { try { return JSON.parse(decTags) } catch { return [] } })(),
+          category: Array.isArray(t.category) ? t.category[0] || null : t.category,
+        }
+      }))
       setTransactions(decryptedTxs)
 
       const now = new Date()
@@ -99,11 +103,14 @@ export default function DashboardPage() {
       const chartMap: Record<string, any> = {}
 
       // Process month transactions with decryption
-      const decryptedMonthTxs = await Promise.all((monthTx || []).map(async (t: any) => ({
-        ...t,
-        amount: t.amount ? Number(await decryptData(t.amount)) : 0,
-        category: Array.isArray(t.category) ? t.category[0] : t.category
-      })))
+      const decryptedMonthTxs = await Promise.all((monthTx || []).map(async (t: any) => {
+        const decAmount = t.amount ? await decryptData(t.amount) : '0'
+        return {
+          ...t,
+          amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount),
+          category: Array.isArray(t.category) ? t.category[0] : t.category
+        }
+      }))
 
       decryptedMonthTxs.forEach(t => {
         const amt = t.amount

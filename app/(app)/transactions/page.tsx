@@ -58,13 +58,17 @@ export default function TransactionsPage() {
       const { data, error: queryError } = await query
       if (queryError) throw queryError
       
-      const decryptedTxs = await Promise.all((data || []).map(async (t: any) => ({
-        ...t,
-        note: t.note ? await decryptData(t.note) : '',
-        amount: t.amount ? Number(await decryptData(t.amount)) : 0,
-        tags: t.tags ? JSON.parse(await decryptData(t.tags)) : [],
-        category: Array.isArray(t.category) ? t.category[0] || null : t.category,
-      })))
+      const decryptedTxs = await Promise.all((data || []).map(async (t: any) => {
+        const decAmount = t.amount ? await decryptData(t.amount) : '0'
+        const decTags = t.tags ? await decryptData(t.tags) : '[]'
+        return {
+          ...t,
+          note: t.note ? await decryptData(t.note) : '',
+          amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount),
+          tags: (() => { try { return JSON.parse(decTags) } catch { return [] } })(),
+          category: Array.isArray(t.category) ? t.category[0] || null : t.category,
+        }
+      }))
       setTransactions(decryptedTxs)
     } catch (err) {
       console.error('Failed to fetch transactions:', err)

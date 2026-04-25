@@ -130,8 +130,19 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
 
   const decryptData = async (encrypted: string) => {
     if (!vaultKey || !encrypted) return encrypted
-    if (!encrypted.startsWith('eyJ') && !encrypted.includes('==')) return encrypted // Probably plain text
-    return await decrypt(encrypted, vaultKey)
+    
+    // Safety check: Only attempt decryption if it looks like Base64 ciphertext
+    // (Ciphertext usually has a certain length and character set)
+    const isBase64 = /^[A-Za-z0-9+/=]+$/.test(encrypted)
+    if (!isBase64 || encrypted.length < 16) return encrypted
+
+    try {
+      return await decrypt(encrypted, vaultKey)
+    } catch (err) {
+      // If decryption fails, it's likely plain text or from a different key.
+      // We return the original so the app doesn't crash.
+      return encrypted
+    }
   }
 
   if (loading && !vaultKey) return null
