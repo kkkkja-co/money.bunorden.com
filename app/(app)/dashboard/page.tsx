@@ -139,11 +139,24 @@ export default function DashboardPage() {
 
       // Fetch Account Balances for Total
       const { data: accounts } = await supabase.from('accounts').select('balance').eq('user_id', user.id)
+      
       const decryptedBalances = await Promise.all((accounts || []).map(async (a: any) => {
-        const dec = await decryptData(a.balance)
-        return isNaN(Number(dec)) ? 0 : Number(dec)
+        if (a.balance === null || a.balance === undefined) return 0
+        
+        // If it's already a number, just use it
+        if (typeof a.balance === 'number') return a.balance
+        
+        const dec = await decryptData(a.balance.toString())
+        
+        // Remove any non-numeric characters except dots and minus signs
+        const cleaned = dec.replace(/[^0-9.-]/g, '')
+        const num = parseFloat(cleaned)
+        
+        return isNaN(num) ? 0 : num
       }))
-      setBalance(decryptedBalances.reduce((a, b) => a + b, 0))
+      
+      const totalBalance = decryptedBalances.reduce((a, b) => a + b, 0)
+      setBalance(totalBalance)
       if (profileData.currency) setCurrency(profileData.currency)
     } finally {
       setLoading(false)
