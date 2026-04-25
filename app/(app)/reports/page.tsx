@@ -15,6 +15,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Legend, CartesianGrid 
 } from 'recharts'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
+import { useVault } from '@/components/providers/VaultProvider'
 
 interface CategoryTotal {
   name: string
@@ -50,6 +51,7 @@ export default function ReportsPage() {
   const endDateRef = useRef<HTMLInputElement>(null)
   const { t } = useTranslation()
   const { language } = useLanguage()
+  const { decryptData } = useVault()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [currency, setCurrency] = useState('HKD')
@@ -98,9 +100,13 @@ export default function ReportsPage() {
 
       if (!rawTxs || rawTxs.length === 0) { setLoading(false); return }
 
-      const txs = rawTxs.map((t: any) => ({
-        ...t,
-        category: Array.isArray(t.category) ? t.category[0] || null : t.category,
+      const txs = await Promise.all((rawTxs || []).map(async (t: any) => {
+        const decAmount = t.amount ? await decryptData(t.amount) : '0'
+        return {
+          ...t,
+          amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount),
+          category: Array.isArray(t.category) ? t.category[0] || null : t.category,
+        }
       }))
 
       const catMap: Record<string, CategoryTotal> = {}

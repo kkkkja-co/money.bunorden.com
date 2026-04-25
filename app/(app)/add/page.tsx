@@ -11,6 +11,7 @@ import { useTranslation } from '@/app/providers'
 import { useVault } from '@/components/providers/VaultProvider'
 import { sendLocalNotification } from '@/lib/notifications'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
+import { formatCurrency } from '@/lib/utils'
 
 interface Category {
   id: string
@@ -217,6 +218,19 @@ function AddTransactionForm() {
         })
 
         if (insertError) throw insertError
+        
+        // 🛡️ Manual Account Balance Sync (Since DB Triggers are removed for E2EE)
+        const { data: acc } = await supabase.from('accounts').select('balance').eq('id', accountId).single()
+        if (acc) {
+          const decBal = await decryptData(acc.balance)
+          const currentBal = isNaN(Number(decBal)) ? 0 : Number(decBal)
+          const txAmt = Number(amount)
+          const newBal = type === 'income' ? currentBal + txAmt : currentBal - txAmt
+          
+          await supabase.from('accounts')
+            .update({ balance: await encryptData(newBal.toString()) })
+            .eq('id', accountId)
+        }
 
         // Check for budget overage (only if included in budget)
         if (type === 'expense' && includeInBudget) {
@@ -234,11 +248,18 @@ function AddTransactionForm() {
           ])
 
           if (budgetData && monthTxs) {
-            const spent = monthTxs.reduce((sum, tx) => sum + Number(tx.amount), 0)
-            const cap = Number(budgetData.amount)
-            if (spent > cap) {
+            const decryptedTxs = await Promise.all(monthTxs.map(async (t: any) => {
+              const dec = await decryptData(t.amount)
+              return isNaN(Number(dec)) ? 0 : Number(dec)
+            }))
+            const spent = decryptedTxs.reduce((sum, val) => sum + val, 0)
+            
+            const decCap = await decryptData(budgetData.amount)
+            const cap = isNaN(Number(decCap)) ? 0 : Number(decCap)
+            
+            if (spent > cap && cap > 0) {
               sendLocalNotification('Budget Alert! ⚠️', {
-                body: `You've exceeded your monthly budget by ${spent - cap} ${currency}.`,
+                body: `You've exceeded your monthly budget by ${formatCurrency(spent - cap, currency)}.`,
                 tag: 'budget-overage'
               })
             }

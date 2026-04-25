@@ -8,11 +8,13 @@ import { AnimatedCard } from '@/components/ui/AnimatedCard'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
 import { Plus, CreditCard, Check, AlertCircle, Bell, BellOff, X, MoreVertical, Trash2, Edit2, CalendarCheck } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+import { useVault } from '@/components/providers/VaultProvider'
 
 export default function BillsPage() {
   const router = useRouter()
   const { t, language } = useLanguage() // useLanguage gives access to the language code
   const { t: tr } = useTranslation() // We'll keep t as the alias for tr
+  const { encryptData, decryptData } = useVault()
   
   const [bills, setBills] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -48,11 +50,18 @@ export default function BillsPage() {
         .eq('user_id', user.id)
         .order('due_day', { ascending: true })
 
-      setBills(billsData || [])
+      const decryptedBills = await Promise.all((billsData || []).map(async (bill: any) => {
+        const decAmount = bill.amount ? await decryptData(bill.amount) : '0'
+        return {
+          ...bill,
+          amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount)
+        }
+      }))
+      setBills(decryptedBills)
     } finally {
       setLoading(false)
     }
-  }, [router])
+  }, [router, decryptData])
 
   useEffect(() => { fetchData() }, [fetchData])
 
@@ -126,7 +135,7 @@ export default function BillsPage() {
         name: name.trim(),
         icon,
         due_day: dueDay,
-        amount: amount ? Number(amount) : null,
+        amount: amount ? await encryptData(amount.toString()) : null,
         currency,
         auto_remind: autoRemind
       }

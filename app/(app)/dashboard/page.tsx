@@ -39,6 +39,8 @@ export default function DashboardPage() {
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([])
   const [notifProcessing, setNotifProcessing] = useState<string | null>(null)
+  const [balance, setBalance] = useState(0)
+  const [currency, setCurrency] = useState('HKD')
 
   useEffect(() => {
     const saved = localStorage.getItem('clavi-balance-visible')
@@ -128,7 +130,21 @@ export default function DashboardPage() {
       setChartData(Object.entries(chartMap).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value))
 
       const { data: budgetData } = await supabase.from('budgets').select('amount').eq('user_id', user.id).eq('month_year', monthStart).is('category_id', null).maybeSingle()
-      setOverallBudget(budgetData ? Number(budgetData.amount) : null)
+      if (budgetData) {
+        const decBudget = await decryptData(budgetData.amount)
+        setOverallBudget(isNaN(Number(decBudget)) ? 0 : Number(decBudget))
+      } else {
+        setOverallBudget(null)
+      }
+
+      // Fetch Account Balances for Total
+      const { data: accounts } = await supabase.from('accounts').select('balance').eq('user_id', user.id)
+      const decryptedBalances = await Promise.all((accounts || []).map(async (a: any) => {
+        const dec = await decryptData(a.balance)
+        return isNaN(Number(dec)) ? 0 : Number(dec)
+      }))
+      setBalance(decryptedBalances.reduce((a, b) => a + b, 0))
+      if (profileData.currency) setCurrency(profileData.currency)
     } finally {
       setLoading(false)
     }
@@ -168,8 +184,7 @@ export default function DashboardPage() {
 
   if (loading) return <PageSkeleton />
 
-  const balance = totals.income - totals.expense
-  const currency = profile?.currency || 'HKD'
+
 
   return (
     <div className="flex flex-col min-h-screen">

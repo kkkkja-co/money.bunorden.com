@@ -9,6 +9,7 @@ import { formatCurrency } from '@/lib/utils'
 import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
+import { useVault } from '@/components/providers/VaultProvider'
 
 interface Category {
   id: string
@@ -30,6 +31,7 @@ function monthBounds(offset: number) {
 export default function BudgetsPage() {
   const { t } = useTranslation()
   const { language } = useLanguage()
+  const { encryptData, decryptData } = useVault()
   const router = useRouter()
   const [offset, setOffset] = useState(0)
   const [currency, setCurrency] = useState('HKD')
@@ -78,7 +80,7 @@ export default function BudgetsPage() {
     if (row) {
       const { error } = await supabase
         .from('budgets')
-        .update({ amount: n, currency })
+        .update({ amount: await encryptData(n.toString()), currency })
         .eq('id', row.id)
       if (error) console.error(error)
     } else {
@@ -86,7 +88,7 @@ export default function BudgetsPage() {
         user_id: userId,
         category_id: categoryId,
         month_year: monthStart,
-        amount: n,
+        amount: await encryptData(n.toString()),
         currency,
       })
       if (error) console.error(error)
@@ -122,10 +124,18 @@ export default function BudgetsPage() {
       .gte('date', monthStart)
       .lte('date', monthEnd)
 
+    const decryptedTxs = await Promise.all((txs || []).map(async (row: any) => {
+      const decAmount = row.amount ? await decryptData(row.amount) : '0'
+      return {
+        ...row,
+        amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount)
+      }
+    }))
+
     let total = 0
     const byCat: Record<string, number> = {}
-    ;(txs || []).forEach((row) => {
-      const a = Number(row.amount)
+    decryptedTxs.forEach((row) => {
+      const a = row.amount
       total += a
       const cid = row.category_id
       if (cid) byCat[cid] = (byCat[cid] || 0) + a
@@ -139,11 +149,19 @@ export default function BudgetsPage() {
       .eq('user_id', user.id)
       .eq('month_year', monthStart)
 
+    const decryptedBudgets = await Promise.all((budRows || []).map(async (b: any) => {
+      const decAmount = b.amount ? await decryptData(b.amount) : '0'
+      return {
+        ...b,
+        amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount)
+      }
+    }))
+
     let overall = ''
     const nextCat: Record<string, string> = {}
-    ;(budRows || []).forEach((b) => {
-      if (b.category_id === null) overall = String(Number(b.amount))
-      else nextCat[b.category_id] = String(Number(b.amount))
+    decryptedBudgets.forEach((b) => {
+      if (b.category_id === null) overall = String(b.amount)
+      else nextCat[b.category_id] = String(b.amount)
     })
     setOverallInput(overall)
     const catMap: Record<string, string> = {}

@@ -51,6 +51,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
         sessionStorage.removeItem('clavi_vault_pass') // Clear for security
       } catch (err) {
         console.error('Auto-unlock failed:', err)
+        // If auto-unlock failed, we stay locked and the user will see the PIN modal
       }
     } else if (!profile?.encryption_salt) {
       // First time user (Social or Email without salt)
@@ -124,7 +125,13 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   }
 
   const encryptData = async (text: string) => {
-    if (!vaultKey || !text) return text
+    if (!text) return text
+    if (!vaultKey) {
+      // If the vault is locked, we should NOT return plain text.
+      // We should wait or throw an error to prevent data leakage.
+      console.warn('Attempted to encrypt while vault is locked. Waiting...')
+      throw new Error('Vault is locked. Please unlock to save data.')
+    }
     return await encrypt(text, vaultKey)
   }
 

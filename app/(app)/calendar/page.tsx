@@ -8,10 +8,12 @@ import { AnimatedCard } from '@/components/ui/AnimatedCard'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
 import { ChevronLeft, ChevronRight, X, Calendar as CalendarIcon, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+import { useVault } from '@/components/providers/VaultProvider'
 
 export default function CalendarPage() {
   const router = useRouter()
   const { t: tr, language } = useTranslation()
+  const { decryptData } = useVault()
   const isZh = language === 'zh-TW'
   
   const [transactions, setTransactions] = useState<any[]>([])
@@ -52,12 +54,26 @@ export default function CalendarPage() {
           .eq('is_active', true)
       ])
 
-      setTransactions((txs || []).map(t => ({
-        ...t,
-        category: Array.isArray(t.category) ? t.category[0] : t.category
-      })))
-      
-      setBills(billsData || [])
+      const [decryptedTxs, decryptedBills] = await Promise.all([
+        Promise.all((txs || []).map(async (t: any) => {
+          const decAmount = t.amount ? await decryptData(t.amount) : '0'
+          return {
+            ...t,
+            amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount),
+            category: Array.isArray(t.category) ? t.category[0] : t.category
+          }
+        })),
+        Promise.all((billsData || []).map(async (b: any) => {
+          const decAmount = b.amount ? await decryptData(b.amount) : '0'
+          return {
+            ...b,
+            amount: isNaN(Number(decAmount)) ? 0 : Number(decAmount)
+          }
+        }))
+      ])
+ 
+      setTransactions(decryptedTxs)
+      setBills(decryptedBills)
     } finally {
       setLoading(false)
     }
