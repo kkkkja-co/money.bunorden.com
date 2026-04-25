@@ -41,6 +41,7 @@ export default function BudgetsPage() {
   const [spentByCat, setSpentByCat] = useState<Record<string, number>>({})
   const [overallInput, setOverallInput] = useState('')
   const [catInputs, setCatInputs] = useState<Record<string, string>>({})
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
@@ -53,35 +54,36 @@ export default function BudgetsPage() {
   )
 
   const handleSaveAll = async () => {
-    if (!userId) return
     setSaving(true)
+    setError('')
     try {
-      // Save overall budget
-      await persistBudget(null, overallInput)
-      
-      // Save all category budgets
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Session expired. Please login again.')
+
+      const tasks = [persistBudget(null, overallInput, user.id)]
       for (const [catId, val] of Object.entries(catInputs)) {
-        await persistBudget(catId, val)
+        tasks.push(persistBudget(catId, val, user.id))
       }
+      
+      await Promise.all(tasks)
       
       showToast(t('budgets.saved'), 'success')
       fetchData() // Refresh to sync
     } catch (err: any) {
       console.error('Bulk save error:', err)
-      showToast('Failed to save some budgets.', 'error')
+      showToast(err.message || 'Failed to save budgets.', 'error')
     } finally {
       setSaving(false)
     }
   }
 
-  const persistBudget = async (categoryId: string | null, raw: string) => {
-    if (!userId) return
+  const persistBudget = async (categoryId: string | null, raw: string, uid: string) => {
     const trimmed = raw.trim()
     const n = parseFloat(trimmed)
     const hasAmount = trimmed !== '' && !Number.isNaN(n) && n >= 0
 
     if (!hasAmount || n === 0) {
-      let del = supabase.from('budgets').delete().eq('user_id', userId).eq('month_year', monthStart)
+      let del = supabase.from('budgets').delete().eq('user_id', uid).eq('month_year', monthStart)
       if (categoryId === null) del = del.is('category_id', null)
       else del = del.eq('category_id', categoryId)
       
@@ -90,7 +92,7 @@ export default function BudgetsPage() {
     } else {
       const encryptedAmount = await encryptData(n.toString())
       
-      let sel = supabase.from('budgets').select('id').eq('user_id', userId).eq('month_year', monthStart)
+      let sel = supabase.from('budgets').select('id').eq('user_id', uid).eq('month_year', monthStart)
       if (categoryId === null) sel = sel.is('category_id', null)
       else sel = sel.eq('category_id', categoryId)
 
@@ -105,7 +107,7 @@ export default function BudgetsPage() {
         if (updErr) throw updErr
       } else {
         const { error: insErr } = await supabase.from('budgets').insert({
-          user_id: userId,
+          user_id: uid,
           category_id: categoryId,
           month_year: monthStart,
           amount: encryptedAmount,
@@ -390,11 +392,12 @@ export default function BudgetsPage() {
             <button
               onClick={handleSaveAll}
               disabled={saving}
-              className="w-full py-4 rounded-2xl bg-[var(--accent-primary)] text-white text-sm font-black uppercase tracking-[0.2em] shadow-2xl shadow-accent-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+              className={`w-full py-4 rounded-2xl text-white text-sm font-black uppercase tracking-[0.2em] transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-2xl ${saving ? 'bg-zinc-800 scale-[0.98]' : 'bg-[var(--accent-primary)] shadow-accent-primary/40 hover:scale-[1.02] active:scale-[0.98]'}`}
             >
               {saving ? <Loader2 size={18} className="animate-spin" /> : null}
-              {saving ? t('common.loading') : t('common.save')}
+              {saving ? 'Encrypting & Saving...' : t('common.save')}
             </button>
+            {error && <p className="text-center text-[10px] text-danger font-bold mt-2 uppercase tracking-widest">{error}</p>}
           </div>
         )}
       </div>
