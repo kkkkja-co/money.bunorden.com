@@ -306,12 +306,10 @@ export default function SplitPage() {
         return
       }
 
-      // Look up recipient via the user_emails view (created in 006_split_bill.sql)
-      // This view exposes {id, email} from auth.users safely.
+      // Look up recipient via the secure RPC function (created in 007_security_hardening.sql)
+      // This prevents bulk email exposure while allowing exact-match lookup.
       const { data: found, error: lookupError } = await supabase
-        .from('user_emails')
-        .select('id')
-        .eq('email', shareEmail.trim().toLowerCase())
+        .rpc('get_user_id_by_email', { email_to_find: shareEmail.trim().toLowerCase() })
         .maybeSingle()
 
       if (lookupError || !found) {
@@ -319,7 +317,7 @@ export default function SplitPage() {
         return
       }
 
-      const recipientId = found.id
+      const recipientId = (found as { id: string }).id
 
       // Guard: check if a pending invite already exists for this session + recipient
       const { data: existing } = await supabase

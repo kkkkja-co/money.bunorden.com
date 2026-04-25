@@ -70,14 +70,12 @@ export default function SharingPage() {
               if (!recipientId) return null
 
               const { data: userData } = await supabase
-                .from('user_emails')
-                .select('email')
-                .eq('id', recipientId)
+                .rpc('get_user_email_by_id', { id_to_find: recipientId })
                 .maybeSingle()
 
               return {
                 notif_id: inv.id,
-                email: userData?.email || 'Unknown',
+                email: (userData as { email: string })?.email || 'Unknown',
                 status: inv.status as 'pending' | 'accepted'
               }
             })
@@ -120,9 +118,7 @@ export default function SharingPage() {
       }
 
       const { data: found, error: lookupError } = await supabase
-        .from('user_emails')
-        .select('id')
-        .eq('email', shareEmail.trim().toLowerCase())
+        .rpc('get_user_id_by_email', { email_to_find: shareEmail.trim().toLowerCase() })
         .maybeSingle()
 
       if (lookupError || !found) {
@@ -134,7 +130,7 @@ export default function SharingPage() {
       if (!session) return
 
       const { error: inviteError } = await supabase.from('notifications').insert({
-        user_id: found.id,
+        user_id: (found as { id: string }).id,
         sender_id: currentUser.id,
         type: 'invite',
         title: `${currentUser.email?.split('@')[0] ?? 'Someone'} invited you`,
@@ -144,7 +140,7 @@ export default function SharingPage() {
           session_name: session.name,
           session_emoji: session.emoji,
           session_type: session.type,
-          recipient_id: found.id
+          recipient_id: (found as { id: string }).id
         }
       })
 
