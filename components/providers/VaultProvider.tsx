@@ -47,13 +47,13 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     const cachedPassword = sessionStorage.getItem('clavi_vault_pass')
     if (cachedPassword && profile?.encryption_salt) {
       try {
-        await unlockVault(cachedPassword)
-        sessionStorage.removeItem('clavi_vault_pass') // Clear for security
+        // We pass the profile directly because state updates (setUserProfile) are async
+        await unlockVault(cachedPassword, profile)
+        sessionStorage.removeItem('clavi_vault_pass') 
       } catch (err) {
         console.error('Auto-unlock failed:', err)
-        // If auto-unlock failed, we stay locked and the user will see the PIN modal
       }
-    } else if (!profile?.encryption_salt) {
+    } else if (!profile?.encryption_salt && !user.app_metadata.provider) {
       // First time user (Social or Email without salt)
       setShowPinSetup(true)
     }
@@ -100,16 +100,17 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   }
 
   // 3. Unlock Vault
-  const unlockVault = async (password: string) => {
+  const unlockVault = async (password: string, forcedProfile?: any) => {
     setLoading(true)
     setError('')
     try {
-      if (!userProfile?.encryption_salt) throw new Error('Vault not set up')
+      const activeProfile = forcedProfile || userProfile
+      if (!activeProfile?.encryption_salt) throw new Error('Vault not set up')
 
-      const key = await deriveKey(password, userProfile.encryption_salt)
+      const key = await deriveKey(password, activeProfile.encryption_salt)
       
       // Verify key
-      const decryptedCheck = await decrypt(userProfile.encryption_check, key)
+      const decryptedCheck = await decrypt(activeProfile.encryption_check, key)
       if (decryptedCheck !== 'clavi_ok') {
         throw new Error('Incorrect password or PIN')
       }
