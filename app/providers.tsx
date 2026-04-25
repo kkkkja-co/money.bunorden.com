@@ -164,15 +164,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return typeof result === 'string' ? result : path
   }, [language])
 
-  if (!mounted) {
-    return <div style={{ visibility: 'hidden' }}>{children}</div>
-  }
-
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, accent, setAccent }}>
       <LanguageContext.Provider value={{ language, setLanguage, t }}>
         <VaultProvider>
-          {children}
+          {mounted ? children : <div style={{ visibility: 'hidden' }}>{children}</div>}
         </VaultProvider>
       </LanguageContext.Provider>
     </ThemeContext.Provider>
