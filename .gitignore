@@ -61,3 +61,7 @@ replace_spin.js
 
 # Duplicate assets in root
 logo.png
+
+# Database & Migrations
+*.sql
+/supabase/*.sql

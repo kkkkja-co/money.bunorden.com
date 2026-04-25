@@ -7,6 +7,7 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 import { Trash2, Plus, Search, Edit2, ArrowLeft, Calendar, X } from 'lucide-react'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
+import { useVault } from '@/components/providers/VaultProvider'
 
 interface Transaction {
   id: string
@@ -25,6 +26,7 @@ export default function TransactionsPage() {
   const endDateRef = useRef<HTMLInputElement>(null)
   const { t } = useTranslation()
   const { language } = useLanguage()
+  const { decryptData } = useVault()
   const router = useRouter()
   
   const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -56,10 +58,14 @@ export default function TransactionsPage() {
       const { data, error: queryError } = await query
       if (queryError) throw queryError
       
-      setTransactions((data || []).map((t: any) => ({
+      const decryptedTxs = await Promise.all((data || []).map(async (t: any) => ({
         ...t,
+        note: t.note ? await decryptData(t.note) : '',
+        amount: t.amount ? Number(await decryptData(t.amount)) : 0,
+        tags: t.tags ? JSON.parse(await decryptData(t.tags)) : [],
         category: Array.isArray(t.category) ? t.category[0] || null : t.category,
       })))
+      setTransactions(decryptedTxs)
     } catch (err) {
       console.error('Failed to fetch transactions:', err)
       setError(err instanceof Error ? err.message : 'Failed to load transactions')

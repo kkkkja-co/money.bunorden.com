@@ -85,6 +85,8 @@ export default function DashboardPage() {
       const decryptedTxs = await Promise.all((txData || []).map(async (t: any) => ({
         ...t,
         note: t.note ? await decryptData(t.note) : '',
+        amount: t.amount ? Number(await decryptData(t.amount)) : 0,
+        tags: t.tags ? JSON.parse(await decryptData(t.tags)) : [],
         category: Array.isArray(t.category) ? t.category[0] || null : t.category,
       })))
       setTransactions(decryptedTxs)
@@ -96,13 +98,19 @@ export default function DashboardPage() {
       let inc = 0, exp = 0, bSpent = 0
       const chartMap: Record<string, any> = {}
 
-      ;(monthTx || []).forEach(t => {
-        const amt = Number(t.amount)
+      // Process month transactions with decryption
+      const decryptedMonthTxs = await Promise.all((monthTx || []).map(async (t: any) => ({
+        ...t,
+        amount: t.amount ? Number(await decryptData(t.amount)) : 0,
+        category: Array.isArray(t.category) ? t.category[0] : t.category
+      })))
+
+      decryptedMonthTxs.forEach(t => {
+        const amt = t.amount
         if (t.type === 'income') inc += amt
         else {
           exp += amt
-          const cat = Array.isArray(t.category) ? t.category[0] : t.category
-          const name = cat?.name || 'Other'
+          const name = t.category?.name || 'Other'
           chartMap[name] = (chartMap[name] || 0) + amt
           if (!t.exclude_from_budget) bSpent += amt
         }

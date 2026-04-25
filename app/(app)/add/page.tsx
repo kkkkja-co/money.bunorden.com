@@ -91,8 +91,17 @@ function AddTransactionForm() {
         setType(tx.type as TxType)
         setAmount(tx.amount.toString())
         const decryptedNote = tx.note ? await decryptData(tx.note) : ''
+        const decryptedAmount = tx.amount ? await decryptData(tx.amount) : ''
+        const decryptedTags = tx.tags ? await decryptData(tx.tags) : '[]'
+        
         setNote(decryptedNote)
-        setTagsInput(tagsToInputString(tx.tags))
+        setAmount(decryptedAmount)
+        try {
+          const parsedTags = JSON.parse(decryptedTags)
+          setTagsInput(tagsToInputString(parsedTags))
+        } catch (e) {
+          setTagsInput('')
+        }
         setDate(tx.date)
         setCategoryId(tx.category_id || '')
         setAccountId(tx.account_id)
@@ -180,11 +189,11 @@ function AddTransactionForm() {
             account_id: accountId,
             category_id: categoryId || null,
             type,
-            amount: Number(amount),
+            amount: await encryptData(amount.toString()),
             currency,
             date,
             note: note.trim() ? await encryptData(note.trim()) : null,
-            tags,
+            tags: await encryptData(JSON.stringify(tags)),
             recurring,
             exclude_from_budget: !includeInBudget,
           })
@@ -198,11 +207,11 @@ function AddTransactionForm() {
           account_id: accountId,
           category_id: categoryId || null,
           type,
-          amount: Number(amount),
+          amount: await encryptData(amount.toString()),
           currency,
           date,
           note: note.trim() ? await encryptData(note.trim()) : null,
-          tags,
+          tags: await encryptData(JSON.stringify(tags)),
           recurring,
           exclude_from_budget: !includeInBudget,
         })
