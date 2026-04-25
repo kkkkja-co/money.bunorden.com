@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client'
 import { parseTagsInput, tagsToInputString } from '@/lib/tags'
 import { ArrowLeft, Check, Settings, Plus, X, Trash2, Calendar } from 'lucide-react'
 import { useTranslation } from '@/app/providers'
+import { useVault } from '@/components/providers/VaultProvider'
 import { sendLocalNotification } from '@/lib/notifications'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
 
@@ -27,6 +28,7 @@ type TxType = 'expense' | 'income' | 'transfer'
 function AddTransactionForm() {
   const dateInputRef = useRef<HTMLInputElement>(null)
   const { t } = useTranslation()
+  const { encryptData, decryptData } = useVault()
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('id')
@@ -86,7 +88,8 @@ function AddTransactionForm() {
       if (tx) {
         setType(tx.type as TxType)
         setAmount(tx.amount.toString())
-        setNote(tx.note || '')
+        const decryptedNote = tx.note ? await decryptData(tx.note) : ''
+        setNote(decryptedNote)
         setTagsInput(tagsToInputString(tx.tags))
         setDate(tx.date)
         setCategoryId(tx.category_id || '')
@@ -178,7 +181,7 @@ function AddTransactionForm() {
             amount: Number(amount),
             currency,
             date,
-            note: note.trim() || null,
+            note: note.trim() ? await encryptData(note.trim()) : null,
             tags,
             recurring,
             exclude_from_budget: !includeInBudget,
@@ -196,7 +199,7 @@ function AddTransactionForm() {
           amount: Number(amount),
           currency,
           date,
-          note: note.trim() || null,
+          note: note.trim() ? await encryptData(note.trim()) : null,
           tags,
           recurring,
           exclude_from_budget: !includeInBudget,

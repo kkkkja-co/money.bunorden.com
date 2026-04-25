@@ -3,6 +3,7 @@
 import { useEffect, useState, createContext, useContext, useCallback, useMemo } from 'react'
 import { Language, translations } from '@/lib/i18n/translations'
 import { supabase } from '@/lib/supabase/client'
+import { VaultProvider } from '@/components/providers/VaultProvider'
 
 type Theme = 'dark' | 'light'
 export type AccentColor = 'violet' | 'ocean' | 'emerald' | 'sunset' | 'rose' | 'slate'
@@ -170,7 +171,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, accent, setAccent }}>
       <LanguageContext.Provider value={{ language, setLanguage, t }}>
-        {children}
+        <VaultProvider>
+          {children}
+        </VaultProvider>
       </LanguageContext.Provider>
     </ThemeContext.Provider>
   )

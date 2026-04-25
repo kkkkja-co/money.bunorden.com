@@ -16,12 +16,14 @@ import type { User } from '@supabase/supabase-js'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
+import { useVault } from '@/components/providers/VaultProvider'
 
 const COLORS = ['#af52de', '#5856d6', '#34c759', '#ff9500', '#ff3b30']
 
 export default function DashboardPage() {
   const { t } = useTranslation()
   const { language } = useLanguage()
+  const { decryptData, vaultKey } = useVault()
   const router = useRouter()
   
   const [profile, setProfile] = useState<any>(null)
@@ -78,10 +80,12 @@ export default function DashboardPage() {
         .order('date', { ascending: false })
         .limit(5)
 
-      setTransactions((txData || []).map((t: any) => ({
+      const decryptedTxs = await Promise.all((txData || []).map(async (t: any) => ({
         ...t,
+        note: t.note ? await decryptData(t.note) : '',
         category: Array.isArray(t.category) ? t.category[0] || null : t.category,
       })))
+      setTransactions(decryptedTxs)
 
       const now = new Date()
       const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`

@@ -121,6 +121,9 @@ export default function LoginPage() {
 
       if (signInError) throw signInError
 
+      // SEAMLESS E2EE: Catch password to derive key later in VaultProvider
+      sessionStorage.setItem('clavi_vault_pass', password)
+
       // Check MFA assurance level — this is authoritative.
       const { data: mfaData, error: mfaLevelError } =
         await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
