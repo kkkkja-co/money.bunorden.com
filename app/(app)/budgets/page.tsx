@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { BunordenFooter } from '@/components/layout/BunordenFooter'
 import { formatCurrency, parseSafeAmount } from '@/lib/utils'
-import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react'
 import { useTranslation, useLanguage } from '@/app/providers'
 import { PageSkeleton } from '@/components/ui/PageSkeleton'
 import { useVault } from '@/components/providers/VaultProvider'
@@ -52,57 +52,67 @@ export default function BudgetsPage() {
     { month: 'long', year: 'numeric' }
   )
 
-  const persistBudget = async (categoryId: string | null, raw: string) => {
+  const handleSaveAll = async () => {
     if (!userId) return
     setSaving(true)
+    try {
+      // Save overall budget
+      await persistBudget(null, overallInput)
+      
+      // Save all category budgets
+      for (const [catId, val] of Object.entries(catInputs)) {
+        await persistBudget(catId, val)
+      }
+      
+      showToast(t('budgets.saved'), 'success')
+      fetchData() // Refresh to sync
+    } catch (err: any) {
+      console.error('Bulk save error:', err)
+      showToast('Failed to save some budgets.', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const persistBudget = async (categoryId: string | null, raw: string) => {
+    if (!userId) return
     const trimmed = raw.trim()
     const n = parseFloat(trimmed)
     const hasAmount = trimmed !== '' && !Number.isNaN(n) && n >= 0
 
-    try {
-      if (!hasAmount || n === 0) {
-        let del = supabase.from('budgets').delete().eq('user_id', userId).eq('month_year', monthStart)
-        if (categoryId === null) del = del.is('category_id', null)
-        else del = del.eq('category_id', categoryId)
-        
-        const { error } = await del
-        if (error) throw error
+    if (!hasAmount || n === 0) {
+      let del = supabase.from('budgets').delete().eq('user_id', userId).eq('month_year', monthStart)
+      if (categoryId === null) del = del.is('category_id', null)
+      else del = del.eq('category_id', categoryId)
+      
+      const { error } = await del
+      if (error) throw error
+    } else {
+      const encryptedAmount = await encryptData(n.toString())
+      
+      let sel = supabase.from('budgets').select('id').eq('user_id', userId).eq('month_year', monthStart)
+      if (categoryId === null) sel = sel.is('category_id', null)
+      else sel = sel.eq('category_id', categoryId)
+
+      const { data: row, error: selErr } = await sel.maybeSingle()
+      if (selErr) throw selErr
+
+      if (row) {
+        const { error: updErr } = await supabase
+          .from('budgets')
+          .update({ amount: encryptedAmount, currency })
+          .eq('id', row.id)
+        if (updErr) throw updErr
       } else {
-        const encryptedAmount = await encryptData(n.toString())
-        
-        // Use upsert logic if possible, otherwise manual check
-        let sel = supabase.from('budgets').select('id').eq('user_id', userId).eq('month_year', monthStart)
-        if (categoryId === null) sel = sel.is('category_id', null)
-        else sel = sel.eq('category_id', categoryId)
-
-        const { data: row, error: selErr } = await sel.maybeSingle()
-        if (selErr) throw selErr
-
-        if (row) {
-          const { error: updErr } = await supabase
-            .from('budgets')
-            .update({ amount: encryptedAmount, currency })
-            .eq('id', row.id)
-          if (updErr) throw updErr
-        } else {
-          const { error: insErr } = await supabase.from('budgets').insert({
-            user_id: userId,
-            category_id: categoryId,
-            month_year: monthStart,
-            amount: encryptedAmount,
-            currency,
-          })
-          if (insErr) throw insErr
-        }
+        const { error: insErr } = await supabase.from('budgets').insert({
+          user_id: userId,
+          category_id: categoryId,
+          month_year: monthStart,
+          amount: encryptedAmount,
+          currency,
+        })
+        if (insErr) throw insErr
       }
-      showToast(t('budgets.saved'), 'success')
-    } catch (err: any) {
-      console.error('Budget save error:', err)
-      showToast('Failed to save budget. Is your vault unlocked?', 'error')
-      // Refresh to revert UI to last known state
-      fetchData()
-    } finally {
-      setSaving(false)
     }
   }
 
@@ -264,9 +274,6 @@ export default function BudgetsPage() {
                     step="0.01"
                     value={overallInput}
                     onChange={(e) => setOverallInput(e.target.value)}
-                    onBlur={(e) => {
-                      persistBudget(null, e.target.value)
-                    }}
                     className="input-minimal w-full"
                     placeholder="0"
                   />
@@ -342,9 +349,6 @@ export default function BudgetsPage() {
                             onChange={(e) =>
                               setCatInputs((prev) => ({ ...prev, [cat.id]: e.target.value }))
                             }
-                            onBlur={(e) => {
-                              persistBudget(cat.id, e.target.value)
-                            }}
                             className="input-minimal w-full text-sm"
                             placeholder="0"
                           />
@@ -378,6 +382,20 @@ export default function BudgetsPage() {
               )}
             </div>
           </>
+        )}
+
+        {/* Save Button */}
+        {!loading && (
+          <div className="sticky bottom-8 left-0 right-0 px-4 animate-slide-up delay-3">
+            <button
+              onClick={handleSaveAll}
+              disabled={saving}
+              className="w-full py-4 rounded-2xl bg-[var(--accent-primary)] text-white text-sm font-black uppercase tracking-[0.2em] shadow-2xl shadow-accent-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+            >
+              {saving ? <Loader2 size={18} className="animate-spin" /> : null}
+              {saving ? t('common.loading') : t('common.save')}
+            </button>
+          </div>
         )}
       </div>
 
